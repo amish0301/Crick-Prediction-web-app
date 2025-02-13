@@ -1,1 +1,1 @@
-[!Schema-Design](assets/Schema-Chart.png)
+![Schema-Design](assets/Schema-Chart.png)
