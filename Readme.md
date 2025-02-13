@@ -1,2 +1,2 @@
-<h1> Schema Design </h1>
+## Schema Design
 ![Schema-Design](assets/Schema-Chart.png)
