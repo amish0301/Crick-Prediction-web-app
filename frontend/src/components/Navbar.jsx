@@ -1,12 +1,8 @@
-import React from 'react';
-import { Button } from '@mui/material'
+import React from 'react'
 
 const Navbar = () => {
-
   return (
-    <div>
-      Navbar
-    </div>
+    <div className=''> Navbar</div>
   )
 }
 
