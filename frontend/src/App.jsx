@@ -1,12 +1,13 @@
 import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import AppLayout from './layout/AppLayout.jsx'
 import AdminLayout from './layout/AdminLayout.jsx'
-import { Home, Contact, About, Signup, Login } from './pages/index.js'
-import AuthWrapper from './utils/AuthWrapper.jsx'
+import AppLayout from './layout/AppLayout.jsx'
 import { AdminLogin } from './pages/admin/index.admin.js'
+import { About, Contact, Home, Login, Signup } from './pages/index.js'
+import AuthWrapper from './utils/AuthWrapper.jsx'
 
 function App() {
+
   return (
     <>
       <Routes>
