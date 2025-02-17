@@ -161,21 +161,12 @@ const Signup = () => {
               <Typography variant="body2" color="text.secondary">
                 Already have an account?
               </Typography>
-              <Link 
-                component={RouterLink} 
-                to="/login" 
-                sx={{
-                  textDecoration: 'none',
-                  color: 'primary.main',
-                  fontWeight: 600,
-                  '&:hover': {
-                    color: 'primary.dark',
-                    textDecoration: 'underline'
-                  }
-                }}
+              <RouterLink 
+                // component={RouterLink} 
+                to="/auth/login" 
               >
                 Login here
-              </Link>
+              </RouterLink>
             </Box>
           </Box>
         </Grid>
