@@ -1,12 +1,12 @@
 import React from 'react';
-import { 
-  Container, 
-  Paper, 
-  Grid, 
-  Typography, 
-  TextField, 
-  Button, 
-  Box 
+import {
+  Container,
+  Paper,
+  Grid,
+  Typography,
+  TextField,
+  Button,
+  Box
 } from '@mui/material';
 import logging from '../assets/image.png';
 
@@ -20,7 +20,7 @@ const Signup = () => {
             <Typography variant="h4" component="h1" align="center" gutterBottom>
               Sign Up
             </Typography>
-            
+
             <TextField
               required
               fullWidth
@@ -30,7 +30,7 @@ const Signup = () => {
               autoComplete="name"
               variant="outlined"
             />
-            
+
             <TextField
               required
               fullWidth
@@ -41,7 +41,7 @@ const Signup = () => {
               autoComplete="email"
               variant="outlined"
             />
-            
+
             <TextField
               required
               fullWidth
@@ -51,7 +51,7 @@ const Signup = () => {
               type="password"
               variant="outlined"
             />
-            
+
             <TextField
               required
               fullWidth
@@ -61,7 +61,7 @@ const Signup = () => {
               type="password"
               variant="outlined"
             />
-            
+
             <TextField
               required
               fullWidth
@@ -72,13 +72,13 @@ const Signup = () => {
               variant="outlined"
               InputProps={{ inputProps: { min: 0 } }}
             />
-            
+
             <Button
               type="submit"
               fullWidth
               variant="contained"
               size="large"
-              sx={{ 
+              sx={{
                 mt: 2,
                 bgcolor: 'primary.main',
                 '&:hover': {
@@ -92,19 +92,19 @@ const Signup = () => {
         </Grid>
 
         {/* Right side - Image */}
-        <Grid 
-          item 
-          xs={12} 
-          md={6} 
+        <Grid
+          item
+          xs={12}
+          md={6}
           sx={{
             display: { xs: 'none', md: 'flex' },
             alignItems: 'center',
             justifyContent: 'center'
           }}
         >
-          <img 
-            src={logging} 
-            alt="Sign up illustration" 
+          <img
+            src={logging}
+            alt="Sign up illustration"
             style={{
               maxWidth: '100%',
               height: 'auto',
