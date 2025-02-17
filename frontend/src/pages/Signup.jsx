@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Paper,
@@ -10,8 +10,26 @@ import {
 import Grid from '@mui/material/Grid2'
 import { Link as RouterLink } from 'react-router-dom';
 import logging from '../assets/Signup.jpg';
+import { toast } from 'react-toastify';
 
 const Signup = () => {
+
+  const [formData, setFormData] = useState({ name: '', password: '', email: '', confirmPassword: '', age: '' });
+
+  // this below will update form states
+  const handleStateUpdate = (e) => {
+    setFormData({...formData, [e.target.name] : [e.target.value]})
+  }
+
+  const handleValidation = (e) => {
+    e.preventDefault();
+
+    // validation
+    const ansObj = Object.values(formData).filter(item => !item);
+    if(ansObj && ansObj.length) toast.info('All Fields are required');    
+  }
+
+
   return (
     <Container maxWidth={false} sx={{
       height: '100vh',
@@ -50,6 +68,7 @@ const Signup = () => {
         >
           <Box
             component="form"
+            onSubmit={handleValidation}
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -80,6 +99,7 @@ const Signup = () => {
               label="Your Name"
               name="name"
               autoComplete="name"
+              onChange={handleStateUpdate}
               variant="outlined"
             />
 
@@ -88,9 +108,10 @@ const Signup = () => {
               size="small"
               fullWidth
               id="email"
-              label="Email Address"
+              label="Email"
               name="email"
               type="email"
+              onChange={handleStateUpdate}
               autoComplete="email"
               variant="outlined"
             />
@@ -102,6 +123,7 @@ const Signup = () => {
               id="password"
               label="Password"
               name="password"
+              onChange={handleStateUpdate}
               type="password"
               variant="outlined"
             />
@@ -113,6 +135,7 @@ const Signup = () => {
               id="confirmPassword"
               label="Confirm Password"
               name="confirmPassword"
+              onChange={handleStateUpdate}
               type="password"
               variant="outlined"
             />
@@ -124,6 +147,7 @@ const Signup = () => {
               id="age"
               label="Age"
               name="age"
+              onChange={handleStateUpdate}
               type="number"
               variant="outlined"
             />

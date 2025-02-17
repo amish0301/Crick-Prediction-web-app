@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import { Slide, ToastContainer } from 'react-toastify';
 import './App.css'
 import AdminLayout from './layout/AdminLayout.jsx'
 import AppLayout from './layout/AppLayout.jsx'
@@ -27,6 +28,8 @@ function App() {
         <Route path='/auth/signup' element={<Signup />} />
         <Route path='/auth/login' element={<Login />} />
       </Routes>
+
+      <ToastContainer position='top-center'  theme='dark' transition={Slide}/>
     </>
   )
 }
