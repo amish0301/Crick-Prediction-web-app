@@ -24,6 +24,15 @@ const Login = () => {
 
     }
 
+  const handleValidation = (e) => {
+    e.preventDefault();
+
+    // validation
+    const ansObj = Object.values(formData).filter(item => !item);
+    if(ansObj && ansObj.length) toast.info('All Fields are required');    
+  }
+
+
     return (
         <section
             aria-label="login-form"
@@ -51,7 +60,7 @@ const Login = () => {
                     </Typography>
 
                     {/* Login Form */}
-                    <form className="flex flex-col gap-6" onSubmit={handleForm}>
+                    <form className="flex flex-col gap-6" onSubmit={handleValidation}>
                         {/* Username Input */}
                         <TextField
                             label="Username"
@@ -84,7 +93,7 @@ const Login = () => {
                                 variant="outlined"
                                 fullWidth
                                 autoComplete="current-password"
-                                required
+                                // required
                                 value={formData.password}
                                 onChange={handleChange}
                                 sx={{
