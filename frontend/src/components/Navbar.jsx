@@ -11,6 +11,11 @@ import {
   Menu,
   MenuItem,
   Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
 import {
   Home,
@@ -25,9 +30,12 @@ import {
   AccountBalanceWallet,
   Settings,
   ExitToApp,
+  Menu as MenuIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
+import { useMediaQuery } from '@mui/material';
 
 const Navbar = () => {
   const theme = useTheme();
@@ -35,6 +43,8 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { mode, toggleColorMode } = useThemeContext();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -96,7 +106,7 @@ const Navbar = () => {
       elevation={2}
       sx={{
         py: 1.5,
-        px: 3,
+        px: { xs: 2, md: 3 },
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -107,7 +117,7 @@ const Navbar = () => {
         borderRadius: 0
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 2, md: 4 } }}>
         <Box sx={{ 
           display: 'flex', 
           alignItems: 'center', 
@@ -122,7 +132,7 @@ const Navbar = () => {
             className="logo-icon"
             sx={{ 
               color: mode === 'dark' ? '#90caf9' : '#1976d2',
-              fontSize: 32,
+              fontSize: { xs: 28, md: 32 },
               transition: 'all 0.3s ease'
             }} 
           />
@@ -131,71 +141,68 @@ const Navbar = () => {
             fontWeight={700} 
             sx={{
               color: mode === 'dark' ? '#fff' : '#1976d2',
+              fontSize: { xs: '1.1rem', md: '1.25rem' },
               transition: 'all 0.3s ease',
-              textShadow: mode === 'dark' 
-                ? '0 0 20px rgba(144, 202, 249, 0.5)'
-                : 'none',
-              letterSpacing: '0.5px',
-              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif'
+              textShadow: mode === 'dark' ? '0 0 20px rgba(144, 202, 249, 0.5)' : 'none',
+              letterSpacing: '0.5px'
             }}
           >
             CrickPredict
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          {navigationItems.map((item) => (
-            <Button
-              key={item.path}
-              component={Link}
-              to={item.path}
-              startIcon={item.icon}
-              sx={{
-                color: location.pathname === item.path ? 'primary.main' : 'text.secondary',
-                textTransform: 'none',
-                fontWeight: 600,
-                '&:hover': {
-                  color: 'primary.main',
-                  backgroundColor: 'transparent'
-                },
-                borderBottom: location.pathname === item.path ? 2 : 0,
-                borderColor: 'primary.main',
-                borderRadius: 0,
-                px: 2,
-                py: 1
-              }}
-            >
-              {item.title}
-            </Button>
-          ))}
-        </Box>
+        {!isMobile && (
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {navigationItems.map((item) => (
+              <Button
+                key={item.path}
+                component={Link}
+                to={item.path}
+                startIcon={item.icon}
+                sx={{
+                  color: location.pathname === item.path ? 'primary.main' : 'text.secondary',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  '&:hover': {
+                    color: 'primary.main',
+                    backgroundColor: 'transparent'
+                  },
+                  borderBottom: location.pathname === item.path ? 2 : 0,
+                  borderColor: 'primary.main',
+                  borderRadius: 0,
+                  px: 2,
+                  py: 1
+                }}
+              >
+                {item.title}
+              </Button>
+            ))}
+          </Box>
+        )}
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-        <IconButton 
-          onClick={toggleColorMode} 
-          color="primary"
-          sx={{
-            transition: 'transform 0.3s ease',
-            '&:hover': {
-              transform: 'rotate(180deg)'
-            }
-          }}
-        >
-          {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
-        </IconButton>
-        
-        <IconButton color="primary">
-          <Badge badgeContent={3} color="error">
-            <NotificationsOutlined />
-          </Badge>
-        </IconButton>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, md: 2 } }}>
+        {!isMobile && (
+          <>
+            <IconButton onClick={toggleColorMode} color="primary">
+              {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+            </IconButton>
+            
+            <IconButton color="primary">
+              <Badge badgeContent={3} color="error">
+                <NotificationsOutlined />
+              </Badge>
+            </IconButton>
+          </>
+        )}
 
         <Avatar 
           onClick={handleMenuOpen}
           sx={{ 
             bgcolor: 'primary.main',
             cursor: 'pointer',
+            width: { xs: 32, md: 40 },
+            height: { xs: 32, md: 40 },
             transition: 'all 0.3s ease',
             '&:hover': { 
               opacity: 0.9,
@@ -207,11 +214,85 @@ const Navbar = () => {
           U
         </Avatar>
 
+        {isMobile && (
+          <IconButton 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            sx={{ ml: 1 }}
+          >
+            {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </IconButton>
+        )}
+
+        <Drawer
+          anchor="right"
+          open={isMobile && mobileMenuOpen}
+          onClose={() => setMobileMenuOpen(false)}
+          PaperProps={{
+            sx: {
+              width: '80%',
+              maxWidth: 300,
+              bgcolor: 'background.paper',
+              px: 2,
+              py: 3
+            }
+          }}
+        >
+          <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" fontWeight={600}>
+              Menu
+            </Typography>
+            <IconButton onClick={() => setMobileMenuOpen(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <List>
+            {navigationItems.map((item) => (
+              <ListItem 
+                key={item.path}
+                component={Link}
+                to={item.path}
+                onClick={() => setMobileMenuOpen(false)}
+                sx={{
+                  borderRadius: 2,
+                  mb: 1,
+                  bgcolor: location.pathname === item.path ? 'action.selected' : 'transparent',
+                  '&:hover': {
+                    bgcolor: 'action.hover'
+                  }
+                }}
+              >
+                <ListItemIcon sx={{ color: location.pathname === item.path ? 'primary.main' : 'text.secondary' }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.title}
+                  sx={{ 
+                    color: location.pathname === item.path ? 'primary.main' : 'text.primary'
+                  }}
+                />
+              </ListItem>
+            ))}
+
+            <Divider sx={{ my: 2 }} />
+
+            <ListItem 
+              button 
+              onClick={toggleColorMode}
+              sx={{ borderRadius: 2 }}
+            >
+              <ListItemIcon>
+                {mode === 'dark' ? <Brightness7 /> : <Brightness4 />}
+              </ListItemIcon>
+              <ListItemText primary="Theme" />
+            </ListItem>
+          </List>
+        </Drawer>
+
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-          onClick={handleMenuClose}
           PaperProps={{
             elevation: 4,
             sx: {
