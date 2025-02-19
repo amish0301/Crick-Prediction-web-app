@@ -29,16 +29,18 @@ const Signup = () => {
     if(ansObj && ansObj.length) toast.info('All Fields are required');    
   }
 
-
   return (
-    <Container maxWidth={false} sx={{
-      height: '100vh',
-      width: '100vw',
-      display: 'flex',
-      alignItems: 'center',
-      overflow: 'hidden',
-      p: 0
-    }}>
+    <Container
+      maxWidth={false}
+      sx={{
+        height: '100vh',
+        width: '100vw',
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        p: 0
+      }}
+    >
       <Grid
         container
         component={Paper}
@@ -54,10 +56,7 @@ const Signup = () => {
       >
         {/* Left side - Form */}
         <Grid
-          size={{
-            xs: 12,
-            md: 6
-          }}
+          size={{ xs: 12, md: 6 }}
           sx={{
             height: '100%',
             display: 'flex',
@@ -120,12 +119,25 @@ const Signup = () => {
               required
               size="small"
               fullWidth
+              id="age"
+              label="Age"
+              name="age"
+              onChange={handleStateUpdate}
+              type="number"
+              variant="outlined"
+            />
+
+            <TextField
+              required
+              size="small"
+              fullWidth
               id="password"
               label="Password"
               name="password"
               onChange={handleStateUpdate}
               type="password"
               variant="outlined"
+              autoComplete="new-password" 
             />
 
             <TextField
@@ -138,18 +150,7 @@ const Signup = () => {
               onChange={handleStateUpdate}
               type="password"
               variant="outlined"
-            />
-
-            <TextField
-              required
-              size="small"
-              fullWidth
-              id="age"
-              label="Age"
-              name="age"
-              onChange={handleStateUpdate}
-              type="number"
-              variant="outlined"
+              autoComplete="new-password" 
             />
 
             <Button
@@ -162,38 +163,33 @@ const Signup = () => {
                 bgcolor: 'primary.main',
                 '&:hover': {
                   bgcolor: 'primary.dark',
-                  boxShadow: '0 12px 20px -6px rgba(0,0,0,0.3)',
+                  boxShadow: '0 12px 20px -6px rgba(0,0,0,0.3)'
                 }
               }}
             >
               Sign Up
             </Button>
 
-            <Box sx={{
-              mt: 2,
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 0.5
-            }}>
+            <Box
+              sx={{
+                mt: 2,
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 0.5
+              }}
+            >
               <Typography variant="body2" color="text.secondary">
                 Already have an account?
               </Typography>
-              <RouterLink
-                to="/auth/login"
-              >
-                Login here
-              </RouterLink>
+              <RouterLink to="/auth/login">Login here</RouterLink>
             </Box>
           </Box>
         </Grid>
 
         {/* Right side - Image */}
         <Grid
-          size={{
-            xs: 12,
-            md: 6
-          }}
+          size={{ xs: 12, md: 6 }}
           sx={{
             display: { xs: 'none', md: 'flex' },
             alignItems: 'center',
@@ -216,7 +212,7 @@ const Signup = () => {
           />
         </Grid>
       </Grid>
-    </Container >
+    </Container>
   );
 };
 
