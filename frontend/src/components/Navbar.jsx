@@ -97,7 +97,6 @@ const Navbar = () => {
       label: 'Logout',
       icon: <ExitToApp sx={{ fontSize: 20 }} />,
       onClick: () => navigate('/auth/login'),
-      divider: true,
     },
   ];
 
@@ -293,6 +292,7 @@ const Navbar = () => {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
+          onClick={handleMenuClose}
           PaperProps={{
             elevation: 4,
             sx: {
@@ -329,14 +329,14 @@ const Navbar = () => {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          {menuItems.map((item, index) => (
-            <React.Fragment key={item.label}>
+          {[
+            ...menuItems.slice(0, -1).map((item) => (
               <MenuItem 
+                key={item.label}
                 onClick={item.onClick}
                 sx={{
-                  color: item.label === 'Logout' ? 'error.main' : 'text.primary',
                   '& .MuiSvgIcon-root': {
-                    color: item.label === 'Logout' ? 'error.main' : 'primary.main',
+                    color: 'primary.main',
                   }
                 }}
               >
@@ -345,9 +345,24 @@ const Navbar = () => {
                   {item.label}
                 </Typography>
               </MenuItem>
-              {item.divider && <Divider sx={{ my: 1 }} />}
-            </React.Fragment>
-          ))}
+            )),
+            <Divider key="divider" sx={{ my: 1 }} />,
+            <MenuItem 
+              key="logout"
+              onClick={menuItems[menuItems.length - 1].onClick}
+              sx={{
+                color: 'error.main',
+                '& .MuiSvgIcon-root': {
+                  color: 'error.main',
+                }
+              }}
+            >
+              {menuItems[menuItems.length - 1].icon}
+              <Typography variant="body2">
+                {menuItems[menuItems.length - 1].label}
+              </Typography>
+            </MenuItem>
+          ]}
         </Menu>
       </Box>
     </Paper>
