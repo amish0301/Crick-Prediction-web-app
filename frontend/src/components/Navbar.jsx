@@ -10,6 +10,7 @@ import {
   useTheme,
   Menu,
   MenuItem,
+  Divider,
 } from '@mui/material';
 import {
   Home,
@@ -20,6 +21,10 @@ import {
   NotificationsOutlined,
   Brightness4,
   Brightness7,
+  AccountCircle,
+  AccountBalanceWallet,
+  Settings,
+  ExitToApp,
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
@@ -59,6 +64,30 @@ const Navbar = () => {
       title: 'Contact', 
       icon: <ContactSupport />, 
       path: '/contact',
+    },
+  ];
+
+  const menuItems = [
+    {
+      label: 'Manage Account',
+      icon: <AccountCircle sx={{ fontSize: 20 }} />,
+      onClick: () => navigate('/profile'),
+    },
+    {
+      label: 'My Balance',
+      icon: <AccountBalanceWallet sx={{ fontSize: 20 }} />,
+      onClick: () => navigate('/balance'),
+    },
+    {
+      label: 'Settings',
+      icon: <Settings sx={{ fontSize: 20 }} />,
+      onClick: () => navigate('/settings'),
+    },
+    {
+      label: 'Logout',
+      icon: <ExitToApp sx={{ fontSize: 20 }} />,
+      onClick: () => navigate('/auth/login'),
+      divider: true,
     },
   ];
 
@@ -167,7 +196,12 @@ const Navbar = () => {
           sx={{ 
             bgcolor: 'primary.main',
             cursor: 'pointer',
-            '&:hover': { opacity: 0.9 }
+            transition: 'all 0.3s ease',
+            '&:hover': { 
+              opacity: 0.9,
+              transform: 'scale(1.1)',
+              boxShadow: `0 0 20px ${theme.palette.primary.main}40`
+            }
           }}
         >
           U
@@ -179,28 +213,60 @@ const Navbar = () => {
           onClose={handleMenuClose}
           onClick={handleMenuClose}
           PaperProps={{
+            elevation: 4,
             sx: {
               mt: 1.5,
-              minWidth: 180,
+              minWidth: 200,
               borderRadius: 2,
-              boxShadow: theme.shadows[8]
-            }
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+              '& .MuiMenuItem-root': {
+                px: 2,
+                py: 1.5,
+                gap: 2,
+                borderRadius: 1,
+                mx: 0.5,
+                my: 0.25,
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              },
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
           }}
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          <MenuItem onClick={() => navigate('/profile')}>
-            Manage Account
-          </MenuItem>
-          <MenuItem onClick={() => navigate('/winning')}>
-            My Balance
-          </MenuItem>
-          <MenuItem onClick={() => navigate('/settings')}>
-            Settings
-          </MenuItem>
-          <MenuItem onClick={() => navigate('/auth/login')}>
-            Logout
-          </MenuItem>
+          {menuItems.map((item, index) => (
+            <React.Fragment key={item.label}>
+              <MenuItem 
+                onClick={item.onClick}
+                sx={{
+                  color: item.label === 'Logout' ? 'error.main' : 'text.primary',
+                  '& .MuiSvgIcon-root': {
+                    color: item.label === 'Logout' ? 'error.main' : 'primary.main',
+                  }
+                }}
+              >
+                {item.icon}
+                <Typography variant="body2">
+                  {item.label}
+                </Typography>
+              </MenuItem>
+              {item.divider && <Divider sx={{ my: 1 }} />}
+            </React.Fragment>
+          ))}
         </Menu>
       </Box>
     </Paper>
