@@ -10,8 +10,8 @@ const authRoutes = require("./routes/auth.route");
 
 // express app init
 const app = express();
-app.use(cors(corsOption));
 app.use(express.json()); // parse incoming json data
+app.use(cors(corsOption));
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
