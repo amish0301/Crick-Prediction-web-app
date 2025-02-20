@@ -22,7 +22,7 @@ const registerValidation = () =>
         confirmPassword: z
           .string()
           .trim()
-          .min(3, "Confirm Password must be at least 3 characters long"),
+          .min(4, "Confirm Password must be at least 3 characters long"),
 
         age: z.preprocess(
           (val) => Number(val),
@@ -41,7 +41,7 @@ const registerValidation = () =>
     //   return new ApiError(400, "", validationResult.error.errors)
     }
 
-    console.log("in validation", validationResult)
+    // console.log("in validation", validationResult)
 
     // Attach validated data to request object
     req.data = validationResult.data;

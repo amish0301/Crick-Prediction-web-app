@@ -3,7 +3,7 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 const express = require("express");
 const cors = require("cors");
 const { corsOption } = require("./config/index.config");
-const { PORT } = require("./constant/variables");
+const { PORT } = require("./constant/variables.js");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
 
 const authRoutes = require("./routes/auth.route");
@@ -18,7 +18,7 @@ app.use("/api/v1/auth", authRoutes);
 
 app.use(ErrorHandler);
 
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
   res.send("Hello from Server");
 });
 
