@@ -8,6 +8,9 @@ export const register = TryCatch(async (req,res, next) => {
     const token = await generateToken(user._id);
     res.status(201).json({ user, token }); 
 });
+
+
+
 export default{
     register
 }
