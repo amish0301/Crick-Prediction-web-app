@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Paper,
@@ -16,6 +16,8 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Grid,
+  Chip,
 } from '@mui/material';
 import {
   Home,
@@ -32,6 +34,9 @@ import {
   ExitToApp,
   Menu as MenuIcon,
   Close as CloseIcon,
+  Stars,
+  Timeline,
+  TrendingUp,
 } from '@mui/icons-material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
@@ -42,8 +47,9 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, toggleColorMode } = useThemeContext();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [selectedTab, setSelectedTab] = useState('info');
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleMenuOpen = (event) => {
@@ -77,6 +83,14 @@ const Navbar = () => {
     },
   ];
 
+  const userStats = {
+    totalPredictions: 150,
+    accuracy: "65.3%",
+    points: 2450,
+    rank: 123,
+    winnings: "₹1,200"
+  };
+
   const menuItems = [
     {
       label: 'Manage Account',
@@ -84,19 +98,9 @@ const Navbar = () => {
       onClick: () => navigate('/profile'),
     },
     {
-      label: 'My Balance',
-      icon: <AccountBalanceWallet sx={{ fontSize: 20 }} />,
-      onClick: () => navigate('/balance'),
-    },
-    {
       label: 'Settings',
       icon: <Settings sx={{ fontSize: 20 }} />,
       onClick: () => navigate('/settings'),
-    },
-    {
-      label: 'Logout',
-      icon: <ExitToApp sx={{ fontSize: 20 }} />,
-      onClick: () => navigate('/auth/login'),
     },
   ];
 
@@ -292,25 +296,17 @@ const Navbar = () => {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
-          onClick={handleMenuClose}
           PaperProps={{
             elevation: 4,
             sx: {
               mt: 1.5,
-              minWidth: 200,
+              width: 320,
+              maxHeight: 'calc(100vh - 96px)',
               borderRadius: 2,
               overflow: 'visible',
               filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
-              '& .MuiMenuItem-root': {
-                px: 2,
-                py: 1.5,
-                gap: 2,
-                borderRadius: 1,
-                mx: 0.5,
-                my: 0.25,
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                },
+              '& .MuiList-root': {
+                padding: 0,
               },
               '&:before': {
                 content: '""',
@@ -329,40 +325,181 @@ const Navbar = () => {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
-          {[
-            ...menuItems.slice(0, -1).map((item) => (
+          <Box sx={{ p: 2, pb: 1.5, textAlign: 'center' }}>
+            <Avatar 
+              sx={{ 
+                width: 70,
+                height: 70,
+                margin: '0 auto',
+                bgcolor: 'primary.main',
+                border: '3px solid',
+                borderColor: 'primary.light',
+              }}
+            >
+              U
+            </Avatar>
+            <Typography variant="h6" sx={{ mt: 1, fontWeight: 600, fontSize: '1.1rem' }}>
+              User Name
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
+              user@email.com
+            </Typography>
+          </Box>
+
+          <Divider />
+
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 1, 
+              mb: 1.5,
+              justifyContent: 'center'
+            }}>
+              <Chip
+                label="Info"
+                onClick={() => setSelectedTab('info')}
+                color={selectedTab === 'info' ? 'primary' : 'default'}
+                size="small"
+                sx={{ px: 1 }}
+              />
+              <Chip
+                label="Winnings"
+                onClick={() => setSelectedTab('winnings')}
+                color={selectedTab === 'winnings' ? 'primary' : 'default'}
+                size="small"
+                sx={{ px: 1 }}
+              />
+            </Box>
+
+            {selectedTab === 'info' ? (
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1, 
+                      textAlign: 'center',
+                      bgcolor: 'action.hover',
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold" fontSize="1.1rem">
+                      {userStats.totalPredictions}
+                    </Typography>
+                    <Typography variant="caption">
+                      Predictions
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={6}>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1, 
+                      textAlign: 'center',
+                      bgcolor: 'action.hover',
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight="bold" fontSize="1.1rem">
+                      {userStats.accuracy}
+                    </Typography>
+                    <Typography variant="caption">
+                      Accuracy
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      fontSize: '0.875rem',
+                      mb: 0.5
+                    }}>
+                      <Stars fontSize="small" color="primary" />
+                      Rank: #{userStats.rank}
+                    </Typography>
+                    <Typography variant="body2" sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: 1,
+                      fontSize: '0.875rem'
+                    }}>
+                      <Timeline fontSize="small" color="primary" />
+                      Points: {userStats.points}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            ) : (
+              <Box>
+                <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1, fontWeight: 600 }}>
+                  Total Winnings: {userStats.winnings}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <Chip 
+                    size="small"
+                    icon={<TrendingUp />} 
+                    label="Last Week: ₹300"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                  <Chip 
+                    size="small"
+                    icon={<TrendingUp />} 
+                    label="This Month: ₹800"
+                    sx={{ fontSize: '0.75rem' }}
+                  />
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          <Divider />
+
+          <Box>
+            {menuItems.map((item) => (
               <MenuItem 
                 key={item.label}
                 onClick={item.onClick}
                 sx={{
-                  '& .MuiSvgIcon-root': {
-                    color: 'primary.main',
+                  py: 1,
+                  px: 2,
+                  '&:hover': {
+                    bgcolor: 'action.hover',
                   }
                 }}
               >
-                {item.icon}
+                <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                  {item.icon}
+                </ListItemIcon>
                 <Typography variant="body2">
                   {item.label}
                 </Typography>
               </MenuItem>
-            )),
-            <Divider key="divider" sx={{ my: 1 }} />,
-            <MenuItem 
-              key="logout"
-              onClick={menuItems[menuItems.length - 1].onClick}
-              sx={{
-                color: 'error.main',
-                '& .MuiSvgIcon-root': {
-                  color: 'error.main',
-                }
-              }}
-            >
-              {menuItems[menuItems.length - 1].icon}
-              <Typography variant="body2">
-                {menuItems[menuItems.length - 1].label}
-              </Typography>
-            </MenuItem>
-          ]}
+            ))}
+          </Box>
+
+          <Divider />
+
+          <MenuItem 
+            onClick={() => {
+              navigate('/auth/login');
+              handleMenuClose();
+            }}
+            sx={{ 
+              color: 'error.main',
+              py: 1,
+              px: 2,
+              '&:hover': {
+                bgcolor: 'error.lighter',
+              }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <ExitToApp fontSize="small" color="error" />
+            </ListItemIcon>
+            <Typography variant="body2">Logout</Typography>
+          </MenuItem>
         </Menu>
       </Box>
     </Paper>
