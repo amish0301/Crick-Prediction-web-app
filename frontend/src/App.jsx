@@ -8,10 +8,19 @@ import { About, Contact, Home, Login, Signup, Dashboard } from './pages/index.js
 import AuthWrapper from './utils/AuthWrapper.jsx'
 import { CustomThemeProvider } from './context/ThemeContext';
 // import { Dashboard } from '@mui/icons-material';
+// import { GoogleLogin } from '@react-oauth/google';
 
 function App() {
 
   return (
+//     <GoogleLogin
+//   onSuccess={credentialResponse => {
+//     console.log(credentialResponse);
+//   }}
+//   onError={() => {
+//     console.log('Login Failed');
+//   }}
+// />,
     <CustomThemeProvider>
       <Routes>
         {/* User Routes */}

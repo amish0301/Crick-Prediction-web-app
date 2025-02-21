@@ -144,7 +144,7 @@ const Home = () => {
                     alt={tournament.name}
                     sx={{ 
                       width: '100%',
-                      height: 280,
+                      height: 290,
                       objectFit: 'cover',
                     }}
                   />
@@ -163,7 +163,7 @@ const Home = () => {
                       bottom: 0,
                       left: 0,
                       right: 0,
-                      height: 4,
+                      height: 5,
                       bgcolor: 'primary.main',
                       backgroundImage: 'linear-gradient(to right, #1976d2, #64b5f6)',
                     }} 

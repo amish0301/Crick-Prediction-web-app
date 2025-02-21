@@ -96,8 +96,8 @@ const Dashboard = () => {
     { value: '2', label: 'Double', color: '#81c784' },
     { value: '3', label: 'Three Runs', color: '#7986cb' },
     { value: '4', label: 'Four', color: '#4caf50' },
-    { value: '6', label: 'Six', color: '#f44336' },
-    { value: 'W', label: 'Wicket', color: '#ff9800' },
+    { value: '6', label: 'Six', color: '#ff9800' },
+    { value: 'W', label: 'Wicket', color: '#f44336' },
   ];
 
   return (
