@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   Box,
   Container,
@@ -6,29 +6,14 @@ import {
   Paper,
   Typography,
   Button,
-  Avatar,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Divider,
   Card,
   CardContent,
   CardMedia,
   Chip,
-  useTheme
+  Divider
 } from '@mui/material';
-import {
-  Person,
-  EmojiEvents,
-  ExitToApp,
-  Schedule,
-  LocationOn,
-  Groups,
-  ArrowForward
-} from '@mui/icons-material';
+import { Schedule, LocationOn, Groups } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useThemeContext } from '../context/ThemeContext';
 
 // Import images
 import iplBanner from '../assets/ipl.jpg';
@@ -37,8 +22,6 @@ import asiaCupBanner from '../assets/asiacup.jpg';
 
 const Home = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const [selectedOption, setSelectedOption] = useState('info');
 
   // Memoize the tournaments data
   const tournaments = useMemo(() => [
@@ -55,7 +38,7 @@ const Home = () => {
     },
     {
       id: 2,
-      name: "T20 World Cup 2025",
+      name: "T20 World Cup 2025", 
       image: t20Banner,
       status: "Upcoming",
       startDate: "June 15, 2025",
@@ -66,16 +49,16 @@ const Home = () => {
     },
     {
       id: 3,
-      name: "Asia Cup 2025",
+      name: "Asia Cup 2024",
       image: asiaCupBanner,
       status: "Completed",
-      startDate: "February 1, 2025",
-      endDate: "February 28, 2025",
+      startDate: "February 1, 2024",
+      endDate: "February 28, 2024",
       teams: "6 Teams",
       venue: "Dubai, UAE",
       description: "Asian cricket giants battled for continental supremacy."
     }
-  ], []); // Empty dependency array as data is static
+  ], []);
 
   // Memoize the getStatusColor function
   const getStatusColor = useMemo(() => (status) => {
@@ -96,7 +79,6 @@ const Home = () => {
       sx={{ 
         bgcolor: 'background.default', 
         minHeight: '100vh',
-        // Use CSS containment for better performance
         contain: 'content'
       }}
     >
@@ -213,7 +195,7 @@ const Home = () => {
                     <Button 
                       variant="contained"
                       fullWidth
-                      onClick={() => navigate(`/tournament/${tournament.id}`)}
+                      onClick={() => navigate(`/tournament/${tournament.status.toLowerCase()}`)}
                       sx={{ 
                         borderRadius: 2,
                         py: 1,
@@ -222,7 +204,7 @@ const Home = () => {
                         fontWeight: 600
                       }}
                     >
-                      View Details
+                      View {tournament.status}
                     </Button>
                   </Box>
                 </CardContent>
@@ -235,5 +217,4 @@ const Home = () => {
   );
 };
 
-// Memoize the entire component
 export default React.memo(Home);
