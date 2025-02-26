@@ -22,6 +22,7 @@ import {
   AccessTime,
   Groups,
   Close,
+  Person,
 } from '@mui/icons-material';
 
 const Upcoming = () => {
@@ -516,8 +517,8 @@ const Upcoming = () => {
     },
   ];
 
-  const handleTeamClick = (team) => {
-    setSelectedTeam(teamsData[team]);
+  const handleTeamClick = (teamName) => {
+    setSelectedTeam(teamsData[teamName]);
     setModalOpen(true);
   };
 
@@ -630,15 +631,30 @@ const Upcoming = () => {
                     <Box sx={{ textAlign: 'center' }}>
                       <Button 
                         onClick={() => handleTeamClick(match.team1)}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ 
+                          display: 'flex', 
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          width: '100%',
+                          '&:hover': {
+                            bgcolor: 'rgba(0, 0, 0, 0.04)'
+                          }
+                        }}
                       >
-                        <Avatar sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}>
+                        <Avatar sx={{ width: 60, height: 60, mb: 1 }}>
                           {match.team1.charAt(0)}
                         </Avatar>
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {match.team1}
+                        </Typography>
+                        <Chip
+                          icon={<Groups />}
+                          label="View Squad"
+                          size="small"
+                          sx={{ mt: 1 }}
+                          onClick={() => handleTeamClick(match.team1)}
+                        />
                       </Button>
-                      <Typography variant="subtitle1" fontWeight={600}>
-                        {match.team1}
-                      </Typography>
                     </Box>
                   </Grid>
                   <Grid item xs={2} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -648,15 +664,30 @@ const Upcoming = () => {
                     <Box sx={{ textAlign: 'center' }}>
                       <Button 
                         onClick={() => handleTeamClick(match.team2)}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ 
+                          display: 'flex', 
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          width: '100%',
+                          '&:hover': {
+                            bgcolor: 'rgba(0, 0, 0, 0.04)'
+                          }
+                        }}
                       >
-                        <Avatar sx={{ width: 60, height: 60, mx: 'auto', mb: 1 }}>
+                        <Avatar sx={{ width: 60, height: 60, mb: 1 }}>
                           {match.team2.charAt(0)}
                         </Avatar>
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          {match.team2}
+                        </Typography>
+                        <Chip
+                          icon={<Groups />}
+                          label="View Squad"
+                          size="small"
+                          sx={{ mt: 1 }}
+                          onClick={() => handleTeamClick(match.team2)}
+                        />
                       </Button>
-                      <Typography variant="subtitle1" fontWeight={600}>
-                        {match.team2}
-                      </Typography>
                     </Box>
                   </Grid>
                 </Grid>
@@ -685,7 +716,7 @@ const Upcoming = () => {
         }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Typography variant="h6" component="h2">
-              Team Players
+              Team Squad
             </Typography>
             <IconButton onClick={() => setModalOpen(false)} size="small">
               <Close />

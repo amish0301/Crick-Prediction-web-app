@@ -269,7 +269,7 @@ const Completed = () => {
                       </Typography>
                     </Box>
                   </Grid>
-                </Grid>
+                </Grid>   
 
                 <Divider sx={{ my: 2 }} />
 
