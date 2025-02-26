@@ -33,7 +33,7 @@ const Login = () => {
         try {
             const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login`, formData);
             toast.success('Login successful');
-            navigate('/dashboard');
+            navigate('/');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {

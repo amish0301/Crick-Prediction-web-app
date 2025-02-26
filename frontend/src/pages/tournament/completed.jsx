@@ -183,8 +183,29 @@ const Completed = () => {
     <Container maxWidth="xl" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" gutterBottom fontWeight={700} color="primary">
-          Completed Matches
+        Asia Cup 2024
         </Typography>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+         Asian cricket giants battled for continental supremacy.
+        </Typography>
+
+                <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+                  <Chip 
+                    icon={<AccessTime />} 
+                    label="February 1 - February 28, 2024" 
+                    variant="outlined" 
+                  />
+                  <Chip 
+                    icon={<Groups />} 
+                    label="6 Teams" 
+                    variant="outlined" 
+                  />
+                  <Chip 
+                    icon={<LocationOn />} 
+                    label="Dubai & UAE" 
+                    variant="outlined" 
+                  />
+                </Box>
         
         <ToggleButtonGroup
           value={filter}
