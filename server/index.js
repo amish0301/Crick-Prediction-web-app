@@ -7,11 +7,15 @@ const { PORT } = require("./constant/variables.js");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
 
 const authRoutes = require("./routes/auth.route");
+const connectDB = require("./db/connection.js");
 
 // express app init
 const app = express();
 app.use(express.json()); // parse incoming json data
 app.use(cors(corsOption));
+
+// DB Connection
+connectDB();
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
