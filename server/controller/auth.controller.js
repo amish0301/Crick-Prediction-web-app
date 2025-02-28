@@ -13,7 +13,6 @@ const register = TryCatch(async (req, res, next) => {
     password,
   });
 
-
   return res
     .status(200)
     .json({ message: "account created", success: true, user });

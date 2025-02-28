@@ -7,20 +7,21 @@ import { AdminLogin } from './pages/admin/index.admin.js'
 import { About, Contact, Home, Login, Signup, Dashboard, Live, Upcoming, Completed } from './pages/index.js'
 import AuthWrapper from './utils/AuthWrapper.jsx'
 import { CustomThemeProvider } from './context/ThemeContext';
+import Profile from './components/Profile.jsx';
 // import { Dashboard } from '@mui/icons-material';
 // import { GoogleLogin } from '@react-oauth/google';
 
 function App() {
 
   return (
-//     <GoogleLogin
-//   onSuccess={credentialResponse => {
-//     console.log(credentialResponse);
-//   }}
-//   onError={() => {
-//     console.log('Login Failed');
-//   }}
-// />,
+    //     <GoogleLogin
+    //   onSuccess={credentialResponse => {
+    //     console.log(credentialResponse);
+    //   }}
+    //   onError={() => {
+    //     console.log('Login Failed');
+    //   }}
+    // />,
     <CustomThemeProvider>
       <Routes>
         {/* User Routes */}
@@ -28,12 +29,13 @@ function App() {
           <Route path='/' index element={<Home />} />
           <Route path='contact' element={<Contact />} />
           <Route path='about' element={<About />} />
-          <Route path='dashboard' element={<Dashboard/>} />
+          <Route path='profile' element={<Profile />} />
+          <Route path='dashboard' element={<Dashboard />} />
 
-      {/* Tournament routes */}
-      <Route path="/tournament/live" element={<Live />} />
-      <Route path="/tournament/upcoming" element={<Upcoming />} />
-      <Route path="/tournament/completed" element={<Completed />} />
+          {/* Tournament routes */}
+          <Route path="/tournament/live" element={<Live />} />
+          <Route path="/tournament/upcoming" element={<Upcoming />} />
+          <Route path="/tournament/completed" element={<Completed />} />
         </Route>
 
         {/* Admin Routes */}
@@ -46,7 +48,7 @@ function App() {
         <Route path='/auth/login' element={<Login />} />
       </Routes>
 
-      <ToastContainer position='top-center'  theme='dark' transition={Slide}/>
+      <ToastContainer position='top-center' theme='dark' transition={Slide} />
     </CustomThemeProvider>
   )
 }

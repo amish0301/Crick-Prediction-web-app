@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
+  class Team extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,45 +11,43 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   }
-  User.init(
+  Team.init(
     {
-      user_id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+      team_id: {
+        allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
+        type: DataTypes.INTEGER,
       },
       name: {
         type: DataTypes.STRING,
-        allowNull: false, // Ensure name is required
-      },
-      email: {
-        type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
-      password: {
+      logo: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      age: {
+      total_players: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 0,
       },
-      role: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: "user",
-        validate: {
-          isIn: [["user", "admin", "super_admin"]], // Easily extendable
-        },
+      main_players: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER), // Store player IDs
+        allowNull: true,
+        defaultValue: [],
+      },
+      matches_info: {
+        type: DataTypes.ARRAY(DataTypes.JSONB), // Store match stats per team
+        allowNull: true,
       },
     },
     {
       sequelize,
-      modelName: "User",
+      modelName: "Team",
+      tableName: "teams",
       timestamps: true,
-      tableName: "users",
     }
   );
-  return User;
+  return Team;
 };
