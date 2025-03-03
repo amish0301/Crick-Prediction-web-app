@@ -1,3 +1,28 @@
 const PORT = process.env.PORT;
+const accessTokenExpiry = "20m";
+const refreshTokenExpiry = "7d";
 
-module.exports = { PORT };
+const verificationURL = `${process.env.FRONTEND_URL}/verify-email`;
+
+const cookieOption = {
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  httpOnly: true,
+  maxAge: 24 * 60 * 60 * 1000,
+};
+
+const refreshTokenCookieOption = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
+module.exports = {
+  PORT,
+  accessTokenExpiry,
+  verificationURL,
+  cookieOption,
+  refreshTokenExpiry,
+  refreshTokenCookieOption
+};

@@ -22,7 +22,7 @@ const registerValidation = () =>
         confirmPassword: z
           .string()
           .trim()
-          .min(4, "Confirm Password must be at least 3 characters long"),
+          .min(4, "Confirm Password must be at least 3 characters long").optional(),
 
         age: z.preprocess(
           (val) => Number(val),

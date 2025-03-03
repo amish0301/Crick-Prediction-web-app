@@ -1,4 +1,4 @@
-const { register } = require("../controller/auth.controller");
+const { register, verifyEmail } = require("../controller/auth.controller");
 const { login } = require("../controller/auth.controller"); 
 
 const express = require("express");
@@ -10,5 +10,7 @@ router.post("/register", registerValidation(), register);
 
 // login
 router.post("/login", login);
+
+router.post("/verify-email", verifyEmail);
 
 module.exports = router
