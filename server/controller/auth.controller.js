@@ -9,6 +9,7 @@ const TryCatch = require("../utils/TryCatch");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { sendVerificationLink, generateTokens } = require("../utils/utils");
+const { googleClient } = require("../utils/utils");
 
 const register = TryCatch(async (req, res, next) => {
   // data from body
@@ -100,7 +101,57 @@ const verifyEmail = TryCatch(async (req, res, next) => {
     });
 });
 
+// Google Oauth Controller
+const googleOAuthHandler = TryCatch(async (req, res, next) => {
+  const { code } = req.query;
+
+  const { tokens } = googleClient.getToken(code);
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken: tokens.id_token,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  const payload = ticket.getPayload();
+
+  // store info
+  const { email, name, picture } = payload;
+
+  // Migrate USER DB
+  const [user, created] = await db.user.findOrCreate({
+    where: { email },
+    defaults: {
+      name,
+      email,
+      avatar: picture,
+      isGoogleUser: true,
+    },
+  });
+
+  // generate tokens
+  const { accessToken, refreshToken } = generateTokens({
+    id: user.id,
+    email: user.email,
+  });
+  res
+    .cookie("accessToken", accessToken, cookieOption)
+    .cookie("refreshToken", refreshToken, refreshTokenCookieOption);
+
+  req.session.user = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    avatar: user.avatar,
+  };
+
+  return res.status(200).json({
+    success: true,
+    message: created ? "Account Created Successfully" : "Login Successfully",
+    user,
+  });
+});
+
 // for refreshing access token
 
 // module.exports = {login}
-module.exports = { register, login, verifyEmail };
+module.exports = { register, login, verifyEmail, googleOAuthHandler };

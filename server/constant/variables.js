@@ -11,6 +11,12 @@ const cookieOption = {
   maxAge: 24 * 60 * 60 * 1000,
 };
 
+const sessionOption = {
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: true,
+};
+
 const refreshTokenCookieOption = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
@@ -24,5 +30,6 @@ module.exports = {
   verificationURL,
   cookieOption,
   refreshTokenExpiry,
-  refreshTokenCookieOption
+  refreshTokenCookieOption,
+  sessionOption
 };

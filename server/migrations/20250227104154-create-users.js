@@ -35,6 +35,14 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      isGoogleUser: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      avatar: {
+        type: Sequelize.STRING,
+        defaultValue: "https://www.gravatar.com/avatar/?d=mp"
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

@@ -46,6 +46,14 @@ module.exports = (sequelize, DataTypes) => {
       isVerified: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+      },
+      isGoogleUser: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      avatar: {
+        type: DataTypes.STRING,
+        defaultValue: "https://www.gravatar.com/avatar/?d=mp"
       }
     },
     {
