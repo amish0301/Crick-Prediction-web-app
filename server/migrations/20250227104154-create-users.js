@@ -4,10 +4,10 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('users', {
-      user_id: {
-        type: Sequelize.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
+      id: {
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
       },
       name: {
         type: Sequelize.STRING,
@@ -30,6 +30,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: "user",
+      },
+      isVerified: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false
+      },
+      isGoogleUser: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      avatar: {
+        type: Sequelize.STRING,
+        defaultValue: "https://www.gravatar.com/avatar/?d=mp"
       },
       createdAt: {
         allowNull: false,

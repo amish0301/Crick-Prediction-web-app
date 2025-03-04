@@ -13,9 +13,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      user_id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
       name: {
@@ -43,6 +43,18 @@ module.exports = (sequelize, DataTypes) => {
           isIn: [["user", "admin", "super_admin"]], // Easily extendable
         },
       },
+      isVerified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      isGoogleUser: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      avatar: {
+        type: DataTypes.STRING,
+        defaultValue: "https://www.gravatar.com/avatar/?d=mp"
+      }
     },
     {
       sequelize,
