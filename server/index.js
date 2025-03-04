@@ -21,7 +21,6 @@ connectDB();
 app.use("/api/v1/auth", authRoutes);
 
 app.use(ErrorHandler);
-
 app.get("/", (req, res) => {
   res.send("Hello from Server");
 });
