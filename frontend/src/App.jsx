@@ -48,7 +48,7 @@ function App() {
         <Route path='/auth/login' element={<Login />} />
       </Routes>
 
-      <ToastContainer position='top-center' theme='dark' transition={Slide} />
+      <ToastContainer position='top-center' theme='dark' transition={Slide}  autoClose={2000}/>
     </CustomThemeProvider>
   )
 }

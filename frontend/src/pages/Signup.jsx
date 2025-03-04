@@ -25,8 +25,10 @@ const Signup = () => {
     const toastId = toast.loading("loading...")
     try {
       const API = `${import.meta.env.VITE_SERVER_URL}/auth/register`;
-      const response = await axios.post(API, formData);
-      toast.success('Signup successful', toastId);
+      const {data} = await axios.post(API, formData);
+
+      if(data.success) toast.success('Signup successful', toastId);
+
     } catch (error) {
       toast.error('Signup failed',toastId);
     }finally{toast.dismiss(toastId)}

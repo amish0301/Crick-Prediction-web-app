@@ -38,6 +38,7 @@ module.exports = {
       isGoogleUser: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: true
       },
       avatar: {
         type: Sequelize.STRING,

@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 
 const Login = () => {
-    const [formData, setFormData] = useState({ uname: '', password: '' });
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Login = () => {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.uname || !formData.password) {
+        if (!formData.email || !formData.password) {
             toast.info('All fields are required');
             return;
         }
@@ -32,7 +32,7 @@ const Login = () => {
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login`, formData);
-            toast.success('Login successful');
+            if(response.success) toast.success('Login successful');
             navigate('/');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');
@@ -40,6 +40,8 @@ const Login = () => {
             setIsLoading(false);
         }
     }
+
+    if(isLoading) return <p>Loading....</p>
 
     return (
         <section aria-label="login-form" className="flex h-screen w-full">
@@ -58,12 +60,12 @@ const Login = () => {
                     <form className="flex flex-col gap-6" onSubmit={handleFormSubmit}>
                         <TextField
                             label="Username"
-                            name="uname"
+                            name="email"
                             variant="outlined"
                             fullWidth
                             autoComplete="username"
                             required
-                            value={formData.uname}
+                            value={formData.email}
                             onChange={handleChange}
                             sx={{ '& .MuiOutlinedInput-root': { backgroundColor: 'white', color: 'black', '& fieldset': { borderColor: 'gray' }, '&:hover fieldset': { borderColor: 'blue' }, '&.Mui-focused fieldset': { borderColor: 'blue' } }, '& .MuiInputLabel-root': { color: 'gray' }, '& .MuiInputLabel-root.Mui-focused': { color: 'blue' } }}
                         />

@@ -36,12 +36,6 @@ const register = TryCatch(async (req, res, next) => {
   // send verification link to user on given mail
   const emailRes = await sendVerificationLink(email, accessToken);
   if (!emailRes.success) return next(new ApiError(500, emailRes.message));
-
-  return res.status(200).json({
-    success: true,
-    message:
-      "Registration successful! Please check your email for verification.",
-  });
 });
 
 const login = TryCatch(async (req, res, next) => {

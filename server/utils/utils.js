@@ -4,7 +4,7 @@ const {
   refreshTokenExpiry,
 } = require("../constant/variables");
 const jwt = require("jsonwebtoken");
-const {OAuth2Client} = require('google-auth-library')
+const { OAuth2Client } = require("google-auth-library");
 
 const sendVerificationLink = async (email, verificationToken) => {
   try {
@@ -44,7 +44,7 @@ const generateTokens = (payload) => {
 // init Google OAuth Client
 const googleClient = new OAuth2Client({
   clientId: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET 
-})
+  clientSecret: process.env.CLIENT_SECRET,
+});
 
 module.exports = { sendVerificationLink, generateTokens, googleClient };

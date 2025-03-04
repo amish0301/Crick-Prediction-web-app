@@ -1,10 +1,10 @@
 const { sequelize } = require('../models');
 
-async function connectDB(req,res,next) {
+async function connectDB() {
     try {
         await sequelize.authenticate().then(() => console.log("✅ PostgreSQL Connected Successfully!"));
     } catch (error) {
-        next(error);
+        console.log('Error while connecting to db', error);
     }
 }
 

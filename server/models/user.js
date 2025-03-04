@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
       isGoogleUser: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+        allowNull: true
       },
       avatar: {
         type: DataTypes.STRING,
