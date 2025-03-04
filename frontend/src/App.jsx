@@ -9,19 +9,19 @@ import AuthWrapper from './utils/AuthWrapper.jsx'
 import { CustomThemeProvider } from './context/ThemeContext';
 import Profile from './components/Profile.jsx';
 // import { Dashboard } from '@mui/icons-material';
-// import { GoogleLogin } from '@react-oauth/google';
+
 
 function App() {
 
   return (
-    //     <GoogleLogin
-    //   onSuccess={credentialResponse => {
-    //     console.log(credentialResponse);
-    //   }}
-    //   onError={() => {
-    //     console.log('Login Failed');
-    //   }}
-    // />,
+//     <GoogleLogin
+//   onSuccess={credentialResponse => {
+//     console.log(credentialResponse);
+//   }}
+//   onError={() => {
+//     console.log('Login Failed');
+//   }}
+// />,
     <CustomThemeProvider>
       <Routes>
         {/* User Routes */}

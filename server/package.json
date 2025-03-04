@@ -16,7 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+<<<<<<< HEAD
+=======
     "express-session": "^1.18.1",
+>>>>>>> 755ee5c542cccce614087442ebe02db3976a3ba6
     "google-auth-library": "^9.15.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",

@@ -92,6 +92,8 @@ const Login = () => {
                         <button type="submit" className="mt-3 primary-btn disabled:opacity-50" disabled={isLoading}>
                             {isLoading ? "Logging in..." : "Log In"}
                         </button>
+                       <center> <p className="text-white">OR</p></center>
+                       <center><h3 className="text-white btn">Log In With Google</h3></center>
                     </form>
 
                     <p className="text-left text-sm font-semibold text-gray-600 dark:text-gray-300 mt-4">
