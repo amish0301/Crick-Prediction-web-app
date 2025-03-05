@@ -8,20 +8,13 @@ import { About, Contact, Home, Login, Signup, Dashboard, Live, Upcoming, Complet
 import AuthWrapper from './utils/AuthWrapper.jsx'
 import { CustomThemeProvider } from './context/ThemeContext';
 import Profile from './components/Profile.jsx';
-// import { Dashboard } from '@mui/icons-material';
+import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
+import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
 
 
 function App() {
 
   return (
-//     <GoogleLogin
-//   onSuccess={credentialResponse => {
-//     console.log(credentialResponse);
-//   }}
-//   onError={() => {
-//     console.log('Login Failed');
-//   }}
-// />,
     <CustomThemeProvider>
       <Routes>
         {/* User Routes */}
@@ -46,9 +39,11 @@ function App() {
         <Route path='/auth/admin' element={<AdminLogin />} />
         <Route path='/auth/signup' element={<Signup />} />
         <Route path='/auth/login' element={<Login />} />
+        <Route path='/verify-email' element={<EmailVerifyCallback />} />
+        <Route path='/auth/success' element={<GoogleOAuthCallback />} />
       </Routes>
 
-      <ToastContainer position='top-center' theme='dark' transition={Slide}  autoClose={2000}/>
+      <ToastContainer position='top-center' theme='dark' transition={Slide} autoClose={2000} />
     </CustomThemeProvider>
   )
 }

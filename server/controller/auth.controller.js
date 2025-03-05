@@ -36,18 +36,22 @@ const register = TryCatch(async (req, res, next) => {
   // send verification link to user on given mail
   const emailRes = await sendVerificationLink(email, accessToken);
   if (!emailRes.success) return next(new ApiError(500, emailRes.message));
+
+  return res
+    .status(200)
+    .json({ success: emailRes.success, message: emailRes.message });
 });
 
 const login = TryCatch(async (req, res, next) => {
   const { email, password } = req.body;
 
   // find user in db
-  const user = await db.user.findOne({ email: email });
+  const user = await db.user.findOne({ email });
   if (!user)
     return next(new ApiError(404, "User Doesn't Exist with this Email!"));
 
   // if user exist verify password
-  const isMatchPassword = bcrypt.compare(password, user.password);
+  const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword)
     return next(new ApiError(400, "Credentials are Invalid"));
 
@@ -84,32 +88,56 @@ const verifyEmail = TryCatch(async (req, res, next) => {
   user.isVerified = true;
   await user.save();
 
+  // generate new Fresh Tokens
+  const { accessToken, refreshToken } = generateTokens({
+    id: user.id,
+    role: user.role,
+  });
+
   return res
     .status(200)
-    .cookie(process.env.AUTH_TOKEN, token, cookieOption)
+    .cookie("accessToken", accessToken, cookieOption)
+    .cookie("refreshToken", refreshToken, refreshTokenCookieOption)
     .json({
       success: true,
       message: "Email verified successfully!",
       user,
-      accessToken: token,
+      accessToken,
     });
+});
+
+const isVerified = TryCatch(async (req, res, next) => {
+  const { email } = req.query;
+  const user = await db.user.findOne({ email });
+
+  if (!user) return next(new ApiError(404, "User Not Found"));
+
+  return res.status(200).json({ success: true, isVerified: user.isVerified });
 });
 
 // Google Oauth Controller
 const googleOAuthHandler = TryCatch(async (req, res, next) => {
   const { code } = req.query;
 
-  const { tokens } = googleClient.getToken(code);
+  const { tokens } = await googleClient.getToken({
+    code,
+    redirect_uri: process.env.GOOGLE_SUCCESS_REDIRECT,
+  });
+  googleClient.setCredentials(tokens);
 
-  const ticket = await googleClient.verifyIdToken({
-    idToken: tokens.id_token,
-    audience: process.env.GOOGLE_CLIENT_ID,
+  const userInfoClient = googleClient;
+  const userinfo = await userInfoClient.request({
+    url: "https://www.googleapis.com/oauth2/v2/userinfo",
   });
 
-  const payload = ticket.getPayload();
+  const { name, email, picture } = userinfo.data;
 
-  // store info
-  const { email, name, picture } = payload;
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Google account does not have an email.",
+    });
+  }
 
   // Migrate USER DB
   const [user, created] = await db.user.findOrCreate({
@@ -127,6 +155,7 @@ const googleOAuthHandler = TryCatch(async (req, res, next) => {
     id: user.id,
     email: user.email,
   });
+
   res
     .cookie("accessToken", accessToken, cookieOption)
     .cookie("refreshToken", refreshToken, refreshTokenCookieOption);
@@ -138,14 +167,53 @@ const googleOAuthHandler = TryCatch(async (req, res, next) => {
     avatar: user.avatar,
   };
 
-  return res.status(200).json({
-    success: true,
-    message: created ? "Account Created Successfully" : "Login Successfully",
-    user,
-  });
+  return res.redirect(
+    `${
+      process.env.GOOGLE_FRONTEND_SUCCESS_REDIRECT
+    }?accessToken=${accessToken}&user=${encodeURIComponent(
+      JSON.stringify(user)
+    )}`
+  );
 });
 
-// for refreshing access token
+// Refresh Access Token
+const refreshAccessToken = TryCatch(async (req, res, next) => {
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body?.refreshToken;
+
+  const decoded = jwt.verify(incomingRefreshToken, process.env.JWT_SECRET);
+
+  const user = await db.user.findByPk(decoded.id);
+  if (!user) {
+    return next(
+      new ApiError(401, "Invalid refresh token or Expired refresh token")
+    );
+  }
+
+  const { accessToken, refreshToken: newRefreshToken } = await generateTokens({
+    id: user.id,
+  });
+
+  if (!accessToken || !newRefreshToken)
+    return next(new ApiError("Token Generation Failed", 500));
+
+  return res
+    .status(200)
+    .cookie(process.env.AUTH_TOKEN, accessToken, cookieOption)
+    .cookie("refreshToken", newRefreshToken, cookieOption)
+    .json({
+      success: true,
+      message: "Access token refreshed",
+      accessToken,
+    });
+});
 
 // module.exports = {login}
-module.exports = { register, login, verifyEmail, googleOAuthHandler };
+module.exports = {
+  register,
+  login,
+  verifyEmail,
+  googleOAuthHandler,
+  isVerified,
+  refreshAccessToken,
+};

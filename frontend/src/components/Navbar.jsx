@@ -1,46 +1,45 @@
-import React, { useState } from 'react';
 import {
-  Box,
-  Paper,
-  Typography,
-  Button,
+  AccountCircle,
+  Brightness4,
+  Brightness7,
+  Close as CloseIcon,
+  ContactSupport,
+  Dashboard as DashboardIcon,
+  ExitToApp,
+  Home,
+  Info,
+  Menu as MenuIcon,
+  NotificationsOutlined,
+  Settings,
+  SportsCricket,
+  Stars,
+  Timeline,
+  TrendingUp
+} from '@mui/icons-material';
+import {
   Avatar,
-  IconButton,
   Badge,
-  useTheme,
-  Menu,
-  MenuItem,
+  Box,
+  Button,
+  Chip,
   Divider,
   Drawer,
+  Grid,
+  IconButton,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
-  Grid,
-  Chip,
+  Menu,
+  MenuItem,
+  Paper,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import {
-  Home,
-  ContactSupport,
-  Info,
-  SportsCricket,
-  Dashboard as DashboardIcon,
-  NotificationsOutlined,
-  Brightness4,
-  Brightness7,
-  AccountCircle,
-  AccountBalanceWallet,
-  Settings,
-  ExitToApp,
-  Menu as MenuIcon,
-  Close as CloseIcon,
-  Stars,
-  Timeline,
-  TrendingUp,
-} from '@mui/icons-material';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
-import { useMediaQuery } from '@mui/material';
 
 const Navbar = () => {
   const theme = useTheme();
@@ -103,6 +102,10 @@ const Navbar = () => {
       onClick: () => navigate('/settings'),
     },
   ];
+
+  const userInfo = JSON.parse(localStorage.getItem("user"));
+  const profilePicture = userInfo?.avatar || "https://www.gravatar.com/avatar/?d=mp";
+  
 
   return (
     <Paper 
@@ -200,6 +203,7 @@ const Navbar = () => {
         )}
 
         <Avatar 
+          src={profilePicture}
           onClick={handleMenuOpen}
           sx={{ 
             bgcolor: 'primary.main',
@@ -214,7 +218,7 @@ const Navbar = () => {
             }
           }}
         >
-          U
+          
         </Avatar>
 
         {isMobile && (

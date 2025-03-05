@@ -1,4 +1,4 @@
-const { register, verifyEmail, googleOAuthHandler } = require("../controller/auth.controller");
+const { register, verifyEmail, googleOAuthHandler, isVerified, refreshAccessToken } = require("../controller/auth.controller");
 const { login } = require("../controller/auth.controller");
 
 const express = require("express");
@@ -11,7 +11,9 @@ const router = express.Router();
 router.get("/google", (req, res) => {
   const url = googleClient.generateAuthUrl({
     access_type: "offline",
-    scope: ["profile", "email"],
+    prompt: "consent",
+    scope: ["email", "profile"],
+    redirect_uri: process.env.GOOGLE_SUCCESS_REDIRECT
   });
 
   res.redirect(url);
@@ -19,10 +21,13 @@ router.get("/google", (req, res) => {
 
 router.get("/google/callback", googleOAuthHandler);
 
-// register
+// register + login
 router.post("/register", registerValidation(), register);
-// login
 router.post("/login", login);
+
+// Verification
+router.post('/refresh-token', refreshAccessToken);
 router.post("/verify-email", verifyEmail);
+router.get("/check-verification", isVerified);
 
 module.exports = router;
