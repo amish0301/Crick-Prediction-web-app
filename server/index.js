@@ -5,8 +5,9 @@ const cors = require("cors");
 const { corsOption } = require("./config/index.config");
 const { PORT, sessionOption } = require("./constant/variables.js");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
-
 const authRoutes = require("./routes/auth.route");
+const userRoutes = require("./routes/user.route");
+
 const connectDB = require("./db/connection.js");
 const session = require("express-session");
 
@@ -23,6 +24,8 @@ connectDB();
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1", userRoutes);
+
 
 app.use(ErrorHandler);
 app.get("/", (req, res) => {

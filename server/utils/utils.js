@@ -4,7 +4,10 @@ const {
   refreshTokenExpiry,
 } = require("../constant/variables");
 const jwt = require("jsonwebtoken");
-const {OAuth2Client} = require('google-auth-library')
+const { OAuth2Client } = require("google-auth-library");
+const nodemailer = require("nodemailer");
+const path = require("path");
+const fs = require("fs");
 
 const sendVerificationLink = async (email, verificationToken) => {
   try {
@@ -15,8 +18,10 @@ const sendVerificationLink = async (email, verificationToken) => {
       from: process.env.CLIENT_EMAIL,
       to: email,
       subject: "Verify your Account on CrickPrediction",
-      html: `<p>Click the link to verify your email: <a href="${verificationLink}">Verify Account</a></p>`,
+      html: getEmailTemplate(verificationLink),
     });
+
+    console.log("Preview", nodemailer.getTestMessageUrl(sendmail));
 
     if (!sendmail)
       return {
@@ -34,6 +39,7 @@ const generateTokens = (payload) => {
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: accessTokenExpiry || "15m",
   });
+  console.log("accessToken val in utils", accessToken);
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: refreshTokenExpiry || "7d",
   });
@@ -43,8 +49,21 @@ const generateTokens = (payload) => {
 
 // init Google OAuth Client
 const googleClient = new OAuth2Client({
-  clientId: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET 
-})
+  clientId: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+});
 
-module.exports = { sendVerificationLink, generateTokens, googleClient };
+// Email Template
+const getEmailTemplate = (verificationLink) => {
+  let templatePath = path.join(__dirname, "emailTemplate.html");
+  let emailHTML = fs.readFileSync(templatePath, "utf8");
+
+  return emailHTML.replace("{verificationLink}", verificationLink);
+};
+
+module.exports = {
+  sendVerificationLink,
+  generateTokens,
+  googleClient,
+  getEmailTemplate,
+};

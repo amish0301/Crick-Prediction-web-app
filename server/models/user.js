@@ -30,10 +30,11 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false,
+        defaultValue: 'google'
       },
       age: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       role: {
         type: DataTypes.STRING,
@@ -50,6 +51,7 @@ module.exports = (sequelize, DataTypes) => {
       isGoogleUser: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+        allowNull: true
       },
       avatar: {
         type: DataTypes.STRING,

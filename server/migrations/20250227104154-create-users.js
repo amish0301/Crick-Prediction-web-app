@@ -21,10 +21,11 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: 'google'
       },
       age: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       role: {
         type: Sequelize.STRING,
@@ -38,6 +39,7 @@ module.exports = {
       isGoogleUser: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: true
       },
       avatar: {
         type: Sequelize.STRING,
