@@ -71,7 +71,7 @@ const login = TryCatch(async (req, res, next) => {
       success: true,
       message: `Welcome Back ${user.name}`,
       accessToken,
-      user,
+      user, 
     });
 });
 

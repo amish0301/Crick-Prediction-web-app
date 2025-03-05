@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Paper, Typography, TextField, Button, Box, Divider } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import logging from '../assets/Signup.jpg';
-import { toast } from 'react-toastify';     
+import { toast } from 'react-toastify';
+
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', password: '', email: '', confirmPassword: '', age: '' });
@@ -14,6 +15,7 @@ const Signup = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+
 
   const handleValidation = async (e) => {
     e.preventDefault();
@@ -27,8 +29,8 @@ const Signup = () => {
       const response = await axios.post(API, formData);
       toast.success('Signup successful', toastId);
     } catch (error) {
-      toast.error('Signup failed',toastId);
-    }finally{toast.dismiss(toastId)}
+      toast.error('Signup failed', toastId);
+    } finally { toast.dismiss(toastId) }
   };
 
 
@@ -46,24 +48,35 @@ const Signup = () => {
             <TextField required size="small" fullWidth label="Password" name="password" type="password" onChange={handleStateUpdate} />
             <TextField required size="small" fullWidth label="Confirm Password" name="confirmPassword" type="password" onChange={handleStateUpdate} />
 
-            <Button 
-              type="submit" 
-              fullWidth 
-              variant="contained" 
-              size="large" 
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
               sx={{ mt: 2 }}
             >
               Sign Up
             </Button>
 
+            
+
             <Divider sx={{ mt: 2, mb: 2 }}>or</Divider>
 
 
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              sx={{ mt: 2 }}
+            >
+              Continue With Google
+            </Button>
 
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2">
                 Already have an account?{' '}
-                <RouterLink to="/auth/login" className="text-blue-500 hover:underline" style={{ color: 'primary.main'}}>
+                <RouterLink to="/auth/login" className="text-blue-500 hover:underline" style={{ color: 'primary.main' }}>
                   Login here
                 </RouterLink>
               </Typography>

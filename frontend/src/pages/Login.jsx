@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from 'react-toastify';
 
 const Login = () => {
-    const [formData, setFormData] = useState({ uname: '', password: '' });
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
@@ -91,7 +91,6 @@ const Login = () => {
                             {isLoading ? "Logging in..." : "Log In"}
                         </button>
                        <center> <p className="text-white">OR</p></center>
-                       <center><h3 className="text-white btn">Log In With Google</h3></center>
                     </form>
 
                     <p className="text-left text-sm font-semibold text-gray-600 dark:text-gray-300 mt-4">

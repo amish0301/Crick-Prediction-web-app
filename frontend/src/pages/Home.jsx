@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
   Box,
   Container,
-  Grid,
   Paper,
   Typography,
   Button,
@@ -14,6 +13,7 @@ import {
 } from '@mui/material';
 import { Schedule, LocationOn, Groups } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import Grid from '@mui/material/Grid2';
 
 // Import images
 import iplBanner from '../assets/ipl.jpg';
@@ -103,12 +103,17 @@ const Home = () => {
 
         <Grid 
           container 
-          spacing={4} 
+          spacing={3}
           justifyContent="center"
-          sx={{ px: { xs: 2, md: 4 } }}
+          alignItems="stretch"
+          sx={{ 
+            px: { xs: 2, md: 0 },
+            flexWrap: 'nowrap',
+            overflowX: { xs: 'auto', md: 'visible' }
+          }}
         >
           {tournaments.map((tournament) => (
-            <Grid item xs={12} md={6} lg={4} key={tournament.id}>
+            <Grid xs={12} sm={6} md={4} key={tournament.id}>
               <Card 
                 elevation={4}
                 sx={{ 
@@ -117,6 +122,11 @@ const Home = () => {
                   flexDirection: 'column',
                   borderRadius: 3,
                   position: 'relative',
+                  transition: 'transform 0.2s ease-in-out',
+                  minWidth: { xs: '300px', md: 'auto' },
+                  '&:hover': {
+                    transform: 'translateY(-4px)'
+                  }
                 }}
               >
                 <Box sx={{ position: 'relative' }}>
@@ -126,7 +136,7 @@ const Home = () => {
                     alt={tournament.name}
                     sx={{ 
                       width: '100%',
-                      height: 290,
+                      height: 300,
                       objectFit: 'cover',
                     }}
                   />

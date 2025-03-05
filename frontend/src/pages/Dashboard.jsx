@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   Box,
   Container,
-  Grid,
   Paper,
   Typography,
   Button,
@@ -39,6 +38,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
+import Grid from '@mui/material/Grid2';
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -103,7 +103,7 @@ const Dashboard = () => {
   return (
     <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
       <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Grid container spacing={4}>
+        <Grid container spacing={6}>
           {/* User Stats Section */}
           <Grid item xs={12} md={3}>
             <Paper 

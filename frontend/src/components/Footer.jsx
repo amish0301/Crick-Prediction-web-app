@@ -1,6 +1,7 @@
 import React from "react";
-import { Box, Container, Grid, Typography, Link, IconButton, Divider, Button } from "@mui/material";
+import { Box, Container, Typography, Link, IconButton, Divider, Button } from "@mui/material";
 import { Facebook, Twitter, Instagram, YouTube, ArrowUpward } from "@mui/icons-material";
+import Grid from '@mui/material/Grid2';
 import Home from "../pages/Home";
 
 

@@ -3,7 +3,6 @@ import {
   Box,
   Container,
   Typography,
-  Grid,
   Paper,
   Button,
   Avatar,
@@ -24,6 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
+import Grid from '@mui/material/Grid2';
 
 const About = () => {
   const theme = useTheme();
