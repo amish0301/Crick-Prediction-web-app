@@ -7,9 +7,7 @@ import AdminLayout from './layout/AdminLayout.jsx';
 import AppLayout from './layout/AppLayout.jsx';
 import { AdminLogin } from './pages/admin/index.admin.js';
 import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
-import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
-import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
-import AuthWrapper from './utils/AuthWrapper.jsx';
+// import AdminSignin from './pages/admin/AdminSignin.jsx';
 
 
 function App() {
@@ -20,21 +18,15 @@ function App() {
         {/* User Routes */}
         <Route path="/" element={<AppLayout />}>
 
-          {/* Public Routes - Accessible to All Users */}
-          <Route index element={<Home />} />
-          <Route path="contact" element={<Contact />} />
-          <Route path="about" element={<About />} />
+          {/* Tournament routes */}
+          <Route path="/tournament/live" element={<Live />} />
+          <Route path="/tournament/upcoming" element={<Upcoming />} />
+          <Route path="/tournament/completed" element={<Completed />} />
 
-          {/* Protected Routes */}
-          <Route path="profile" element={<AuthWrapper redirect='/auth/login' requiresAuth={true}><Profile /></AuthWrapper>} />
-          <Route path="dashboard" element={<AuthWrapper redirect='/auth/login' requiresAuth={true}><Dashboard /></AuthWrapper>} />
 
-          <Route path="/tournament" element={<AuthWrapper redirect="/auth/login" requiresAuth={true} />}>
-            <Route path="live" element={<Live />} />
-            <Route path="upcoming" element={<Upcoming />} />
-            <Route path="completed" element={<Completed />} />
-          </Route>
-        </Route>
+          {/* Admin Routes - Wrapped Inside AdminLayout */}
+     </Route>
+        
 
 
         {/* Redirect Authenticated Users Away from Login/Signup */}
@@ -46,12 +38,13 @@ function App() {
 
         {/* Admin Routes */}
         <Route path='/admin' element={<AuthWrapper redirect='/auth/admin' isAdmin={true}><AdminLayout /></AuthWrapper>}>
+
         </Route>
 
         {/* Auth Routes */}
-        <Route path='/auth/admin/login' element={<AdminLogin />} />
-        {/* <Route path='/auth/signup' element={<AuthWrapper redirect='/'><Signup /></AuthWrapper>} /> */}
-        {/* <Route path='/auth/login' element={<AuthWrapper redirect='/'><Login /></AuthWrapper>} /> */}
+        <Route path='/auth/admin' element={<AdminLogin />} />
+        {/* <Route path='/admin/signin' element={<AdminSignin />} /> */}
+        <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/verify-email' element={<EmailVerifyCallback />} />
         <Route path='/auth/success' element={<GoogleOAuthCallback />} />
       </Routes>

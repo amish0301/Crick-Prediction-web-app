@@ -13,8 +13,13 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^6.4.5",
+<<<<<<< Updated upstream
     "@mui/material": "^6.4.5",
     "@reduxjs/toolkit": "^2.6.0",
+=======
+    "@mui/material": "^6.4.7",
+    "@react-oauth/google": "^0.12.1",
+>>>>>>> Stashed changes
     "@tailwindcss/vite": "^4.0.6",
     "axios": "^1.7.9",
     "react": "^19.0.0",

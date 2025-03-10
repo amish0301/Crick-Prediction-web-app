@@ -13,7 +13,7 @@ const Footer = () => {
   return (
     <Box
       sx={{
-        background:" #115293", // Dark gradient
+        background: " #115293", // Dark gradient
         color: "white",
         py: 6,
         mt: 8,
