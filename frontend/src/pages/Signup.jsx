@@ -1,10 +1,24 @@
+<<<<<<< HEAD
 import { Box, Button, Container, Divider, Paper, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+=======
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Container, Paper, Typography, TextField, Button, Box, Divider } from '@mui/material';
+import Grid from '@mui/material/Grid2';
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+<<<<<<< HEAD
 import logging from '../assets/Signup.jpg';
+=======
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', password: '', email: '', confirmPassword: '', age: '' });
@@ -16,6 +30,7 @@ const Signup = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+
 
   const handleValidation = async (e) => {
     e.preventDefault();
@@ -87,6 +102,8 @@ const Signup = () => {
               Sign Up
             </Button>
 
+            
+
             <Divider sx={{ mt: 2, mb: 2 }}>or</Divider>
 
             <Button
@@ -127,6 +144,15 @@ const Signup = () => {
             </Button>
 
 
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              sx={{ mt: 2 }}
+            >
+              Continue With Google
+            </Button>
 
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2">

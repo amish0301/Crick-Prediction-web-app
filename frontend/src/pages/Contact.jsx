@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Container,
-  Grid,
   Typography,
   TextField,
   Button,
@@ -22,6 +21,7 @@ import {
   Instagram,
   Phone,
 } from '@mui/icons-material';
+import Grid from '@mui/material/Grid2';
 
 const Contact = () => {
   const faqs = [

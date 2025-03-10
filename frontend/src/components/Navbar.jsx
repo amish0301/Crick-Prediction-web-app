@@ -30,20 +30,20 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
-  Paper,
-  Typography,
-  useMediaQuery,
-  useTheme,
+  Grid,
+  Chip,
 } from '@mui/material';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useThemeContext } from '../context/ThemeContext';
+<<<<<<< HEAD
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { userNotExists } from '../store/slices/user';
+=======
+import { useMediaQuery } from '@mui/material';
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
 
 const Navbar = () => {
   const theme = useTheme();
@@ -340,14 +340,13 @@ const Navbar = () => {
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
           PaperProps={{
-            elevation: 4,
+            elevation: 2,
             sx: {
               mt: 1.5,
-              width: 320,
-              maxHeight: 'calc(100vh - 96px)',
+              width: { xs: '300px', sm: '320px' },
+              maxHeight: '85vh',
               borderRadius: 2,
-              overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+              overflow: 'auto',
               '& .MuiList-root': {
                 padding: 0,
               },
@@ -368,19 +367,37 @@ const Navbar = () => {
           transformOrigin={{ horizontal: 'right', vertical: 'top' }}
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
+<<<<<<< HEAD
           <Box sx={{ p: 2, pb: 1.5, textAlign: 'center' }}>
             <Avatar
               src={profilePicture}
               sx={{
                 width: 70,
                 height: 70,
+=======
+          <Box sx={{ p: 2, textAlign: 'center' }}>
+            <Avatar 
+              sx={{ 
+                width: 64,
+                height: 64,
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
                 margin: '0 auto',
                 bgcolor: 'primary.main',
                 border: '3px solid',
                 borderColor: 'primary.light',
+<<<<<<< HEAD
               }} />
             <Typography variant="h6" sx={{ mt: 1, fontWeight: 600, fontSize: '1.1rem' }}>
               {user?.name || "Unknown"}
+=======
+                mb: 1
+              }}
+            >
+              U
+            </Avatar>
+            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem' }}>
+              User Name
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.875rem' }}>
               {user?.email || "user@gmail.com"}
@@ -390,10 +407,17 @@ const Navbar = () => {
           <Divider />
 
           <Box sx={{ px: 2, py: 1.5 }}>
+<<<<<<< HEAD
             <Box sx={{
               display: 'flex',
               gap: 1,
               mb: 1.5,
+=======
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 1, 
+              mb: 2,
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
               justifyContent: 'center'
             }}>
               <Chip
@@ -413,41 +437,85 @@ const Navbar = () => {
             </Box>
 
             {selectedTab === 'info' ? (
+<<<<<<< HEAD
               <Grid container spacing={1}>
                 <Grid item xs={6}>
                   <Paper
                     elevation={0}
                     sx={{
                       p: 1,
+=======
+              <Grid container spacing={2} justifyContent="center" alignItems="center">
+                <Grid xs={6}>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 2, 
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
                       textAlign: 'center',
                       bgcolor: 'action.hover',
+                      borderRadius: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: '80px'
                     }}
                   >
-                    <Typography variant="h6" fontWeight="bold" fontSize="1.1rem">
-                      {userStats.totalPredictions}
+                    <Typography 
+                      variant="h6" 
+                      fontWeight="bold"
+                      sx={{ mb: 0.5 }}
+                    >
+                      {userStats.points}
                     </Typography>
-                    <Typography variant="caption">
-                      Predictions
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                    >
+                      Points
                     </Typography>
                   </Paper>
                 </Grid>
+<<<<<<< HEAD
                 <Grid item xs={6}>
                   <Paper
                     elevation={0}
                     sx={{
                       p: 1,
+=======
+                <Grid xs={6}>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 2, 
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
                       textAlign: 'center',
                       bgcolor: 'action.hover',
+                      borderRadius: 2,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      minHeight: '80px'
                     }}
                   >
-                    <Typography variant="h6" fontWeight="bold" fontSize="1.1rem">
+                    <Typography 
+                      variant="h6" 
+                      fontWeight="bold"
+                      sx={{ mb: 0.5 }}
+                    >
                       {userStats.accuracy}
                     </Typography>
-                    <Typography variant="caption">
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                    >
                       Accuracy
                     </Typography>
                   </Paper>
                 </Grid>
+<<<<<<< HEAD
                 <Grid item xs={12}>
                   <Box sx={{ mt: 1 }}>
                     <Typography variant="body2" sx={{
@@ -471,12 +539,15 @@ const Navbar = () => {
                     </Typography>
                   </Box>
                 </Grid>
+=======
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
               </Grid>
             ) : (
-              <Box>
-                <Typography variant="subtitle1" sx={{ textAlign: 'center', mb: 1, fontWeight: 600 }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
                   Total Winnings: {userStats.winnings}
                 </Typography>
+<<<<<<< HEAD
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <Chip
                     size="small"
@@ -491,28 +562,95 @@ const Navbar = () => {
                     sx={{ fontSize: '0.75rem' }}
                   />
                 </Box>
+=======
+                <Stack spacing={1}>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1.5, 
+                      bgcolor: 'action.hover',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      gap: 0.5
+                    }}>
+                      <TrendingUp fontSize="small" color="primary" />
+                      Last Week: ₹300
+                    </Typography>
+                  </Paper>
+                  <Paper 
+                    elevation={0}
+                    sx={{ 
+                      p: 1.5, 
+                      bgcolor: 'action.hover',
+                      borderRadius: 1
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      gap: 0.5
+                    }}>
+                      <TrendingUp fontSize="small" color="primary" />
+                      This Month: ₹800
+                    </Typography>
+                  </Paper>
+                </Stack>
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
               </Box>
             )}
           </Box>
 
           <Divider />
 
-          <Box>
+          <List sx={{ py: 0 }}>
             {menuItems.map((item) => (
+<<<<<<< HEAD
               <MenuItem
+=======
+              <ListItem 
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
                 key={item.label}
-                onClick={item.onClick}
-                sx={{
+                disablePadding
+              >
+                <ListItemButton
+                  onClick={item.onClick}
+                  sx={{ py: 1, px: 2 }}
+                >
+                  <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary={item.label}
+                    primaryTypographyProps={{ fontSize: '0.9rem' }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+
+            <Divider />
+
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => {
+                  navigate('/auth/login');
+                  handleMenuClose();
+                }}
+                sx={{ 
                   py: 1,
                   px: 2,
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                  }
+                  color: 'error.main',
                 }}
               >
-                <ListItemIcon sx={{ color: 'primary.main', minWidth: 36 }}>
-                  {item.icon}
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <ExitToApp color="error" />
                 </ListItemIcon>
+<<<<<<< HEAD
                 <Typography variant="body2">
                   {item.label}
                 </Typography>
@@ -538,6 +676,15 @@ const Navbar = () => {
             </ListItemIcon>
             <Typography variant="body2">Logout</Typography>
           </MenuItem>
+=======
+                <ListItemText 
+                  primary="Logout"
+                  primaryTypographyProps={{ fontSize: '0.9rem' }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </List>
+>>>>>>> ad8c4405fc4e63c36d98f37a0d4de6749de0713f
         </Menu>
       </Box>
     </Paper>
