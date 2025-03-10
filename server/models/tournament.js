@@ -26,10 +26,9 @@ module.exports = (sequelize, DataTypes) => {
   Tournament.init(
     {
       tournament_id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
       },
       name: {
         type: DataTypes.STRING,
@@ -56,6 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Tournament",
       tableName: "tournaments",
+      timestamps: true,
     }
   );
   return Tournament;

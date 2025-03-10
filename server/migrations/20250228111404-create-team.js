@@ -4,10 +4,9 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("teams", {
       team_id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
+        primaryKey: true
       },
       name: {
         type: Sequelize.STRING,
@@ -17,7 +16,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-
       total_players: {
         type: Sequelize.INTEGER,
         allowNull: false,

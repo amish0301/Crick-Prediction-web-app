@@ -1,4 +1,4 @@
-const { register, verifyEmail, googleOAuthHandler, isVerified, refreshAccessToken } = require("../controller/auth.controller");
+const { register, verifyEmail, googleOAuthHandler, isVerified, refreshAccessToken, logout } = require("../controller/auth.controller");
 const { login } = require("../controller/auth.controller");
 
 const express = require("express");
@@ -24,6 +24,9 @@ router.get("/google/callback", googleOAuthHandler);
 // register + login
 router.post("/register", registerValidation(), register);
 router.post("/login", login);
+
+// logout
+router.get('/logout', logout);
 
 // Verification
 router.post('/refresh-token', refreshAccessToken);

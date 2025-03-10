@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Container, Paper, Typography, TextField, Button, Box, Divider } from '@mui/material';
+import { Box, Button, Container, Divider, Paper, TextField, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import logging from '../assets/Signup.jpg';
 import { toast } from 'react-toastify';
+import logging from '../assets/Signup.jpg';
 
 const Signup = () => {
   const [formData, setFormData] = useState({ name: '', password: '', email: '', confirmPassword: '', age: '' });
@@ -26,32 +26,32 @@ const Signup = () => {
     const toastId = toast.loading("Creating an Account...");
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/register`, formData);
-      if(res.data.success) {
-        localStorage.setItem("email", formData.email);
-        localStorage.setItem("emailSent", "true");
+      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/register`, formData, { withCredentials: true });
+      if (res.data.success) {
         setEmailSent(formData.email)
         setEmail(true);
-        toast.dismiss(toastId)
       }
     } catch (error) {
-      toast.error('Signup failed', toastId);
-    } finally { toast.dismiss(toastId) }
+      toast.error(error?.response?.data?.error?.errors[0]?.message ?? 'Signup failed');
+    } finally {
+      toast.dismiss(toastId);
+    }
   };
 
 
+  // polling for checking whether user verified or not 
   useEffect(() => {
     if (!emailSent || !email) return;
 
     const interval = setInterval(async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, {withCredentials: true});
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, { withCredentials: true });
         if (response.data.isVerified) {
           toast.success("Account Verified! Redirecting...");
-          localStorage.removeItem("email");
-          localStorage.removeItem("emailSent");
+          setEmail(false);
+          setEmailSent("");
+
           clearInterval(interval);
-          navigate("/"); // Redirect to home page
         }
       } catch (error) {
         console.error("Verification Check Error:", error);
@@ -60,6 +60,9 @@ const Signup = () => {
 
     return () => clearInterval(interval);
   }, [emailSent, email]);
+
+
+  // if(isLoading) 
 
   return (
     <Container maxWidth={false} sx={{ height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', overflow: 'hidden', p: 0 }}>

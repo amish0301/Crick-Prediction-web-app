@@ -1,2 +1,8 @@
 ideas
 1. users see completed tournament only if they predicted in that
+
+
+*** API Responses *** 
+1. signup/login :
+    user: {name, email, password, role, age, isGoogleUser, isVerified}
+    accessToken    

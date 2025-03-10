@@ -46,7 +46,7 @@ const login = TryCatch(async (req, res, next) => {
   const { email, password } = req.body;
 
   // find user in db
-  const user = await db.user.findOne({ email });
+  const user = await db.user.findOne({ where: { email } });
   if (!user)
     return next(new ApiError(404, "User Doesn't Exist with this Email!"));
 
@@ -54,6 +54,10 @@ const login = TryCatch(async (req, res, next) => {
   const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword)
     return next(new ApiError(400, "Credentials are Invalid"));
+
+  // mark as verified
+  user.isVerified = true;
+  await user.save();
 
   // if matched allow access & generate tokens
   const { accessToken, refreshToken } = generateTokens({
@@ -108,7 +112,7 @@ const verifyEmail = TryCatch(async (req, res, next) => {
 
 const isVerified = TryCatch(async (req, res, next) => {
   const { email } = req.query;
-  const user = await db.user.findOne({ email });
+  const user = await db.user.findOne({ where: { email } });
 
   if (!user) return next(new ApiError(404, "User Not Found"));
 
@@ -208,6 +212,27 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
     });
 });
 
+// LOGOUT
+const logout = TryCatch(async (req, res, next) => {
+  const id = "9189ed66-67d2-41d7-985d-3abdb64f7c74";
+
+  if (req.cookies?.accessToken) {
+    res.clearCookie("accessToken");
+  }
+  if (req.cookies?.refreshToken) {
+    res.clearCookie("refreshToken");
+  }
+  if (req.cookies["connect.sid"]) res.clearCookie("connect.sid");
+
+  await db.user.update({ isVerified: false }, { where: { id: id } });
+
+  return res.json({
+    success: true,
+    type: "jwt",
+    message: "Logged out successfully",
+  });
+});
+
 // module.exports = {login}
 module.exports = {
   register,
@@ -216,4 +241,5 @@ module.exports = {
   googleOAuthHandler,
   isVerified,
   refreshAccessToken,
+  logout,
 };

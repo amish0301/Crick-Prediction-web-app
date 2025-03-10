@@ -21,39 +21,39 @@ module.exports = (sequelize, DataTypes) => {
   Match.init(
     {
       match_id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
       },
       tournament_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "Tournament",
+          model: "tournaments",
           key: "tournament_id",
         },
       },
       team1_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "Team",
+          model: "teams",
           key: "team_id",
         },
       },
       team2_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: false,
         references: {
-          model: "Team",
+          model: "teams",
           key: "team_id",
         },
       },
       winner_team_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         allowNull: true,
         references: {
-          model: "Team",
+          model: "teams",
           key: "team_id",
         },
       },
@@ -67,6 +67,7 @@ module.exports = (sequelize, DataTypes) => {
       sequelize,
       modelName: "Match",
       tableName: "matches",
+      timestamps: true
     }
   );
 

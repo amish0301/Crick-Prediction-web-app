@@ -12,41 +12,38 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.Tournament, {
         foreignKey: "tournament_id",
         onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       });
 
       this.belongsTo(models.Team, {
         foreignKey: "team_id",
         onDelete: "CASCADE",
+        onUpdate: "CASCADE"
       });
     }
   }
+
   TournamentTeams.init(
     {
       tournament_team_id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
       },
       team_id: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Teams",
-          key: "team_id",
-        },
+        type: DataTypes.UUID,
+        allowNull: false,
       },
       tournament_id: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Tournament",
-          key: "tournament_id",
-        },
+        type: DataTypes.UUID,
+        allowNull: false
       },
     },
     {
       sequelize,
       modelName: "TournamentTeams",
       tableName: "tournaments_teams",
+      timestamps: true,
     }
   );
   return TournamentTeams;

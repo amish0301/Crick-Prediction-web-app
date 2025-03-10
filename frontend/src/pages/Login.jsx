@@ -1,16 +1,21 @@
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Button, TextField, Typography } from '@mui/material';
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import loginimg from '../assets/login.jpg';
 import axios from "axios";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import loginimg from '../assets/login.jpg';
+import Loader from "../components/Loader";
+import { setLoading, setToken, userExists } from "../store/slices/user";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
-    const [isLoading, setIsLoading] = useState(false);
+    const { isLoading } = useSelector(state => state.user);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -28,20 +33,26 @@ const Login = () => {
             return;
         }
 
-        setIsLoading(true);
+        dispatch(setLoading(true));
 
         try {
             const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login`, formData, { withCredentials: true });
-            if (response.success) toast.success('Login successful');
-            navigate('/');
+
+            if (response.data.success) {
+                toast.success('Login Successfully!');
+                // store data
+                dispatch(userExists({...response.data.user}));
+                dispatch(setToken(response.data.accessToken));
+                navigate('/');
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {
-            setIsLoading(false);
+            dispatch(setLoading(false));
         }
     }
 
-    if (isLoading) return <p>Loading....</p>
+    if (isLoading) return <Loader />
 
     return (
         <section aria-label="login-form" className="flex h-screen w-full">

@@ -40,9 +40,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: "user",
-        validate: {
-          isIn: [["user", "admin", "super_admin"]], // Easily extendable
-        },
       },
       isVerified: {
         type: DataTypes.BOOLEAN,

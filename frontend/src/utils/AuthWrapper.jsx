@@ -1,11 +1,11 @@
+import { useSelector } from "react-redux"
 import { Navigate, Outlet } from "react-router-dom"
 
-const AuthWrapper = ({ children, redirect = '/', isAdmin = null, isAuthenticated = null }) => {
+const AuthWrapper = ({ children, redirect = '/', isAdmin = null, requiresAuth = false }) => {
+    const { user } = useSelector(state => state.user);
+    const isAuthenticated = user?.isVerified;
 
-    // for user
-    if ((!isAuthenticated && isAdmin === null) || (!isAdmin && isAuthenticated === null)) return <Navigate to={redirect} replace />
-
-
+    if ((!isAuthenticated && requiresAuth) || (isAuthenticated && !requiresAuth)) return <Navigate to={redirect} replace />;
     return children ? children : <Outlet />;
 }
 

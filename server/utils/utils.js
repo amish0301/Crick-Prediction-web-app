@@ -39,7 +39,6 @@ const generateTokens = (payload) => {
   const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: accessTokenExpiry || "15m",
   });
-  console.log("accessToken val in utils", accessToken);
   const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, {
     expiresIn: refreshTokenExpiry || "7d",
   });
