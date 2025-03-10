@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Paper, Typography, TextField, Button, Box, Divider } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Divider,
+  InputAdornment,
+  IconButton
+} from '@mui/material';
+import Grid from '@mui/material/Grid2'; // Correct Grid import
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import logging from '../assets/Signup.jpg';
 import { toast } from 'react-toastify';
-<<<<<<< HEAD
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-=======
->>>>>>> origin
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -47,7 +55,7 @@ const Signup = () => {
 
     try {
       const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/register`, formData);
-      if(res.data.success) {
+      if (res.data.success) {
         localStorage.setItem("email", formData.email);
         localStorage.setItem("emailSent", "true");
         setEmailSent(formData.email)
@@ -65,7 +73,7 @@ const Signup = () => {
 
     const interval = setInterval(async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, {withCredentials: true});
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, { withCredentials: true });
         if (response.data.isVerified) {
           toast.success("Account Verified! Redirecting...");
           setEmail(false);
@@ -136,23 +144,23 @@ const Signup = () => {
               <TextField required size="small" fullWidth label="Email" name="email" type="email" onChange={handleStateUpdate} />
               <TextField required size="small" fullWidth label="Age" name="age" type="number" onChange={handleStateUpdate} />
               <TextField
-                required
-                size="small"
-                fullWidth
                 label="Password"
-                name="password"
                 type={showPassword ? "text" : "password"}
-                onChange={handleStateUpdate}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility} edge="end">
-                        {showPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                size="small"
+                variant="outlined"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={togglePasswordVisibility} edge="end">
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
 
               <TextField
                 required
@@ -160,18 +168,21 @@ const Signup = () => {
                 fullWidth
                 label="Confirm Password"
                 name="confirmPassword"
-                type={showPassword ? "text" : "password"}
+                type={showConfirmPassword ? "text" : "password"} 
                 onChange={handleStateUpdate}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={togglePasswordVisibility} edge="end">
-                        {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={togglePasswordVisibility} edge="end">
+                          {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
+
 
               <Button type="submit" fullWidth variant="contained" size="large">
                 Sign Up

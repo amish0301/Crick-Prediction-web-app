@@ -2,25 +2,25 @@ import React, { useState } from "react";
 import { Container, Box, Tabs, Tab, Card, CardContent, Typography, Button, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-const matchesData = {
-  live: [
-    { id: 1, teams: "MI vs CSK", status: "Live", location: "Mumbai", time: "Ongoing", prediction: "Available" },
-    { id: 2, teams: "RCB vs KKR", status: "Live", location: "Bangalore", time: "Ongoing", prediction: "Available" },
-  ],
-  upcoming: [
-    { id: 3, teams: "SRH vs RR", status: "Upcoming", location: "Hyderabad", time: "March 25, 7:00 PM", prediction: "Available Soon" },
-  ],
-  completed: [
-    { id: 4, teams: "DC vs PBKS", status: "Completed", location: "Delhi", time: "March 22", prediction: "Not Available" },
-  ],
-};
-
 const Live = () => {
   const [tabValue, setTabValue] = useState("live");
   const navigate = useNavigate();
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
+  };
+
+  const matchesData = {
+    live: [
+      { id: 1, teams: "MI vs CSK", status: "Live", location: "Mumbai", time: "Ongoing", prediction: "Available" },
+      { id: 2, teams: "RCB vs KKR", status: "Live", location: "Bangalore", time: "Ongoing", prediction: "Available" },
+    ],
+    upcoming: [
+      { id: 3, teams: "SRH vs RR", status: "Upcoming", location: "Hyderabad", time: "March 25, 7:00 PM", prediction: "Available Soon" },
+    ],
+    completed: [
+      { id: 4, teams: "DC vs PBKS", status: "Completed", location: "Delhi", time: "March 22", prediction: "Not Available" },
+    ],
   };
 
   return (

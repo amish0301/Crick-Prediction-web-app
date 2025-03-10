@@ -6,13 +6,10 @@ import App from './App.jsx'
 import { Provider } from 'react-redux'
 import { store, persistor } from './store/store.js';
 import { BrowserRouter } from 'react-router-dom'
-<<<<<<< Updated upstream
-import { PersistGate } from 'redux-persist/integration/react'
-=======
-import { GoogleOAuthProvider } from '@react-oauth/google'
 import "./Footer.css";
+import { PersistGate } from "redux-persist/integration/react";
 
->>>>>>> Stashed changes
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
