@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
   Box,
   Container,
-  Paper,
   Typography,
   Button,
   Card,
@@ -13,7 +12,7 @@ import {
 } from '@mui/material';
 import { Schedule, LocationOn, Groups } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid2'; // Using the new Grid2 component
 
 // Import images
 import iplBanner from '../assets/ipl.jpg';
@@ -79,11 +78,11 @@ const Home = () => {
       sx={{ 
         bgcolor: 'background.default', 
         minHeight: '100vh',
-        contain: 'content'
+        py: { xs: 2, sm: 3, md: 4 }
       }}
     >
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Box sx={{ mb: 4, textAlign: 'center' }}>
+      <Container maxWidth="xl">
+        <Box sx={{ mb: { xs: 3, md: 5 }, textAlign: 'center' }}>
           <Typography 
             variant="h3" 
             fontWeight={800}
@@ -91,41 +90,57 @@ const Home = () => {
               background: 'linear-gradient(45deg, #1a237e 30%, #0288d1 90%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              mb: 1
+              mb: 1,
+              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
             }}
           >
             Cricket Tournaments
           </Typography>
-          <Typography variant="h6" color="text.secondary">
+          <Typography 
+            variant="h6" 
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' } }}
+          >
             Join and predict matches in ongoing tournaments
           </Typography>
         </Box>
 
+        {/* Modified Grid Container */}
         <Grid 
           container 
-          spacing={3}
+          spacing={{ xs: 2, sm: 2, md: 3 }}
           justifyContent="center"
           alignItems="stretch"
           sx={{ 
-            px: { xs: 2, md: 0 },
-            flexWrap: 'nowrap',
-            overflowX: { xs: 'auto', md: 'visible' }
+            px: { xs: 1, sm: 1, md: 0 }, 
+            flexWrap: { md: 'nowrap' },  // Ensure no wrapping on medium+ screens
           }}
         >
           {tournaments.map((tournament) => (
-            <Grid xs={12} sm={6} md={4} key={tournament.id}>
+            <Grid 
+              xs={12} 
+              sm={6} 
+              md={4} 
+              key={tournament.id}
+              sx={{ 
+                display: 'flex',
+                flex: { md: '1 1 0px' }, // Equal width on medium+ screens
+                minWidth: 0, // Allow boxes to shrink below content width if needed
+                width: '100%'
+              }}
+            >
               <Card 
                 elevation={4}
                 sx={{ 
-                  height: '100%',
+                  width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  borderRadius: 3,
+                  borderRadius: { xs: 2, md: 3 },
                   position: 'relative',
-                  transition: 'transform 0.2s ease-in-out',
-                  minWidth: { xs: '300px', md: 'auto' },
+                  transition: 'all 0.3s ease',
                   '&:hover': {
-                    transform: 'translateY(-4px)'
+                    transform: 'translateY(-8px)',
+                    boxShadow: 6
                   }
                 }}
               >
@@ -136,7 +151,7 @@ const Home = () => {
                     alt={tournament.name}
                     sx={{ 
                       width: '100%',
-                      height: 300,
+                      height: { xs: 180, sm: 220, md: 240 }, // Reduced height slightly
                       objectFit: 'cover',
                     }}
                   />
@@ -147,6 +162,8 @@ const Home = () => {
                       position: 'absolute',
                       top: 16,
                       right: 16,
+                      fontWeight: 'bold',
+                      px: 1
                     }}
                   />
                   <Box 
@@ -156,62 +173,80 @@ const Home = () => {
                       left: 0,
                       right: 0,
                       height: 5,
-                      bgcolor: 'primary.main',
                       backgroundImage: 'linear-gradient(to right, #1976d2, #64b5f6)',
                     }} 
                   />
                 </Box>
 
-                <Divider sx={{ 
-                  borderColor: 'divider',
-                  borderWidth: 1,
-                  width: '100%',
-                }} />
-
-                <CardContent sx={{ p: 3 }}>
-                  <Typography variant="h5" component="h2" gutterBottom fontWeight={700}>
+                <CardContent sx={{ p: { xs: 2, md: 3 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                  <Typography 
+                    variant="h5" 
+                    component="h2" 
+                    gutterBottom 
+                    fontWeight={700}
+                    sx={{ fontSize: { xs: '1.2rem', sm: '1.3rem', md: '1.5rem' } }}
+                  >
                     {tournament.name}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" paragraph>
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary" 
+                    paragraph
+                    sx={{ 
+                      mb: 2,
+                      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
+                      minHeight: { xs: 'auto', sm: '40px', md: '50px' },
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}
+                  >
                     {tournament.description}
                   </Typography>
                   
-                  <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ width: '100%', my: 1.5 }} />
                   
                   <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Schedule sx={{ fontSize: 20, mr: 1, color: 'primary.main' }} />
-                      <Typography variant="body2">
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
+                      <Schedule sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
                         {tournament.startDate} - {tournament.endDate}
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Groups sx={{ fontSize: 20, mr: 1, color: 'primary.main' }} />
-                      <Typography variant="body2">
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
+                      <Groups sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
                         {tournament.teams}
                       </Typography>
                     </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <LocationOn sx={{ fontSize: 20, mr: 1, color: 'primary.main' }} />
-                      <Typography variant="body2">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <LocationOn sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
+                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
                         {tournament.venue}
                       </Typography>
                     </Box>
                   </Box>
 
-                  <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ width: '100%', my: 1.5 }} />
 
-                  <Box sx={{ mt: 'auto', textAlign: 'center' }}>
+                  <Box sx={{ mt: 'auto' }}>
                     <Button 
                       variant="contained"
                       fullWidth
                       onClick={() => navigate(`/tournament/${tournament.status.toLowerCase()}`)}
                       sx={{ 
-                        borderRadius: 2,
-                        py: 1,
+                        borderRadius: { xs: 1.5, md: 2 },
+                        py: { xs: 0.75, md: 1 },
                         textTransform: 'none',
-                        fontSize: '1rem',
-                        fontWeight: 600
+                        fontSize: { xs: '0.8rem', sm: '0.85rem', md: '1rem' },
+                        fontWeight: 600,
+                        boxShadow: 2,
+                        '&:hover': {
+                          boxShadow: 4,
+                          background: 'linear-gradient(45deg, #1565c0 30%, #42a5f5 90%)'
+                        }
                       }}
                     >
                       View {tournament.status}

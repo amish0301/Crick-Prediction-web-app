@@ -15,19 +15,44 @@ html {
   @apply px-5 py-3 bg-blue-600 font-semibold hover:bg-blue-700 text-white text-center transition-colors duration-200 ease-in-out cursor-pointer rounded-lg
 }
 
-.secondary-btn {
-
+.width100 {
+  width: '100%';
 }
-
 
 /* Animations */
 @keyframes wave {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(15deg); }
-  50% { transform: rotate(-10deg); }
-  75% { transform: rotate(15deg); }
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(15deg);
+  }
+
+  50% {
+    transform: rotate(-10deg);
+  }
+
+  75% {
+    transform: rotate(15deg);
+  }
 }
 
 .animate-wave {
   animation: wave 1s ease-in-out infinite;
+}
+
+
+
+.form-container {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  /* ✅ Correct box-shadow */
+  margin-top: 20px;
+  max-width: 500px;
+  margin: auto;
 }
