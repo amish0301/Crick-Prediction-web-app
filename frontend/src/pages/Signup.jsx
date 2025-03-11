@@ -46,6 +46,8 @@ const Signup = () => {
 
   const handleValidation = async (e) => {
     e.preventDefault();
+    console.log(formData);
+
     const ansObj = Object.values(formData).filter((item) => !item);
     if (ansObj.length) return toast.info("All Fields are required");
 
@@ -148,6 +150,7 @@ const Signup = () => {
                 type={showPassword ? "text" : "password"}
                 size="small"
                 variant="outlined"
+                onChange={handleStateUpdate}
                 slotProps={{
                   input: {
                     endAdornment: (
@@ -168,7 +171,7 @@ const Signup = () => {
                 fullWidth
                 label="Confirm Password"
                 name="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"} 
+                type={showConfirmPassword ? "text" : "password"}
                 onChange={handleStateUpdate}
                 slotProps={{
                   input: {
