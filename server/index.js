@@ -5,6 +5,7 @@ const cors = require("cors");
 const { corsOption } = require("./config/index.config");
 const { PORT, sessionOption } = require("./constant/variables.js");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
+
 const authRoutes = require("./routes/auth.route");
 const userRoutes = require("./routes/user.route");
 const adminRoutes = require("./routes/admin.route");

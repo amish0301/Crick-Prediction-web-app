@@ -2,7 +2,7 @@ const TryCatch = require("../utils/TryCatch");
 const { z } = require("zod");
 const ApiError = require("../utils/ApiError");
 
-const registerValidation = TryCatch(async (req, res, next) => {
+const registerValidation = () => TryCatch(async (req, res, next) => {
   const userSchema = z
     .object({
       name: z
@@ -37,8 +37,7 @@ const registerValidation = TryCatch(async (req, res, next) => {
   const validationResult = userSchema.safeParse(req.body);
 
   if (!validationResult.success) {
-    return res.status(400).json({ errors: validationResult.error.errors });
-    //   return new ApiError(400, "", validationResult.error.errors)
+    return res.status(400).json({ errors: validationResult?.error?.errors });
   }
 
   // console.log("in validation", validationResult)
@@ -49,7 +48,7 @@ const registerValidation = TryCatch(async (req, res, next) => {
   next();
 });
 
-const adminLoginValidation = TryCatch(async (req, res, next) => {
+const adminLoginValidation = () => TryCatch(async (req, res, next) => {
   const adminSchema = z.object({
     email: z.string().trim().email("Invalid email format"),
     adminKey: z.string().trim(),
@@ -67,7 +66,7 @@ const adminLoginValidation = TryCatch(async (req, res, next) => {
   next();
 });
 
-const createTeamValidation = TryCatch(async (req, res, next) => {
+const createTeamValidation = () => TryCatch(async (req, res, next) => {
   const teamSchema = z.object({
     name: z.string().min(1, "Team name is required"),
     logo: z.string().url("Invalid logo URL"),
