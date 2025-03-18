@@ -1,28 +1,41 @@
-import { Box, CircularProgress } from '@mui/material'
-import React, { useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Box, CircularProgress } from '@mui/material';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { setToken, userExists } from '../store/slices/user';
+import { useSelector } from 'react-redux';
 
 const GoogleOAuthCallback = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const user = useSelector(state => state.user);
 
     // useEffect
     useEffect(() => {
-        const accessToken = searchParams.get("accessToken");
-        const userEncodedInfo = searchParams.get("user");
+        const handleOAuthCallback = async () => {
+            const accessToken = searchParams.get("accessToken");
+            const userEncodedInfo = searchParams.get("user");
 
-        if (accessToken && userEncodedInfo) {
-            const user = JSON.parse(decodeURIComponent(userEncodedInfo));
-            // add user value in state
+            if (accessToken && userEncodedInfo) {
+                const user = JSON.parse(decodeURIComponent(userEncodedInfo));
+                dispatch(userExists(user));
+                dispatch(setToken(accessToken));
+            } else {
+                console.log('Error in getting access token');
+            }
+        };
 
-            localStorage.setItem("user", JSON.stringify(user));
+        handleOAuthCallback();
+    }, [searchParams, dispatch, navigate]);
 
-            setTimeout(() => navigate('/'), 1000);
-        }else {
-            console.log('error in getting accesstoken');
+    useEffect(() => {
+        if (user) {
+            navigate('/', { replace: true });
         }
+    }, [user, navigate]);
 
-    }, [])
 
     return (
         <>

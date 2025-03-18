@@ -28,22 +28,22 @@ const adminLogin = TryCatch(async (req, res, next) => {
 
   if (!adminKey) return next(new ApiError(400, "Please Provide Admin Key"));
 
-  const user = await db.user.findOne({ where: { email } });
+  const user = await db.user.findOne({ where: { email: email } });
   if (!user) return next(new ApiError(404, "User Not Found"));
+  if (user.role == "user")
+    return next(new ApiError(403, "You're Unauthorized"));
 
-  if (user.role === "admin" || user.role === "super_admin") {
-    if (adminKey !== process.env.ADMIN_SECRET) {
-      return next(new ApiError(403, "Invalid Admin Key"));
-    }
+  if (adminKey !== process.env.ADMIN_SECRET.toString()) {
+    return next(new ApiError(403, "Invalid Admin Key"));
   }
 
   // update state
-  const updatedUser = await db.user.update(
-    { role: "admin" },
-    { where: { email } }
-  );
+  // const updatedUser = await db.user.update(
+  //   { role: "admin" },
+  //   { where: { email } }
+  // );
 
-  if (updatedUser <= 0) return next(new ApiError(404, "User Not Found"));
+  // if (updatedUser <= 0) return next(new ApiError(404, "User Not Found"));
 
   return res
     .status(200)

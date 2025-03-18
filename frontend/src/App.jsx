@@ -1,15 +1,15 @@
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
-import './App.css'
-import AdminLayout from './layout/AdminLayout.jsx'
-import AppLayout from './layout/AppLayout.jsx'
-import { AdminLogin } from './pages/admin/index.admin.js'
-import { About, Contact, Home, Login, Signup, Dashboard, Live, Upcoming, Completed } from './pages/index.js'
-import AuthWrapper from './utils/AuthWrapper.jsx'
-import { CustomThemeProvider } from './context/ThemeContext';
+import './App.css';
 import Profile from './components/Profile.jsx';
-import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
+import { CustomThemeProvider } from './context/ThemeContext';
+import AdminLayout from './layout/AdminLayout.jsx';
+import AppLayout from './layout/AppLayout.jsx';
+import { AdminLogin } from './pages/admin/index.admin.js';
 import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
+import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
+import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
+import AuthWrapper from './utils/AuthWrapper.jsx';
 
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
     <CustomThemeProvider>
       <Routes>
         {/* User Routes */}
-        <Route path='/' element={<AuthWrapper redirect='/auth/login' isAuthenticated={true}><AppLayout /></AuthWrapper>}>
+        <Route path='/' element={<AuthWrapper redirect='/auth/login' requiresAuth={true}><AppLayout /></AuthWrapper>}>
           <Route index element={<Home />} />
           <Route path='contact' element={<Contact />} />
           <Route path='about' element={<About />} />

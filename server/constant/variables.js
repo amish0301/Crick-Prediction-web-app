@@ -1,5 +1,5 @@
 const PORT = process.env.PORT;
-const accessTokenExpiry = "20m";
+const accessTokenExpiry = "15m";
 const refreshTokenExpiry = "7d";
 
 const verificationURL = `${process.env.FRONTEND_URL}/verify-email`;

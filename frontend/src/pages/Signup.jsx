@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-  Container,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Box,
-  Divider,
-  InputAdornment,
-  IconButton
-} from '@mui/material';
-import Grid from '@mui/material/Grid2'; // Correct Grid import
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import logging from '../assets/Signup.jpg';
-import { toast } from 'react-toastify';
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography
+} from '@mui/material';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import logging from '../assets/Signup.jpg';
+import formatTime from "../utils/timer";
 
 
 const Signup = () => {
@@ -32,7 +32,8 @@ const Signup = () => {
   const [emailSent, setEmailSent] = useState(
     localStorage.getItem("emailSent") === "true"
   );
-  const navigate = useNavigate();
+  const [timeLeft, setTimeLeft] = useState(10); // 5 minutes (300 seconds)
+  const verificationChecked = useRef(false);
 
   const handleStateUpdate = (e) => {
     const { name, value } = e.target;
@@ -46,7 +47,6 @@ const Signup = () => {
 
   const handleValidation = async (e) => {
     e.preventDefault();
-    console.log(formData);
 
     const ansObj = Object.values(formData).filter((item) => !item);
     if (ansObj.length) return toast.info("All Fields are required");
@@ -60,8 +60,8 @@ const Signup = () => {
       if (res.data.success) {
         localStorage.setItem("email", formData.email);
         localStorage.setItem("emailSent", "true");
-        setEmailSent(formData.email)
-        setEmail(true);
+        setEmail(formData.email)
+        setEmailSent(true);
         toast.dismiss(toastId)
       }
     } catch (error) {
@@ -75,21 +75,38 @@ const Signup = () => {
 
     const interval = setInterval(async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, { withCredentials: true });
-        if (response.data.isVerified) {
-          toast.success("Account Verified! Redirecting...");
-          setEmail(false);
-          setEmailSent("");
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            if (!verificationChecked.current) {
+              verificationChecked.current = true;
+              toast.error("Verification time expired. Redirecting...");
+            }
+            setEmail("");
+            setEmailSent(false);
+            localStorage.removeItem("email");
+            localStorage.removeItem("emailSent");
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
 
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, { withCredentials: true });
+
+        if (response.data.isVerified) {
+          if (!verificationChecked.current) toast.success("Account Verified! Redirecting...");
+          verificationChecked.current = true;
+          setEmail("");
+          setEmailSent(false);
           clearInterval(interval);
         }
       } catch (error) {
         console.error("Verification Check Error:", error);
       }
-    }, 2000);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, [emailSent, email]);
+  }, [emailSent, email, verificationChecked]);
 
 
   // if(isLoading) 
@@ -127,6 +144,7 @@ const Signup = () => {
           {email ? (
             <Typography variant="h5" align="center" color="primary">
               Check your email for the verification link.
+              Timer: {formatTime(timeLeft)}
             </Typography>
           ) : (
             <Box
@@ -150,6 +168,7 @@ const Signup = () => {
                 type={showPassword ? "text" : "password"}
                 size="small"
                 variant="outlined"
+                name="password"
                 onChange={handleStateUpdate}
                 slotProps={{
                   input: {
