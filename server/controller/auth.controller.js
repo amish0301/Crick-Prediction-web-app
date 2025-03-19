@@ -73,6 +73,7 @@ const login = TryCatch(async (req, res, next) => {
       success: true,
       message: `Welcome Back ${user.name}`,
       accessToken,
+      refreshToken,
       user,
     });
 });
@@ -115,6 +116,7 @@ const verifyEmail = TryCatch(async (req, res, next) => {
       message: "Email verified successfully!",
       user,
       accessToken,
+      refreshToken,
     });
 });
 
@@ -205,8 +207,9 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
     );
   }
 
-  const { accessToken, refreshToken: newRefreshToken } = await generateTokens({
+  const { accessToken, refreshToken: newRefreshToken } = generateTokens({
     id: user.id,
+    role: user.role,
   });
 
   if (!accessToken || !newRefreshToken)
@@ -214,7 +217,7 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
 
   return res
     .status(200)
-    .cookie(process.env.AUTH_TOKEN, accessToken, cookieOption)
+    .cookie("accessToken", accessToken, cookieOption)
     .cookie("refreshToken", newRefreshToken, cookieOption)
     .json({
       success: true,
@@ -225,7 +228,7 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
 
 // LOGOUT
 const logout = TryCatch(async (req, res, next) => {
-  const id = "9189ed66-67d2-41d7-985d-3abdb64f7c74";
+  const id = req.uId;
 
   if (req.cookies?.accessToken) {
     res.clearCookie("accessToken");

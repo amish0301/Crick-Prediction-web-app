@@ -15,21 +15,29 @@ const EmailVerifyCallback = () => {
     const token = searchParams.get("token");
     const dispatch = useDispatch();
 
-
     const verifyToken = async () => {
+        const tId = toast.loading("Verifying Token...");
+        setIsLoading(true);
+
         try {
-            setIsLoading(true);
             const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/verify-email?token=${token}`, { withCredentials: true });
             if (res.data.success) {
                 // storing info
                 dispatch(userExists({ ...res.data.user }));
-                dispatch(setToken(res.data.accessToken));
-                setTimeout(() => navigate('/'), 1000);
+                const tokens = { accessToken: res.data.accessToken, refreshToken: res.data.refreshToken };
+
+                dispatch(setToken(tokens));
+                localStorage.removeItem("email");
+                localStorage.removeItem("emailSent");
+                navigate('/', { replace: true });
             }
         } catch (error) {
             setIsTokenExpire(true);
-            toast.error('Token Expired, Please Signup Again');
-        } finally { setIsLoading(false); }
+            toast.error('Token Expired, Please Signup Again', { toastId: tId });
+        } finally {
+            setIsLoading(false);
+            toast.dismiss(tId);
+        }
 
     }
 

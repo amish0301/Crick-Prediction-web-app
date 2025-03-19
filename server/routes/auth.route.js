@@ -4,6 +4,7 @@ const { login } = require("../controller/auth.controller");
 const express = require("express");
 const { registerValidation } = require("../middleware/validation");
 const { googleClient } = require("../utils/utils");
+const isAuthenticated = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.post("/register", registerValidation(), register);
 router.post("/login", login);
 
 // logout
-router.get('/logout', logout);
+router.get('/logout', isAuthenticated, logout);
 
 // Verification
 router.post('/refresh-token', refreshAccessToken);

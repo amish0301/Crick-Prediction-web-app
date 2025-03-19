@@ -10,6 +10,7 @@ import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
 import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
 import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
 import AuthWrapper from './utils/AuthWrapper.jsx';
+import AdminWrapper from './utils/AdminWrapper.jsx';
 
 
 function App() {
@@ -33,17 +34,17 @@ function App() {
 
         {/* Admin Routes - First declare the login route outside of AdminLayout */}
         <Route path='/admin/login' element={<AdminLogin />} />
-        
+
         {/* Then declare the protected admin routes */}
-        <Route path='/admin' element={<AuthWrapper requiresAuth={true}><AdminLayout /></AuthWrapper>}>
+        <Route path='/admin' element={<AuthWrapper redirect='/admin/login' isAdmin={true}><AdminLayout /></AuthWrapper>}>
           {/* Admin dashboard and other protected admin routes would go here */}
           <Route index element={<div>Admin Dashboard</div>} />
         </Route>
 
         {/* Auth Routes */}
         <Route path='/auth/admin' element={<AdminLogin />} />
-        <Route path='/auth/signup' element={<Signup />} />
-        <Route path='/auth/login' element={<Login />} />
+        <Route path='/auth/signup' element={<AuthWrapper requiresAuth={false}><Signup /></AuthWrapper>} />
+        <Route path='/auth/login' element={<AuthWrapper requiresAuth={false}><Login /></AuthWrapper>} />
         <Route path='/verify-email' element={<EmailVerifyCallback />} />
         <Route path='/auth/success' element={<GoogleOAuthCallback />} />
       </Routes>

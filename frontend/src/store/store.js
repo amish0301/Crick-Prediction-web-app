@@ -27,5 +27,9 @@ export const store = configureStore({
     }),
 });
 
+export const clearLocalStorage = () => {
+  persistor.purge();
+  localStorage.removeItem("persist:CrickPrediction")
+}
 
 export const persistor = persistStore(store); 

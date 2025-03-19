@@ -43,6 +43,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
 import { userNotExists } from '../store/slices/user';
+import axiosInstance from "../hooks/useAxios";
 
 const Navbar = () => {
   const theme = useTheme();
@@ -67,7 +68,7 @@ const Navbar = () => {
     const toastId = toast.loading('Logging out...');
 
     try {
-      const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, { withCredentials: true });
+      const res = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, { withCredentials: true });
       if (res.data.success) {
         toast.success("Logout Successfully", toastId);
         // remove from storage
