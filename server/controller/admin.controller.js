@@ -7,7 +7,7 @@ const adminRegister = TryCatch(async (req, res, next) => {
 
   if (!adminKey) return next(new ApiError(404, "Please Provide Admin Key"));
 
-  if (adminKey && adminKey !== process.env.ADMIN_SECRET.toString())
+  if (adminKey && adminKey !== process.env.ADMIN_SECRET)
     return next(new ApiError(400, "Invalid Admin Key"));
 
   // returns number of updated rows
@@ -15,7 +15,7 @@ const adminRegister = TryCatch(async (req, res, next) => {
     { role: "admin" },
     { where: { email } }
   );
-
+  
   if (updatedUser <= 0) return next(new ApiError(404, "User Not Found"));
 
   return res
@@ -30,10 +30,10 @@ const adminLogin = TryCatch(async (req, res, next) => {
 
   const user = await db.user.findOne({ where: { email: email } });
   if (!user) return next(new ApiError(404, "User Not Found"));
-  if (user.role == "user")
-    return next(new ApiError(403, "You're Unauthorized"));
+  // if (user.role == "user")
+  //   return next(new ApiError(403, "You're Unauthorized"));
 
-  if (adminKey !== process.env.ADMIN_SECRET.toString()) {
+  if (adminKey !== process.env.ADMIN_SECRET) {
     return next(new ApiError(403, "Invalid Admin Key"));
   }
 

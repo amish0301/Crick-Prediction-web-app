@@ -18,7 +18,7 @@ const router = express.Router();
 router.post('/register',adminLoginValidation(), adminRegister )
 
 // Protected Routes
-router.use(isAuthenticated);
+// router.use(isAuthenticated);
 
 router.post("/login", adminLogin);
 

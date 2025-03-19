@@ -35,11 +35,9 @@ function App() {
         <Route path='/admin/login' element={<AdminLogin />} />
         
         {/* Then declare the protected admin routes */}
-        <Route path='/admin' element={<AuthWrapper redirect='/admin/login' isAdmin={true}><AdminLayout /></AuthWrapper>}>
+        <Route path='/admin' element={<AuthWrapper requiresAuth={true}><AdminLayout /></AuthWrapper>}>
           {/* Admin dashboard and other protected admin routes would go here */}
           <Route index element={<div>Admin Dashboard</div>} />
-          {/* <Route path="users" element={<AdminUsers />} /> */}
-          {/* Add other admin routes as needed */}
         </Route>
 
         {/* Auth Routes */}

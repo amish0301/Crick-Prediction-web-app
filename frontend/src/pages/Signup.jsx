@@ -16,6 +16,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import logging from '../assets/Signup.jpg';
 import formatTime from "../utils/timer";
+import Timeout from "../components/timeout";
 
 
 const Signup = () => {
@@ -32,7 +33,7 @@ const Signup = () => {
   const [emailSent, setEmailSent] = useState(
     localStorage.getItem("emailSent") === "true"
   );
-  const [timeLeft, setTimeLeft] = useState(10); // 5 minutes (300 seconds)
+  const [timeLeft, setTimeLeft] = useState(300); 
   const verificationChecked = useRef(false);
 
   const handleStateUpdate = (e) => {
@@ -142,10 +143,7 @@ const Signup = () => {
           }}
         >
           {email ? (
-            <Typography variant="h5" align="center" color="primary">
-              Check your email for the verification link.
-              Timer: {formatTime(timeLeft)}
-            </Typography>
+            <Timeout timeLeft={timeLeft} />
           ) : (
             <Box
               component="form"
@@ -256,7 +254,7 @@ const Signup = () => {
               <Box sx={{ mt: 2, textAlign: "center" }}>
                 <Typography variant="body2">
                   Already have an account?{" "}
-                  <RouterLink to="/auth/login" style={{ color: "primary.main" }}>
+                  <RouterLink to="/auth/login" className="text-blue-500 hover:underline">
                     Login here
                   </RouterLink>
                 </Typography>
