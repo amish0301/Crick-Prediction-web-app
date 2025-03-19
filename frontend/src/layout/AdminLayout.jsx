@@ -1,12 +1,10 @@
-import React from 'react'
-import Admin from '../pages/admin/Admin'
-import { Box } from '@mui/material';
+import React from 'react';
 
 const AdminLayout = () => {
   return (
-    <Box>
-     <Admin/>
-    </Box>
+    <>
+      
+    </>
   );
 };
 

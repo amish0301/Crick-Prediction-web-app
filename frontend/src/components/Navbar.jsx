@@ -30,20 +30,18 @@ import {
   Menu,
   MenuItem,
   Paper,
-  Stack,
   Typography,
   useMediaQuery,
-  useTheme,
+  useTheme
 } from "@mui/material";
 import Grid from "@mui/material/Grid2"; // Using Grid2
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useThemeContext } from "../context/ThemeContext";
-import axios from 'axios';
-import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { userNotExists } from '../store/slices/user';
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import { useThemeContext } from "../context/ThemeContext";
 import axiosInstance from "../hooks/useAxios";
+import { userNotExists } from '../store/slices/user';
 
 const Navbar = () => {
   const theme = useTheme();

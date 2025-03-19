@@ -16,7 +16,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import logging from '../assets/Signup.jpg';
 import formatTime from "../utils/timer";
-import Timeout from "../components/timeout";
+import Timeout from "../components/Timeout";
 
 
 const Signup = () => {

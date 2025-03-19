@@ -6,7 +6,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-import { setLoading } from "../../store/slices/user";
+import { setAdmin, setLoading } from "../../store/slices/user";
 import axios from "axios";
 
 const AdminLogin = () => {
@@ -25,29 +25,28 @@ const AdminLogin = () => {
 
 
   const handleLogin = async (e) => {
-      e.preventDefault();
-      
-              if (!adminDetails.email || !adminDetails.adminKey) {
-                  toast.info('All fields are required');
-                  return;
-              }
-      
-              dispatch(setLoading(true));
-      
-              try {
-                  const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/admin/register`, adminDetails, { withCredentials: true });
-      
-                  if (response.data.success) {
-                      toast.success('Login Successfully!');
-                      navigate('/admin');
-                  }
-              } catch (error) {
-                  toast.error(error.response?.data?.message || 'Login failed');
-              } finally {
-                  dispatch(setLoading(false));
-              }
+    e.preventDefault();
+
+    if (!adminDetails.email || !adminDetails.adminKey) {
+      toast.info('All fields are required');
+      return;
+    }
+    dispatch(setLoading(true));
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/admin/register`, adminDetails, { withCredentials: true });
+
+      if (response.data.success) {
+        toast.success('Login Successfully!');
+        dispatch(setAdmin(true));
+        navigate('/admin', { replace: true });
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Login failed');
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
-  
+
 
   const theme = createTheme({
     palette: {
@@ -81,7 +80,7 @@ const AdminLogin = () => {
               sx={{
                 fontSize: 40,
                 color: darkMode ? "#90caf9" : "#1976d2",
-                mb: 1, 
+                mb: 1,
               }}
             />
           </Typography>

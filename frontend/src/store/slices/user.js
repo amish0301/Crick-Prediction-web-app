@@ -4,7 +4,7 @@ const initialState = {
   user: null,
   authToken: null,
   isLoading: false,
-  refreshToken: null
+  refreshToken: null,
 };
 
 const userSlice = createSlice({
@@ -15,21 +15,36 @@ const userSlice = createSlice({
       state.user = action.payload;
     },
     userNotExists: () => initialState,
-    
+
     setToken: (state, action) => {
       state.authToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken
+      state.refreshToken = action.payload.refreshToken;
     },
+
+    setAdmin: (state, action) => {
+      if (action.payload === true) {
+        state.user.role = "admin";
+      } else state.user.role = "user";
+    },
+
     removeToken: (state) => {
       state.authToken = null;
     },
     resetUserState: () => initialState,
-    
+
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
   },
 });
 
-export const { userExists, userNotExists, setToken, removeToken, resetUserState, setLoading } = userSlice.actions;
+export const {
+  userExists,
+  userNotExists,
+  setToken,
+  removeToken,
+  resetUserState,
+  setLoading,
+  setAdmin,
+} = userSlice.actions;
 export default userSlice;
