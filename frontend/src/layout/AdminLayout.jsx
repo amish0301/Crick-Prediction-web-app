@@ -150,10 +150,67 @@ const AdminLayout = () => {
   const handleClose = () => setDrawerOpen(false);
 
   return (
-    <>
-      
-    </>
+    <Suspense fallback={<AdminLayoutLoader />}>
+      <Grid container sx={{ minHeight: '100vh', bgcolor: '#eff7f9' }}>
+        {/* Mobile Menu Button */}
+        <Box sx={{ 
+          display: { xs: 'block', sm: 'none' }, 
+          position: 'fixed', 
+          right: '1rem', 
+          top: '1rem', 
+          zIndex: 1200,
+          bgcolor: '#286675',
+          borderRadius: '50%',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.2)',
+        }}>
+          <IconButton onClick={handleOpen} sx={{ color: '#fff' }}>
+            <MenuIcon />
+          </IconButton>
+        </Box>
+
+        {/* Sidebar */}
+        <Grid
+          size={{ xs: 0, sm: 4, md: 3, lg: 2.5 }}
+          sx={{ display: { xs: 'none', sm: 'block' } }}
+        >
+          <SideBar />
+        </Grid>
+
+        {/* Main Content */}
+        <Grid
+          size={{ xs: 12, sm: 8, md: 9, lg: 9.5 }}
+          sx={{
+            overflowY: 'auto',
+            p: { xs: 1, sm: 2, md: 3 },
+            height: '100vh',
+            bgcolor: '#eff7f9',
+          }}
+        >
+          <AppBar />
+          <Box sx={{ py: { xs: 1, sm: 2, md: 3 } }}>
+            <Outlet />
+          </Box>
+        </Grid>
+
+        {/* Mobile Drawer */}
+        <Drawer
+          open={drawerOpen}
+          onClose={handleClose}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { 
+              width: { xs: '75vw', sm: '50vw' }, 
+              maxWidth: '300px', 
+              borderRadius: '0 12px 12px 0',
+            },
+          }}
+        >
+          <SideBar onClose={handleClose} />
+        </Drawer>
+      </Grid>
+    </Suspense>
   );
 };
 
-export default AdminLayout;
+
+export default AdminLayout
