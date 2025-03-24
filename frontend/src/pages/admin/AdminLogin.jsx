@@ -189,10 +189,6 @@ const AdminLogin = () => {
             sx={{ mb: 2.5 }}
           />
 
-<<<<<<< Updated upstream
-          <Button fullWidth variant="contained" color="primary" disabled={isLoading} onClick={handleLogin} sx={{ mb: 2, fontWeight: "bold" }}>
-            {isLoading ? "Verifying Credentials..." : "Login"}
-=======
           <TextField
             fullWidth
             label="Admin Key"
@@ -246,7 +242,6 @@ const AdminLogin = () => {
             }}
           >
             Login
->>>>>>> Stashed changes
           </Button>
 
           <Typography
