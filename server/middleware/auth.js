@@ -25,7 +25,12 @@ const isAuthenticated = async (req, res, next) => {
       req.uId = user?.id;
       next();
     } catch (error) {
-      return next(new ApiError(401, "Token Expire or Not Valid"));
+      if (error.name === "TokenExpiredError") {
+        return next(
+          new ApiError(403, "Access Token Expired. Please refresh your token.")
+        );
+      }
+      return next(new ApiError(401, "Invalid Token"));
     }
   } catch (error) {
     return next(new ApiError(500, "Something went Wrong in AuthMiddleware"));

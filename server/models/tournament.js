@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsToMany(models.Team, {
-        through: "TournamentTeams", // Intermediate table for tournament teams
+        through: models.TournamentTeams, // Intermediate table for tournament teams
         foreignKey: "tournament_id",
         otherKey: "team_id",
         as: "teams",
@@ -49,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       pointsTable: {
         type: DataTypes.ARRAY(DataTypes.JSONB),
         defaultValue: [],
+        allowNull: true
       },
     },
     {

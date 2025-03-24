@@ -1,9 +1,11 @@
 ideas
 1. users see completed tournament only if they predicted in that
 
+2. For Scheduling anything time should be in ISO format and can be use `DatePicker` Dependency for this 
 
 Things That needs to be fixed
 1. On refresh Email Verification timer starting time from inital. (Re-rendering component)
+2. Add Time Field to Matches Schema for scheduling
 
 
 

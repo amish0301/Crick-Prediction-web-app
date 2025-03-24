@@ -12,10 +12,9 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import logging from '../assets/Signup.jpg';
-import formatTime from "../utils/timer";
 import Timeout from "../components/Timeout";
 
 
@@ -33,8 +32,10 @@ const Signup = () => {
   const [emailSent, setEmailSent] = useState(
     localStorage.getItem("emailSent") === "true"
   );
-  const [timeLeft, setTimeLeft] = useState(300); 
+  const [timeLeft, setTimeLeft] = useState(300);
   const verificationChecked = useRef(false);
+  const navigate = useNavigate();
+
 
   const handleStateUpdate = (e) => {
     const { name, value } = e.target;
@@ -63,10 +64,11 @@ const Signup = () => {
         localStorage.setItem("emailSent", "true");
         setEmail(formData.email)
         setEmailSent(true);
-        toast.dismiss(toastId)
       }
     } catch (error) {
       toast.error('Signup failed', toastId);
+      localStorage.removeItem("email");
+      localStorage.removeItem("emailSent");
     } finally { toast.dismiss(toastId) }
   };
 
@@ -100,6 +102,7 @@ const Signup = () => {
           setEmail("");
           setEmailSent(false);
           clearInterval(interval);
+          navigate('/', { replace: true });
         }
       } catch (error) {
         console.error("Verification Check Error:", error);
@@ -110,7 +113,25 @@ const Signup = () => {
   }, [emailSent, email, verificationChecked]);
 
 
-  // if(isLoading) 
+  // Handle Resent Email
+  const emailResentHandler = async () => {
+    const toastId = toast.loading('Please wait for a while...');
+    try {
+      const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/resend-email`, { email }, { withCredentials: true });
+      if (res.data.success) {
+        localStorage.setItem("email", formData.email);
+        localStorage.setItem("emailSent", "true");
+        setEmail(formData.email)
+        setEmailSent(true);
+      }
+    } catch (error) {
+      toast.error(error.response || "Email Resent Fail", toastId);
+      localStorage.removeItem("email");
+      localStorage.removeItem("emailSent");
+    } finally {
+      toast.dismiss(toastId);
+    }
+  }
 
   return (
     <Container
@@ -143,7 +164,7 @@ const Signup = () => {
           }}
         >
           {email ? (
-            <Timeout timeLeft={timeLeft} />
+            <Timeout timeLeft={timeLeft} emailResentHandler={emailResentHandler} />
           ) : (
             <Box
               component="form"

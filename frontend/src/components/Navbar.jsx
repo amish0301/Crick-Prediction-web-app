@@ -53,6 +53,7 @@ const Navbar = () => {
   const [selectedTab, setSelectedTab] = useState("info");
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const dispatch = useDispatch();
+  // const {isLoading} = useSelector(state => state.user);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -64,6 +65,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     const toastId = toast.loading('Logging out...');
+    // dispatch(setLoading(true));
 
     try {
       const res = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, { withCredentials: true });
@@ -73,9 +75,11 @@ const Navbar = () => {
         dispatch(userNotExists());
       }
     } catch (error) {
+      console.log(error);
       toast.error(error?.response?.data?.message || "Logout Failed", toastId);
     } finally {
       toast.dismiss(toastId);
+      // dispatch(setLoading(false));
     }
   };
 
@@ -374,7 +378,7 @@ const Navbar = () => {
                 bgcolor: 'primary.main',
                 border: '3px solid',
                 borderColor: 'primary.light',
-              }} 
+              }}
             />
             <Typography variant="h6" sx={{ mt: 1, fontWeight: 600, fontSize: '1.1rem' }}>
               {user?.name || "Unknown"}
@@ -426,15 +430,15 @@ const Navbar = () => {
                       minHeight: '80px'
                     }}
                   >
-                    <Typography 
-                      variant="h6" 
+                    <Typography
+                      variant="h6"
                       fontWeight="bold"
                       sx={{ mb: 0.5 }}
                     >
                       {userStats.points}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       color="text.secondary"
                     >
                       Points
@@ -456,15 +460,15 @@ const Navbar = () => {
                       minHeight: '80px'
                     }}
                   >
-                    <Typography 
-                      variant="h6" 
+                    <Typography
+                      variant="h6"
                       fontWeight="bold"
                       sx={{ mb: 0.5 }}
                     >
                       {userStats.accuracy}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
+                    <Typography
+                      variant="body2"
                       color="text.secondary"
                     >
                       Accuracy

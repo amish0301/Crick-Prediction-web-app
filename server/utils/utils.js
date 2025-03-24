@@ -60,9 +60,16 @@ const getEmailTemplate = (verificationLink) => {
   return emailHTML.replace("{verificationLink}", verificationLink);
 };
 
+// Generate Dummy Tokens
+// const generateDummyTokens = () => {
+//   const { accessToken, refreshToken } = generateTokens();
+//   return { accessToken, refreshToken };
+// };
+
 module.exports = {
   sendVerificationLink,
   generateTokens,
   googleClient,
+  // generateDummyTokens,
   getEmailTemplate,
 };

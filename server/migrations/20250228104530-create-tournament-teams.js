@@ -51,6 +51,7 @@ module.exports = {
       onUpdate: "CASCADE",
     });
   },
+  
   async down(queryInterface, Sequelize) {
     // await queryInterface.dropTable("tournaments_teams");
     await queryInterface.dropTable("tournaments_teams", { cascade: true });

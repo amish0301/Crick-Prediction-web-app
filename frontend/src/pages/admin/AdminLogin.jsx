@@ -5,7 +5,7 @@ import { DarkMode, LightMode, SportsCricket } from "@mui/icons-material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { toast } from "react-toastify";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setAdmin, setLoading } from "../../store/slices/user";
 import axios from "axios";
 
@@ -14,6 +14,8 @@ const AdminLogin = () => {
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const { isLoading } = useSelector(state => state.user);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,13 +33,13 @@ const AdminLogin = () => {
       toast.info('All fields are required');
       return;
     }
-    dispatch(setLoading(true));
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/admin/register`, adminDetails, { withCredentials: true });
 
       if (response.data.success) {
-        toast.success('Login Successfully!');
-        dispatch(setAdmin(true));
+        toast.success('Admin Login Successfully!');
+        // dispatch(setAdmin(true));
         navigate('/admin', { replace: true });
       }
     } catch (error) {
@@ -56,6 +58,8 @@ const AdminLogin = () => {
     },
     typography: { fontFamily: "'Poppins', sans-serif" },
   });
+
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -94,8 +98,8 @@ const AdminLogin = () => {
             sx={{ mb: 2, width: "100%" }}
           />
 
-          <Button fullWidth variant="contained" color="primary" onClick={handleLogin} sx={{ mb: 2, fontWeight: "bold" }}>
-            Login
+          <Button fullWidth variant="contained" color="primary" disabled={isLoading} onClick={handleLogin} sx={{ mb: 2, fontWeight: "bold" }}>
+            {isLoading ? "Verifying Credentials..." : "Login"}
           </Button>
 
           <Typography variant="body2" color="textSecondary" sx={{ cursor: "pointer", "&:hover": { textDecoration: "underline" } }}>

@@ -53,5 +53,7 @@ db.tournament = require("./tournament.js")(sequelize, DataTypes);
 db.tournament_team = require("./tournamentteams")(sequelize, DataTypes);
 db.match = require("./match.js")(sequelize, DataTypes);
 db.team = require("./team.js")(sequelize, DataTypes);
+db.player = require("./player.js")(sequelize, DataTypes);
+db.teamplayers = require("./teamplayers.js")(sequelize, DataTypes);
 
 module.exports = db;

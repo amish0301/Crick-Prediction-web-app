@@ -7,7 +7,7 @@ const verificationURL = `${process.env.FRONTEND_URL}/verify-email`;
 const cookieOption = {
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  httpOnly: process.env.NODE_ENV === "production" ? true : false,
+  httpOnly: true,
   maxAge: 15 * 60 * 1000,
 };
 

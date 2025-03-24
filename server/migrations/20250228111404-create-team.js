@@ -16,11 +16,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      total_players: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-      },
       main_players: {
         type: Sequelize.ARRAY(Sequelize.INTEGER), // Store player IDs
         allowNull: true,

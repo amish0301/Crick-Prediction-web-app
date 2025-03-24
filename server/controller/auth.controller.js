@@ -28,7 +28,25 @@ const register = TryCatch(async (req, res, next) => {
 
   if (!user) return next(new ApiError(500, "User Creation Failed"));
 
-  // generate a Verification token
+  // FOR DUMMY USERS - DEVELOPMENT PURPOSE
+  if (email === process.env.DUMMY_EMAIL.toString()) {
+    user.isVerified = true;
+    await user.save();
+
+    const { accessToken, refreshToken } = generateTokens({
+      id: user.id,
+      role: user.role,
+    });
+
+    console.log("token generated for dummy mails\n", accessToken);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, cookieOption)
+      .cookie("refreshToken", refreshToken, refreshTokenCookieOption)
+      .json({ success: true, message: "Dummy User Created" });
+  }
+
   const accessToken = jwt.sign({ id: user.id, email }, process.env.JWT_SECRET, {
     expiresIn: accessTokenExpiry,
   });
@@ -50,14 +68,14 @@ const login = TryCatch(async (req, res, next) => {
   if (!user)
     return next(new ApiError(404, "User Doesn't Exist with this Email!"));
 
+  if (!user.isVerified) {
+    return next(new ApiError(401, "You're not Verified or Signup again"));
+  }
+
   // if user exist verify password
   const isMatchPassword = await bcrypt.compare(password, user.password);
   if (!isMatchPassword)
     return next(new ApiError(400, "Credentials are Invalid"));
-
-  // mark as verified
-  user.isVerified = true;
-  await user.save();
 
   // if matched allow access & generate tokens
   const { accessToken, refreshToken } = generateTokens({
@@ -118,6 +136,30 @@ const verifyEmail = TryCatch(async (req, res, next) => {
       accessToken,
       refreshToken,
     });
+});
+
+const resendEmail = TryCatch(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(new ApiError(404, "Please Provide Email"));
+
+  const user = await db.user.findOne({ where: { email } });
+  if (!user) return next(new ApiError(404, "User not found"));
+
+  // Generate a new verification token
+  const verificationToken = jwt.sign(
+    { id: user.id, email },
+    process.env.JWT_SECRET,
+    { expiresIn: accessTokenExpiry }
+  );
+
+  // Send verification email
+  const emailRes = await sendVerificationLink(email, verificationToken);
+  if (!emailRes.success) return next(new ApiError(500, emailRes.message));
+
+  return res.status(200).json({
+    success: true,
+    message: "Verification email resent Successfully!",
+  });
 });
 
 const isVerified = TryCatch(async (req, res, next) => {
@@ -230,21 +272,32 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
 const logout = TryCatch(async (req, res, next) => {
   const id = req.uId;
 
-  if (req.cookies?.accessToken) {
-    res.clearCookie("accessToken");
-  }
-  if (req.cookies?.refreshToken) {
-    res.clearCookie("refreshToken");
-  }
+  if (req.cookies?.accessToken) res.clearCookie("accessToken");
+  if (req.cookies?.refreshToken) res.clearCookie("refreshToken");
   if (req.cookies["connect.sid"]) res.clearCookie("connect.sid");
 
-  await db.user.update({ isVerified: false }, { where: { id: id } });
+  // await db.user.update({ isVerified: false }, { where: { id: id } });
 
   return res.json({
     success: true,
     type: "jwt",
     message: "Logged out successfully",
   });
+});
+
+// DUMMY TOKENS
+const dummyTokens = TryCatch(async (req, res, next) => {
+  const { accessToken, refreshToken } = generateTokens({
+    id: "9844bb8e-27c4-4147-a312-0201a3a987ab",
+    email: process.env.DUMMY_EMAIL.toString(),
+    role: "user",
+  });
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, cookieOption)
+    .cookie("refreshToken", refreshToken, refreshTokenCookieOption)
+    .json({ success: true, message: "Dummy Tokens Generated" });
 });
 
 // module.exports = {login}
@@ -256,4 +309,6 @@ module.exports = {
   isVerified,
   refreshAccessToken,
   logout,
+  resendEmail,
+  dummyTokens,
 };

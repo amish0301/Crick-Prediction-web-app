@@ -1,6 +1,6 @@
 import axios from "axios";
 import { SERVER_URI } from "../constant/variables";
-import { resetUserState } from "../store/slices/user";
+import { resetUserState, setToken } from "../store/slices/user";
 import { clearLocalStorage, store } from "../store/store"; // Import your redux store
 
 class TokenRefreshManager {
@@ -67,7 +67,7 @@ axiosInstance.interceptors.response.use(
         const newAccessToken = response.data?.accessToken;
 
         if (newAccessToken) {
-          localStorage.setItem("accessToken", newAccessToken);
+          store.dispatch(setToken({ accessToken: newAccessToken }));  // Updated in redux store
           axiosInstance.defaults.headers.common[
             "Authorization"
           ] = `Bearer ${newAccessToken}`;

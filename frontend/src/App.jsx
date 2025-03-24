@@ -33,7 +33,6 @@ function App() {
         </Route>
 
         {/* Admin Routes - First declare the login route outside of AdminLayout */}
-        <Route path='/admin/login' element={<AdminLogin />} />
 
         {/* Then declare the protected admin routes */}
         <Route path='/admin' element={<AdminWrapper redirect='/admin/login'><AdminLayout /></AdminWrapper>}>
@@ -42,7 +41,7 @@ function App() {
         </Route>
 
         {/* Auth Routes */}
-        <Route path='/auth/admin' element={<AdminLogin />} />
+        <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/auth/signup' element={<AuthWrapper requiresAuth={false}><Signup /></AuthWrapper>} />
         <Route path='/auth/login' element={<AuthWrapper requiresAuth={false}><Login /></AuthWrapper>} />
         <Route path='/verify-email' element={<EmailVerifyCallback />} />

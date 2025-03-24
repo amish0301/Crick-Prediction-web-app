@@ -8,7 +8,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      this.belongsToMany(models.Player, {
+        through: "TeamPlayers",
+        foreignKey: "team_id",
+        otherKey: "player_id",
+      });
+
+      this.belongsToMany(models.Tournament, {
+        through: models.TournamentTeams,
+        foreignKey: "team_id",
+        otherKey: "tournament_id",
+        as: "tournaments",
+      });
     }
   }
   Team.init(
@@ -25,11 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       logo: {
         type: DataTypes.STRING,
         allowNull: false,
-      },
-      total_players: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
       },
       main_players: {
         type: DataTypes.ARRAY(DataTypes.INTEGER), // Store player IDs

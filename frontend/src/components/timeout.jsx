@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
-const Timeout = ({ timeLeft }) => {
+const Timeout = ({ timeLeft, emailResentHandler }) => {
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -65,7 +65,7 @@ const Timeout = ({ timeLeft }) => {
         </motion.div>
 
         <p className="mt-6 text-sm text-gray-500">
-          Didn't receive the email? <button className="text-blue-600 hover:underline font-medium">Resend</button>
+          Didn't receive the email? <button className="text-blue-600 hover:underline font-medium" onClick={emailResentHandler}>Resend</button>
         </p>
       </motion.div>
     </div>

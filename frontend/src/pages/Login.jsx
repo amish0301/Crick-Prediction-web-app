@@ -43,10 +43,10 @@ const Login = () => {
                 toast.success('Login Successfully!');
                 // store data
                 dispatch(userExists({ ...response.data.user }));
-                dispatch(setToken({accessToken: response.data?.accessToken, refreshToken: response.data?.refreshToken}));
+                dispatch(setToken({ accessToken: response.data?.accessToken, refreshToken: response.data?.refreshToken }));
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Login failed');
+            toast.error(error.response?.data?.message || "Login Failed");
         } finally {
             dispatch(setLoading(false));
         }
