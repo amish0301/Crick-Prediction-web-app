@@ -38,7 +38,7 @@ const mockUsers = [
 const UsersManagement = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [users, setUsers] = useState(mockUsers);
@@ -56,9 +56,9 @@ const UsersManagement = () => {
   };
 
   const handleToggleStatus = (userId) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' } 
+    setUsers(users.map(user =>
+      user.id === userId
+        ? { ...user, status: user.status === 'active' ? 'inactive' : 'active' }
         : user
     ));
   };
@@ -114,8 +114,8 @@ const UsersManagement = () => {
                     {!isMobile && <TableCell>{user.email}</TableCell>}
                     {!isMobile && <TableCell>{user.phone}</TableCell>}
                     <TableCell>
-                      <Chip 
-                        label={user.status === 'active' ? 'Active' : 'Inactive'} 
+                      <Chip
+                        label={user.status === 'active' ? 'Active' : 'Inactive'}
                         color={user.status === 'active' ? 'success' : 'default'}
                         size="small"
                       />
@@ -123,9 +123,9 @@ const UsersManagement = () => {
                     <TableCell>{user.totalPredictions}</TableCell>
                     <TableCell align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                        <IconButton 
-                          size="small" 
-                          color="primary" 
+                        <IconButton
+                          size="small"
+                          color="primary"
                           onClick={() => handleViewProfile(user)}
                         >
                           <VisibilityIcon fontSize="small" />
@@ -139,9 +139,9 @@ const UsersManagement = () => {
                         >
                           {user.status === 'active' ? 'Deactivate' : 'Activate'}
                         </Button>
-                        <IconButton 
-                          size="small" 
-                          color="error" 
+                        <IconButton
+                          size="small"
+                          color="error"
                           onClick={() => handleOpenDeleteDialog(user)}
                         >
                           <DeleteIcon fontSize="small" />

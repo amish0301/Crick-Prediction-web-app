@@ -5,7 +5,7 @@ import Profile from './components/Profile.jsx';
 import { CustomThemeProvider } from './context/ThemeContext';
 import AdminLayout from './layout/AdminLayout.jsx';
 import AppLayout from './layout/AppLayout.jsx';
-import { AdminLogin } from './pages/admin/index.admin.js';
+import { AdminLogin,AdminDashboard,PlayerManagement,TeamManagement,TournamentManagement } from './pages/admin/index.admin.js';
 import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
 import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
 import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
@@ -35,7 +35,11 @@ function App() {
         {/* Admin Routes - First declare the login route outside of AdminLayout */}
 
         {/* Then declare the protected admin routes */}
-        <Route path='/admin' element={<AdminWrapper redirect='/admin/login'><AdminLayout /></AdminWrapper>}>
+        <Route path='/admin' element={<AdminLayout />}>
+          <Route path='/admin/dashboard' element={<AdminDashboard />} />
+          <Route path='/admin/players' element={<PlayerManagement />} />
+          <Route path='/admin/teams' element={<TeamManagement />} />
+          <Route path='/admin/tournaments' element={<TournamentManagement />} />
           {/* Admin dashboard and other protected admin routes would go here */}
           <Route index element={<div>Admin Dashboard</div>} />
         </Route>

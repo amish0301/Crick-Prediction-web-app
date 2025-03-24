@@ -26,7 +26,13 @@ app.use(cookieParser());
 app.use(redisInit());
 
 // DB Connection
+// const { Sequelize } = require("sequelize");
+
+
 connectDB();
+
+
+
 
 // Routes
 app.use("/api/v1/auth", authRoutes);
