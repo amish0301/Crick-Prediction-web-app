@@ -11,6 +11,7 @@ const {
   assignPlayerToTeam,
   getTeamInfoOfTournament,
   createTournament,
+  logout,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -25,6 +26,7 @@ router.post('/register',adminLoginValidation(), adminRegister)
 
 // Protected Routes
 router.use(isAuthenticated);
+router.get('/logout', logout);
 
 // Teams Route
 router.post("/team", createTeamValidation(), createTeam);

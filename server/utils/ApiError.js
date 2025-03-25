@@ -3,6 +3,10 @@ class ApiError extends Error {
       super(message);
       this.status = status;
       this.message = message;
+
+      if (errors && Array.isArray(errors) && errors.length > 0) {
+        this.errors = errors; // Attach validation errors if provided
+    }
   
       if (stack) {
         this.stack = stack;

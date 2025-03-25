@@ -61,7 +61,7 @@ const SideBar = ({ w = '100%', onClose }) => {
     <Stack
       width={{ xs: '100%', sm: '80%', md: w }}
       sx={{
-        padding: { xs: '1rem', sm: '1.5rem', md: '0rem' },
+        padding: { xs: '1rem', sm: '1.2rem', md: '1.4rem' },
         height: '100%',
         bgcolor: '#286675',
         position: { xs: 'relative', sm: 'sticky' },

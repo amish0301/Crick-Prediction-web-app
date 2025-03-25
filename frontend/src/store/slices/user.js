@@ -5,6 +5,7 @@ const initialState = {
   authToken: null,
   isLoading: false,
   refreshToken: null,
+  verifyingMailWindowTime: parseInt(localStorage.getItem("verifyingMailWindowTime")) || 300,
 };
 
 const userSlice = createSlice({
@@ -30,11 +31,21 @@ const userSlice = createSlice({
     removeToken: (state) => {
       state.authToken = null;
     },
+
     resetUserState: () => initialState,
 
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
+
+    setVerifyingMailWindowTime: (state, action) => {
+      state.verifyingMailWindowTime = action.payload;
+      localStorage.setItem("verifyingMailWindowTime", action.payload); // Store in localStorage
+    },
+    resetVerifyingMailWindowTime: (state) => {
+      state.verifyingMailWindowTime = 300; // Reset to 300 seconds
+      localStorage.setItem("verifyingMailWindowTime", 300); // Also reset in localStorage
+    },    
   },
 });
 
@@ -46,5 +57,7 @@ export const {
   resetUserState,
   setLoading,
   setAdmin,
+  setVerifyingMailWindowTime,
+  resetVerifyingMailWindowTime
 } = userSlice.actions;
 export default userSlice;

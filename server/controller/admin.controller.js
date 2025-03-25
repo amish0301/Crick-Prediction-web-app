@@ -23,6 +23,18 @@ const adminRegister = TryCatch(async (req, res, next) => {
     .json({ success: true, message: "Admin Registered Successfully" });
 });
 
+const logout = TryCatch(async (req, res, next) => {
+  // remove admin
+  const updatedUser = await db.user.update(
+    { role: "user" },
+    { where: { id: req.uId } }
+  );
+
+  if (updatedUser <= 0) return next(new ApiError(404, "User Not Found"));
+
+  return res.status(200).json({ success: true, message: "Logged Out" });
+});
+
 // ******** Team *********
 const createTeam = TryCatch(async (req, res, next) => {
   const { name, logo, mainPlayers, matchesInfo } = req.teamData;
@@ -62,33 +74,31 @@ const getTeamInfo = TryCatch(async (req, res, next) => {
 });
 
 const updateTeamInfo = TryCatch(async (req, res, next) => {
-  const {teamId} = req.params;
+  const { teamId } = req.params;
 
-  if(!teamId) return next(new ApiError(400, "Please Provide TeamId"));
+  if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
   // get data which wanted to be updated
-  const {name, logo, addedPlayers=[], removedPlayers=[]} = req.body;
+  const { name, logo, addedPlayers = [], removedPlayers = [] } = req.body;
 
   const team = await db.team.findOne({
-    where: {team_id: teamId},
+    where: { team_id: teamId },
     attributes: ["team_id", "name", "logo", "main_players"],
   });
 
-  if(!team) return next(new ApiError(404, "Team Not Found"));
+  if (!team) return next(new ApiError(404, "Team Not Found"));
 
   let currentPlayers = new Set(team.main_players || []);
 
-  if(removedPlayers) {
-    removedPlayers.forEach(playerId => currentPlayers.delete(playerId));
+  if (removedPlayers) {
+    removedPlayers.forEach((playerId) => currentPlayers.delete(playerId));
   }
 
-  if(addedPlayers) {
-    addedPlayers.forEach(playerId => currentPlayers.add(playerId));
+  if (addedPlayers) {
+    addedPlayers.forEach((playerId) => currentPlayers.add(playerId));
   }
 
   const updatedPlayers = [...currentPlayers];
-  
-
 });
 
 // DELETE
@@ -228,6 +238,7 @@ const getTeamInfoOfTournament = TryCatch(async (req, res, next) => {
 
 module.exports = {
   adminRegister,
+  logout,
   createTeam,
   getAllTeamsInfo,
   getTeamInfo,

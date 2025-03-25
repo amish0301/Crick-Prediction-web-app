@@ -29,7 +29,7 @@ const register = TryCatch(async (req, res, next) => {
   if (!user) return next(new ApiError(500, "User Creation Failed"));
 
   // FOR DUMMY USERS - DEVELOPMENT PURPOSE
-  if (email === process.env.DUMMY_EMAIL.toString()) {
+  if (email === process.env.DUMMY_EMAIL) {
     user.isVerified = true;
     await user.save();
 
@@ -37,8 +37,6 @@ const register = TryCatch(async (req, res, next) => {
       id: user.id,
       role: user.role,
     });
-
-    console.log("token generated for dummy mails\n", accessToken);
 
     return res
       .status(200)

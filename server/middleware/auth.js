@@ -7,8 +7,7 @@ const db = require("../models");
 const isAuthenticated = async (req, res, next) => {
   try {
     const token =
-      req.cookies?.accessToken ||
-      (req.headers.authorization && req.headers.authorization.split(" ")[1]);
+      req.cookies?.accessToken || (req.headers.authorization && req.headers.authorization.split(" ")[1]);
 
     if (!token) {
       return next(new ApiError(401, "Token Not Found"));
@@ -25,12 +24,7 @@ const isAuthenticated = async (req, res, next) => {
       req.uId = user?.id;
       next();
     } catch (error) {
-      if (error.name === "TokenExpiredError") {
-        return next(
-          new ApiError(403, "Access Token Expired. Please refresh your token.")
-        );
-      }
-      return next(new ApiError(401, "Invalid Token"));
+      return next(new ApiError(401, "Invalid Token or Expired"));
     }
   } catch (error) {
     return next(new ApiError(500, "Something went Wrong in AuthMiddleware"));

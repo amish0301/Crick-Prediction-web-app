@@ -38,10 +38,16 @@ const registerValidation = () =>
     const validationResult = userSchema.safeParse(req.body);
 
     if (!validationResult.success) {
-      return res.status(400).json({ errors: validationResult?.error?.errors });
-    }
 
-    // console.log("in validation", validationResult)
+      const validationErrors = validationResult.error.errors.map(err => ({
+        field: err.path.join("."), 
+        message: err.message, 
+      }));
+
+      console.log("validation error", validationErrors);
+      
+      return next(new ApiError(400, "Validation Error", validationErrors));
+    }
 
     // Attach validated data to request object
     req.data = validationResult.data;
@@ -110,7 +116,7 @@ const createPlayerValidation = () =>
           "Error in Player registration validation",
       });
 
-    req.tournamentData = validationResult.data;
+    req.playerData = validationResult.data;
 
     next();
   });

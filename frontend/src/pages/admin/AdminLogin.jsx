@@ -1,13 +1,13 @@
-import { useState } from "react";
-import { TextField, Button, Paper, Typography, Box, Checkbox, FormControlLabel, IconButton, InputAdornment } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { DarkMode, LightMode, SportsCricket, Visibility, VisibilityOff } from "@mui/icons-material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import { toast } from "react-toastify";
-import { useDispatch, useSelector } from "react-redux";
-import { setAdmin, setLoading } from "../../store/slices/user";
+import { Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, Paper, TextField, Typography } from "@mui/material";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { setAdmin, setLoading } from "../../store/slices/user";
 
 const AdminLogin = () => {
   const [adminDetails, setAdminDetails] = useState({ email: "", adminKey: "", rememberMe: false });
@@ -39,7 +39,7 @@ const AdminLogin = () => {
 
       if (response.data.success) {
         toast.success('Admin Login Successfully!');
-        // dispatch(setAdmin(true));
+        dispatch(setAdmin(true));
         navigate('/admin', { replace: true });
       }
     } catch (error) {
@@ -230,6 +230,7 @@ const AdminLogin = () => {
             fullWidth
             variant="contained"
             color="primary"
+            disabled={isLoading}
             onClick={handleLogin}
             sx={{
               mb: 2,
@@ -241,7 +242,7 @@ const AdminLogin = () => {
               },
             }}
           >
-            Login
+            {isLoading ? "Loging in..." : "Login"}
           </Button>
 
           <Typography

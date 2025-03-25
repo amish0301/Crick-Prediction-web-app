@@ -64,7 +64,7 @@ const Timeout = ({ timeLeft, emailResentHandler }) => {
           />
         </motion.div>
 
-        <p className="mt-6 text-sm text-gray-500">
+        <p className={`mt-6 text-sm text-gray-500 ${timeLeft <= 10 ? '' : 'hidden'}`}>
           Didn't receive the email? <button className="text-blue-600 hover:underline font-medium" onClick={emailResentHandler}>Resend</button>
         </p>
       </motion.div>

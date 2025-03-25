@@ -35,13 +35,12 @@ function App() {
         {/* Admin Routes - First declare the login route outside of AdminLayout */}
 
         {/* Then declare the protected admin routes */}
-        <Route path='/admin' element={<AdminLayout />}>
+        <Route path='/admin' element={<AdminWrapper redirect='/admin/login'><AdminLayout /></AdminWrapper>}>
+          {/* Admin dashboard and other protected admin routes would go here */}
           <Route path='/admin/dashboard' element={<AdminDashboard />} />
           <Route path='/admin/players' element={<PlayerManagement />} />
           <Route path='/admin/teams' element={<TeamManagement />} />
           <Route path='/admin/tournaments' element={<TournamentManagement />} />
-          {/* Admin dashboard and other protected admin routes would go here */}
-          <Route index element={<div>Admin Dashboard</div>} />
         </Route>
 
         {/* Auth Routes */}

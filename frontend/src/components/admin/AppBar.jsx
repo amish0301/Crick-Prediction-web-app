@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { Avatar, Box, IconButton, Menu, MenuItem, Paper, Stack, Tooltip, Typography } from '@mui/material'
 import { IoSettingsOutline as SettingIcon, IoSearchOutline as SearchIcon, IoNotificationsOutline as NotificationIcon } from "react-icons/io5";
 import { MdOutlineMail as Mailbox } from "react-icons/md";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { SERVER_URI } from '../../constant/variables';
+import axiosInstance from '../../hooks/useAxios';
+import { userNotExists } from '../../store/slices/user';
+import { toast } from 'react-toastify';
 
 export const SearchField = ({ search, setSearch }) => {
 
@@ -22,7 +26,7 @@ export const SearchField = ({ search, setSearch }) => {
             display: 'flex',
             alignItems: 'center',
             bgcolor: '#eff7f9',
-          }}>
+        }}>
             <SearchIcon className={`text-xl opacity-50 ${search && 'hidden'}`} />
             <span className='ml-2 w-full'>
                 <input type='text' name='search' placeholder='Search here...' className='border-none outline-none bg-transparent py-1 w-full' onChange={e => setSearch(e.target.value)} value={search} />
@@ -34,9 +38,9 @@ export const SearchField = ({ search, setSearch }) => {
 const AppBar = () => {
     const [search, setSearch] = useState('');
     const { user } = useSelector(state => state.user);
-    const settings = ['Profile', 'Account', 'Logout'];
 
     const [anchorElUser, setAnchorElUser] = useState(null);
+    const dispatch = useDispatch();
     const handleOpenUserMenu = (e) => {
         setAnchorElUser(e.currentTarget);
     };
@@ -44,6 +48,25 @@ const AppBar = () => {
         setAnchorElUser(null);
     }
 
+    const logoutHandler = async () => {
+        const toastId = toast.loading('Logging out...');
+
+        try {
+            const res = await axiosInstance.get(`${SERVER_URI}/admin/logout`);
+            
+            if (res.data.success) {
+                dispatch(userNotExists());
+                toast.success('Logged out successfully!', toastId);
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Logout failed', toastId);
+            throw error;
+        } finally {
+            toast.dismiss(toastId);
+        }
+    }
+
+    const settings = [{ name: 'Profile', href: '/profile' }, { name: 'Account', href: '#' }, { name: 'Logout', href: `${SERVER_URI}/auth/logout`, handler: logoutHandler }];
     return (
         <Paper elevation={1} sx={{
             padding: { xs: '0.5rem', sm: '1rem' },
@@ -53,7 +76,7 @@ const AppBar = () => {
             bgcolor: '#ffffff',
             position: '-moz-initial',
         }}>
-            <Stack  direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={'center'} justifyContent={'space-between'}>
                 <SearchField search={search} setSearch={setSearch} />
                 <Stack direction={'row'} alignItems={'center'} spacing={'1rem'} sx={{ flexWrap: 'wrap', mt: { xs: '1rem', sm: 0 } }}>
                     {/* all Icons */}
@@ -100,7 +123,7 @@ const AppBar = () => {
                         >
                             {settings.map((setting) => (
                                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">{setting}</Typography>
+                                    <Typography textAlign="center" onClick={setting.handler}>{setting.name}</Typography>
                                 </MenuItem>
                             ))}
                         </Menu>
