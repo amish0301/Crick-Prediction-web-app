@@ -125,11 +125,13 @@ const createTournamentValidation = () =>
   TryCatch(async (req, res, next) => {
     const tournamentSchema = z.object({
       name: z.string().min(1, "Tournament name is required"),
-      schedule: z.string().datetime().min(1, "Tournament schedule is required").refine((date) => !isNaN(Date.parse(date)), {
-        message: "Invalid date format, must be a valid date-time string",
-      }),
+      startDate: z.preprocess((arg) => new Date(arg), z.date()),
+      endDate: z.preprocess((arg) => new Date(arg), z.date()),
       location: z.string().min(1, "Tournament location is required"),
       tournamentType: z.enum(["T20", "ODI", "TEST"], "Invalid tournament type"),
+      totalTeams: z.number().int().positive("Invalid number of teams"),
+      logo: z.string().url("Invalid logo URL").optional(),
+      status: z.enum(["scheduled", "completed", "upcoming"], "Invalid status").optional(),
     });
 
     const validationResult = tournamentSchema.safeParse(req.body);
@@ -141,6 +143,7 @@ const createTournamentValidation = () =>
       });
 
     req.tournamentData = validationResult.data;
+    req.tournamentData = {...req.tournamentData, schedule: [new Date(req.tournamentData.startDate), new Date(req.tournamentData.endDate)]};
 
     next();
   });

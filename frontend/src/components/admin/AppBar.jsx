@@ -5,7 +5,7 @@ import { MdOutlineMail as Mailbox } from "react-icons/md";
 import { useDispatch, useSelector } from 'react-redux';
 import { SERVER_URI } from '../../constant/variables';
 import axiosInstance from '../../hooks/useAxios';
-import { userNotExists } from '../../store/slices/user';
+import { setAdmin, userNotExists } from '../../store/slices/user';
 import { toast } from 'react-toastify';
 
 export const SearchField = ({ search, setSearch }) => {
@@ -52,11 +52,11 @@ const AppBar = () => {
         const toastId = toast.loading('Logging out...');
 
         try {
-            const res = await axiosInstance.get(`${SERVER_URI}/admin/logout`);
+            const res = await axiosInstance.get(`/admin/logout`);
             
             if (res.data.success) {
-                dispatch(userNotExists());
-                toast.success('Logged out successfully!', toastId);
+                dispatch(setAdmin(false));
+                toast.success('Admin Logged out successfully!', toastId);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Logout failed', toastId);

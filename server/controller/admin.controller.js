@@ -116,6 +116,22 @@ const deleteTeam = TryCatch(async (req, res, next) => {
     .json({ success: true, message: `Team Deleted Successfully` });
 });
 
+const teamBelongsToTournament = TryCatch(async (req, res, next) => {
+  const { teamId } = req.query;
+
+  if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
+
+  const tournaments = await db.tournaments_teams.findAll({
+    where: { team_id: teamId },
+    attributes: ["tournament_id"],
+  });
+
+  if (!tournaments)
+    return next(new ApiError(404, "No Tournament has played by this team"));
+
+  return res.status(200).json({ success: true, tournaments });
+});
+
 // ******* Players ********
 const createPlayer = TryCatch(async (req, res, next) => {
   const { name, age, role } = req.playerData;
@@ -142,11 +158,24 @@ const getPlayerInfo = TryCatch(async (req, res, next) => {
   const player = await db.player.findByPk(playerId);
   if (!player) return next(new ApiError(404, "Player Not Found"));
 
-  return res.status(200).json({ success: true, player });
+  // players belongs to which team
+  const playerTeam = await db.player.findOne({
+    where: { player_id: playerId },
+    include: [
+      {
+        model: db.team,
+        as: "teams",
+        attributes: ["team_id", "name"],
+      },
+    ],
+  });
+
+  return res.status(200).json({ success: true, player, playerTeam });
 });
 
+// WORKS BELOW
 const assignPlayerToTeam = TryCatch(async (req, res, next) => {
-  const { teamId, playerId } = req.query;
+  const { teamId, playerId, isRemove } = req.query;
 
   if (!teamId || !playerId)
     return next(new ApiError(400, "Please Provide TeamId and PlayerId"));
@@ -157,6 +186,28 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
   const team = await db.team.findByPk(teamId);
   if (!team) return next(new ApiError(404, "Team Not Exist"));
 
+  // If isRemove is true then remove player from team
+  if (isRemove) {
+    await db.teamplayers.destroy({
+      where: { player_id: playerId, team_id: teamId },
+    });
+    await db.team.update(
+      {
+        main_players: db.sequelize.fn(
+          "array_remove",
+          db.sequelize.col("main_players"),
+          playerId
+        ),
+      },
+      { where: { team_id: teamId } }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `${player.name} is Removed from ${team.name} Successfully`,
+    });
+  }
+
   const existPlayerInTeamAlready = await db.teamplayers.findOne({
     where: { player_id: playerId, team_id: teamId },
   });
@@ -166,22 +217,55 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
 
   await db.teamplayers.create({ team_id: teamId, player_id: playerId });
 
+  // assign player info to team- [main_playes]
+  await db.team.update(
+    {
+      main_players: db.sequelize.fn(
+        "array_append",
+        db.sequelize.col("main_players"),
+        playerId
+      ),
+    },
+    { where: { team_id: teamId } }
+  );
+
   return res.status(200).json({
     success: true,
     message: `${player.name} is Assigned to ${team.name} Successfully`,
   });
 });
 
+// GET - ALL PLAYERS
+const fetchAllPlayers = TryCatch(async (req, res, next) => {
+  const players = await db.player.findAll();
+  if (!players) return next(new ApiError(404, "No Players Found"));
+
+  return res.status(200).json({ success: true, players });
+});
+
+const deletePlayer = TryCatch(async (req, res, next) => {
+  const { playerId } = req.query;
+  if (!playerId) return next(new ApiError(400, "Please Provide PlayerId"));
+
+  const player = await db.player.destroy({ where: { player_id: playerId } });
+  if (!player) return next(new ApiError(404, "Player Not Found"));
+
+  return res
+    .status(200)
+    .json({ success: true, message: `Player Deleted Successfully` });
+});
+
 // ****** Tournament ********
 
-// CREATE
 const createTournament = TryCatch(async (req, res, next) => {
-  const { name, schedule, location, tournamentType } = req.tournamentData; // coming from validation middleware
+  const { name, schedule, totalTeams, location, tournamentType } =
+    req.tournamentData; // coming from validation middleware
 
   const tournament = await db.tournament.create({
     name,
     schedule,
     location,
+    total_teams: totalTeams,
     tournament_type: tournamentType,
   });
 
@@ -236,6 +320,54 @@ const getTeamInfoOfTournament = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, teams });
 });
 
+const addTeamInTournament = TryCatch(async (req, res, next) => {
+  const { teamId, tournamentId } = req.query;
+
+  if (!teamId || !tournamentId)
+    return next(new ApiError(400, "Please Provide TeamId and TournamentId"));
+
+  const tournament = await db.tournament.findOne({
+    where: { tournament_id: tournamentId, status: "upcoming" },
+  });
+
+  if (!tournament)
+    return next(
+      new ApiError(400, "You can only add team in Upcoming tournaments only")
+    );
+
+  await db.tournaments_teams.create({
+    team_id: teamId,
+    tournament_id: tournamentId,
+  });
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Team Added to Tournament Successfully" });
+});
+
+const tournamentInfo = TryCatch(async (req, res, next) => {
+  const { tournamentId } = req.params;
+
+  let tournament;
+
+  if (!tournamentId) {
+    tournament = await db.tournament.findByPk(tournamentId);
+    if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
+    return res.status(200).json({ success: true, tournament });
+  }
+
+  tournament = await db.tournament.findAll();
+  if (!tournament) return next(new ApiError(404, "No Tournament Found"));
+  return res.status(200).json({ success: true, tournaments: tournament });
+});
+
+const getAllTournament = TryCatch(async (req, res, next) => {
+  const tournaments = await db.tournament.findAll();
+  if (!tournaments) return next(new ApiError(404, "No Tournament Found"));
+
+  return res.status(200).json({ success: true, tournaments });
+});
+
 module.exports = {
   adminRegister,
   logout,
@@ -244,12 +376,19 @@ module.exports = {
   getTeamInfo,
   updateTeamInfo,
   deleteTeam,
+  teamBelongsToTournament,
+
   createPlayer,
   getPlayerInfo,
   assignPlayerToTeam,
+  fetchAllPlayers,
+  deletePlayer,
 
   // Tournament
   getTeamInfoOfTournament,
   createTournament,
   deleteTournament,
+  addTeamInTournament,
+  tournamentInfo,
+  getAllTournament
 };

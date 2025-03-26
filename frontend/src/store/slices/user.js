@@ -5,7 +5,8 @@ const initialState = {
   authToken: null,
   isLoading: false,
   refreshToken: null,
-  verifyingMailWindowTime: parseInt(localStorage.getItem("verifyingMailWindowTime")) || 300,
+  verifyingMailWindowTime:
+    parseInt(localStorage.getItem("verifyingMailWindowTime")) || 300,
 };
 
 const userSlice = createSlice({
@@ -23,9 +24,9 @@ const userSlice = createSlice({
     },
 
     setAdmin: (state, action) => {
-      if (action.payload === true) {
-        state.user.role = "admin";
-      } else state.user.role = "user";
+      if (state.user) {
+        state.user = { ...state.user, role: action.payload ? "admin" : "user" };
+      }
     },
 
     removeToken: (state) => {
@@ -45,7 +46,7 @@ const userSlice = createSlice({
     resetVerifyingMailWindowTime: (state) => {
       state.verifyingMailWindowTime = 300; // Reset to 300 seconds
       localStorage.setItem("verifyingMailWindowTime", 300); // Also reset in localStorage
-    },    
+    },
   },
 });
 
@@ -58,6 +59,6 @@ export const {
   setLoading,
   setAdmin,
   setVerifyingMailWindowTime,
-  resetVerifyingMailWindowTime
+  resetVerifyingMailWindowTime,
 } = userSlice.actions;
 export default userSlice;

@@ -2,7 +2,7 @@ import { DarkMode, LightMode, SportsCricket, Visibility, VisibilityOff } from "@
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import { Box, Button, Checkbox, FormControlLabel, IconButton, InputAdornment, Paper, TextField, Typography } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import axios from "axios";
+import axiosInstance from "../../hooks/useAxios";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -35,8 +35,7 @@ const AdminLogin = () => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/admin/register`, adminDetails, { withCredentials: true });
-
+      const response = await axiosInstance.post(`/admin/register`, adminDetails);
       if (response.data.success) {
         toast.success('Admin Login Successfully!');
         dispatch(setAdmin(true));

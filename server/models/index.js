@@ -58,7 +58,7 @@ db.Sequelize = Sequelize;
 // import all models
 db.user = require("./user.js")(sequelize, DataTypes);
 db.tournament = require("./tournament.js")(sequelize, DataTypes);
-db.tournament_team = require("./tournamentteams")(sequelize, DataTypes);
+db.tournaments_teams = require("./tournamentteams.js")(sequelize, DataTypes);
 db.match = require("./match.js")(sequelize, DataTypes);
 db.team = require("./team.js")(sequelize, DataTypes);
 db.player = require("./player.js")(sequelize, DataTypes);

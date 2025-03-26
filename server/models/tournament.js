@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsToMany(models.Team, {
-        through: models.TournamentTeams, // Intermediate table for tournament teams
+        through: models.TournamentTeams, 
         foreignKey: "tournament_id",
         otherKey: "team_id",
         as: "teams",
@@ -35,8 +35,21 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       schedule: {
-        type: DataTypes.DATE,
+        type: DataTypes.RANGE(DataTypes.DATE),
         allowNull: false,
+      },
+      status: {
+        type: DataTypes.ENUM("live", "completed", "upcoming"),
+        defaultValue: "upcoming",
+        allowNull: false,
+      },
+      total_teams: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      logo: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       location: {
         type: DataTypes.STRING,

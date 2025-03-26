@@ -6,6 +6,11 @@ module.exports = (sequelize, DataTypes) => {
 
   TeamPlayers.init(
     {
+      team_player_id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
+      },
       team_id: {
         type: DataTypes.UUID,
         allowNull: false,

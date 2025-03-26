@@ -12,6 +12,14 @@ const {
   getTeamInfoOfTournament,
   createTournament,
   logout,
+  fetchAllPlayers,
+  deletePlayer,
+  deleteTournament,
+  addTeamInTournament,
+  teamBelongsToTournament,
+  tournamentInfo,
+  getAllTournament,
+  updatePlayerInfo,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -22,14 +30,16 @@ const {
 const isAuthenticated = require("../middleware/auth");
 const router = express.Router();
 
-router.post('/register',adminLoginValidation(), adminRegister)
+router.post("/register", adminLoginValidation(), adminRegister);
 
 // Protected Routes
 router.use(isAuthenticated);
-router.get('/logout', logout);
+router.get("/logout", logout);
 
 // Teams Route
-router.post("/team", createTeamValidation(), createTeam);
+router
+  .post("/team", createTeamValidation(), createTeam)
+  .get("/team", teamBelongsToTournament);
 router.get("/teams", getAllTeamsInfo);
 router
   .get("/team/:teamId", getTeamInfo)
@@ -37,13 +47,22 @@ router
   .delete("/team", deleteTeam);
 
 // Players routes
-router.post("/player", createPlayerValidation(), createPlayer);
-router.post('/assign-player', assignPlayerToTeam);
+router
+  .post("/player", createPlayerValidation(), createPlayer)
+  .delete("/player", deletePlayer);
+router.get("/players", fetchAllPlayers);
+router.post("/assign-player", assignPlayerToTeam);
 
 router.get("/player/:playerId", getPlayerInfo);
 
 // Tournament routes
-router.post("/tournament", createTournamentValidation(), createTournament);
-router.get('/tournament/team', getTeamInfoOfTournament);    // expect `tournamentId` as query param
+router
+  .post("/tournament", createTournamentValidation(), createTournament)
+  .delete("/tournament", deleteTournament);
+router.get("/tournament/:tournamentId", tournamentInfo); // fetch only 1
+router.get("/tournaments", getAllTournament); // fetch all
+router
+  .get("/tournament/team", getTeamInfoOfTournament)
+  .post("/tournament/team", addTeamInTournament); // expect `tournamentId` as query param
 
 module.exports = router;
