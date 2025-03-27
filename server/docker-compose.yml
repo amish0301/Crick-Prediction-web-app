@@ -15,7 +15,7 @@ services:
       - mypg-data:/var/lib/postgresql/data
 
   redis:
-    container_name: CrickPredictionRedis
+    container_name: CrickPredictionRedisc
     image: redis:latest
     restart: always
     ports:

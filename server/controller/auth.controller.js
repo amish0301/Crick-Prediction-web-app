@@ -110,8 +110,6 @@ const verifyEmail = TryCatch(async (req, res, next) => {
   }
 
   const user = await db.user.findByPk(decoded.id);
-  if (user.isVerified)
-    return next(new ApiError(402, "User is Already Verified"));
 
   // mark user as verified
   user.isVerified = true;

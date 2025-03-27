@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const db = require("../models");
 const ApiError = require("../utils/ApiError");
 const TryCatch = require("../utils/TryCatch");
@@ -64,11 +65,24 @@ const getAllTeamsInfo = TryCatch(async (req, res, next) => {
 
 const getTeamInfo = TryCatch(async (req, res, next) => {
   const { teamId } = req.params;
+  const { isPopulate } = req.query;
 
   if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
   const team = await db.team.findByPk(teamId);
   if (!team) return next(new ApiError(404, "Team Doesn't Exist"));
+
+  if (isPopulate) {
+    const players = await db.player.findAll({
+      where: {
+        player_id: {
+          [Op.in]: team.main_players,
+        },
+      },
+    });
+
+    return res.status(200).json({ success: true, players });
+  }
 
   return res.status(200).json({ success: true, team });
 });
@@ -368,6 +382,27 @@ const getAllTournament = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, tournaments });
 });
 
+const getAllNonAssignedPlayers = TryCatch(async (req, res, next) => {
+  // find all assigned Players
+  const assignedPlayers = await db.teamplayers.findAll({
+    attributes: ["player_id"],
+    raw: true,
+  });
+
+  // extract id from players
+  const assignedPlayersIds = assignedPlayers.map((player) => player.player_id);
+
+  const players = await db.player.findOne({
+    where: {
+      player_id: {
+        [Op.notIn]: assignedPlayersIds.length > 0 ? assignedPlayersIds : [null],
+      },
+    },
+  });
+
+  return res.status(200).json({ success: true, players });
+});
+
 module.exports = {
   adminRegister,
   logout,
@@ -383,6 +418,7 @@ module.exports = {
   assignPlayerToTeam,
   fetchAllPlayers,
   deletePlayer,
+  getAllNonAssignedPlayers,
 
   // Tournament
   getTeamInfoOfTournament,
@@ -390,5 +426,5 @@ module.exports = {
   deleteTournament,
   addTeamInTournament,
   tournamentInfo,
-  getAllTournament
+  getAllTournament,
 };

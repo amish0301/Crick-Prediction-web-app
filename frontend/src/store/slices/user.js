@@ -19,8 +19,8 @@ const userSlice = createSlice({
     userNotExists: () => initialState,
 
     setToken: (state, action) => {
-      state.authToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
+      state.authToken = action.payload.accessToken || null;
+      state.refreshToken = action.payload?.refreshToken || null;
     },
 
     setAdmin: (state, action) => {

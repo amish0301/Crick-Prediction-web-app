@@ -20,6 +20,7 @@ const {
   tournamentInfo,
   getAllTournament,
   updatePlayerInfo,
+  getAllNonAssignedPlayers,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -50,7 +51,7 @@ router
 router
   .post("/player", createPlayerValidation(), createPlayer)
   .delete("/player", deletePlayer);
-router.get("/players", fetchAllPlayers);
+router.get("/players", fetchAllPlayers).get('/players/available', getAllNonAssignedPlayers);
 router.post("/assign-player", assignPlayerToTeam);
 
 router.get("/player/:playerId", getPlayerInfo);

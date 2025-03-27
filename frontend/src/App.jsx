@@ -46,7 +46,7 @@ function App() {
         {/* Auth Routes */}
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/auth/signup' element={<AuthWrapper requiresAuth={false}><Signup /></AuthWrapper>} />
-        <Route path='/auth/login' element={<AuthWrapper requiresAuth={false}><Login /></AuthWrapper>} />
+        <Route path='/auth/login' element={<Login />}/>
         <Route path='/verify-email' element={<EmailVerifyCallback />} />
         <Route path='/auth/success' element={<GoogleOAuthCallback />} />
       </Routes>

@@ -64,8 +64,7 @@ axiosInstance.interceptors.response.use(
           },
           { withCredentials: true }
         );
-        const newAccessToken = response.data?.accessToken;
-
+        const newAccessToken = response.data.accessToken;
         if (newAccessToken) {
           store.dispatch(setToken({ accessToken: newAccessToken }));  // Updated in redux store
           axiosInstance.defaults.headers.common[

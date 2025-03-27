@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 import loginimg from '../assets/login.jpg';
 import Loader from "../components/Loader";
 import { setLoading, setToken, userExists } from "../store/slices/user";
-import axiosInstance from "../hooks/useAxios";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
@@ -44,6 +43,7 @@ const Login = () => {
                 // store data
                 dispatch(userExists({ ...response.data.user }));
                 dispatch(setToken({ accessToken: response.data?.accessToken, refreshToken: response.data?.refreshToken }));
+                navigate('/', { replace: true });
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Login Failed");
