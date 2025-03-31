@@ -46,7 +46,7 @@ const TournamentManagement = () => {
   const [endDate, setEndDate] = useState('');
 
   // Tournament types
-  const tournamentTypes = ['T20', 'ODI', 'Test'];
+  const tournamentTypes = ['T20', 'ODI', 'TEST'];
 
   // Dummy tournament data
   const dummyTournaments = [

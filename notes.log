@@ -4,8 +4,11 @@ ideas
 2. For Scheduling anything time should be in ISO format and can be use `DatePicker` Dependency for this 
 
 Things That needs to be fixed
-1. On refresh Email Verification timer starting time from inital. (Re-rendering component)
-2. Add Time Field to Matches Schema for scheduling
+1. On refresh Email Verification timer starting time from inital. (Re-rendering component) - ✔️
+2. Add Time Field to Matches Schema for scheduling - ✔️
+
+POSTGRES String : postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@YOUR_IP_ADDRESS:5431/${POSTGRES_DB}
+
 
 
 
@@ -13,5 +16,3 @@ Things That needs to be fixed
 1. signup/login :
     user: {name, email, password, role, age, isGoogleUser, isVerified}
     accessToken    
-
-

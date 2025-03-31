@@ -20,7 +20,14 @@ const {
   tournamentInfo,
   getAllTournament,
   updatePlayerInfo,
-  getAllNonAssignedPlayers,
+  getAllAvailablePlayers,
+  assignMatchesToTournament,
+  getAllMatchesOfTournament,
+  getMatch,
+  updateMatchInfo,
+  deleteMatch,
+  getMatchesFilterByStatus,
+  createMatch,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -29,6 +36,7 @@ const {
   createTournamentValidation,
 } = require("../middleware/validation");
 const isAuthenticated = require("../middleware/auth");
+const upload = require("../middleware/multer");
 const router = express.Router();
 
 router.post("/register", adminLoginValidation(), adminRegister);
@@ -39,19 +47,19 @@ router.get("/logout", logout);
 
 // Teams Route
 router
-  .post("/team", createTeamValidation(), createTeam)
+  .post("/team", upload.single("logo"), createTeamValidation(), createTeam)
   .get("/team", teamBelongsToTournament);
 router.get("/teams", getAllTeamsInfo);
 router
   .get("/team/:teamId", getTeamInfo)
-  .put("/team", updateTeamInfo)
+  .put("/team/:teamId", updateTeamInfo)
   .delete("/team", deleteTeam);
 
 // Players routes
 router
   .post("/player", createPlayerValidation(), createPlayer)
   .delete("/player", deletePlayer);
-router.get("/players", fetchAllPlayers).get('/players/available', getAllNonAssignedPlayers);
+router.get("/players", fetchAllPlayers).get('/players/available', getAllAvailablePlayers);
 router.post("/assign-player", assignPlayerToTeam);
 
 router.get("/player/:playerId", getPlayerInfo);
@@ -61,9 +69,19 @@ router
   .post("/tournament", createTournamentValidation(), createTournament)
   .delete("/tournament", deleteTournament);
 router.get("/tournament/:tournamentId", tournamentInfo); // fetch only 1
+router.get('/tournament/matches', getAllMatchesOfTournament);
 router.get("/tournaments", getAllTournament); // fetch all
 router
   .get("/tournament/team", getTeamInfoOfTournament)
   .post("/tournament/team", addTeamInTournament); // expect `tournamentId` as query param
+
+// Matches
+router.post('/match/assign', assignMatchesToTournament);  // for random
+router.post('/match/create', createMatch);
+router.get('/match/:matchId', getMatch);
+router.put('/match/:matchId', updateMatchInfo);
+router.delete('/match/:matchId', deleteMatch);
+
+router.get('/match', getMatchesFilterByStatus)
 
 module.exports = router;

@@ -34,10 +34,12 @@ const AdminLogin = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await axiosInstance.post(`/admin/register`, adminDetails);
       if (response.data.success) {
-        toast.success('Admin Login Successfully!');
+        toast.success(response.data.message);
         dispatch(setAdmin(true));
         navigate('/admin', { replace: true });
       }
@@ -45,6 +47,7 @@ const AdminLogin = () => {
       toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       dispatch(setLoading(false));
+      setLoading(false);
     }
   };
 

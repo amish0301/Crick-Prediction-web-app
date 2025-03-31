@@ -2,6 +2,7 @@ const { Op } = require("sequelize");
 const db = require("../models");
 const ApiError = require("../utils/ApiError");
 const TryCatch = require("../utils/TryCatch");
+const { uploadToCloudinary } = require("../utils/utils");
 
 const adminRegister = TryCatch(async (req, res, next) => {
   const { email, adminKey } = req.body;
@@ -38,11 +39,16 @@ const logout = TryCatch(async (req, res, next) => {
 
 // ******** Team *********
 const createTeam = TryCatch(async (req, res, next) => {
-  const { name, logo, mainPlayers, matchesInfo } = req.teamData;
+  const { name, mainPlayers, matchesInfo } = req.teamData;
+
+  // upload logo to cloudinary
+  const logoUrl = await uploadToCloudinary(req.file.buffer, "teams");
+
+  console.log('preview logo', logoUrl);
 
   const team = await db.team.create({
     name,
-    logo,
+    logo: logoUrl,
     main_players: mainPlayers,
     matches_info: matchesInfo,
   });
@@ -201,7 +207,7 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
   if (!team) return next(new ApiError(404, "Team Not Exist"));
 
   // If isRemove is true then remove player from team
-  if (isRemove) {
+  if (isRemove === "true") {
     await db.teamplayers.destroy({
       where: { player_id: playerId, team_id: teamId },
     });
@@ -295,7 +301,6 @@ const createTournament = TryCatch(async (req, res, next) => {
   });
 });
 
-// DELETE
 const deleteTournament = TryCatch(async (req, res, next) => {
   const { tournamentId } = req.query;
   if (!tournamentId)
@@ -382,7 +387,7 @@ const getAllTournament = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, tournaments });
 });
 
-const getAllNonAssignedPlayers = TryCatch(async (req, res, next) => {
+const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
   // find all assigned Players
   const assignedPlayers = await db.teamplayers.findAll({
     attributes: ["player_id"],
@@ -403,6 +408,172 @@ const getAllNonAssignedPlayers = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, players });
 });
 
+// ****** Matches ********
+const assignMatchesToTournament = TryCatch(async (req, res, next) => {
+  const { tournamentId } = req.query;
+
+  const { matchSchedule, customMatches } = req.body;
+
+  const tournament = await db.tournament.findByPk(tournamentId);
+  if (!tournament) return next(new ApiError(404, "Tournament not Found"));
+
+  const teams = await db.tournaments_teams.findAll({
+    where: { tournament_id: tournamentId },
+    attributes: ["team_id"],
+  });
+
+  if (!teams || teams.length < 2) {
+    return next(new ApiError(400, "Not Enough Teams to create Matches"));
+  }
+
+  let matches = [];
+  if (customMatches & (customMatches.length > 0)) {
+    matches = customMatches.map((match) => ({
+      tournament_id: tournamentId,
+      team1_id: match.team1_id,
+      team2_id: match.team2_id,
+      match_time: match.match_time || matchSchedule,
+    }));
+  } else {
+    for (let i = 0; i < teams.length - 1; i++) {
+      for (let j = i + 1; j < teams.length; j++) {
+        matches.push({
+          tournament_id: tournamentId,
+          team1_id: teams[i].team_id,
+          team2_id: teams[j].team_id,
+          match_time: matchSchedule || new Date(),
+        });
+      }
+    }
+  }
+
+  await db.match.bulkCreate(matches);
+
+  return res.status(200).json({
+    success: true,
+    message: `Matches Scheduled for ${tournament.name} Tournament`,
+    matches,
+  });
+});
+
+const createMatch = TryCatch(async (req, res, next) => {
+  const { tournamentId } = req.query;
+
+  const { team1Id, team2Id, match_time } = req.body;
+
+  if (!team1Id || !team2Id || !match_time) {
+    return next(
+      new ApiError(
+        400,
+        "Please Provide versus team Ids and match Schedule Time"
+      )
+    );
+  }
+
+  const tournament = await db.tournament.findByPk(tournamentId);
+  if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
+
+  const team1 = await db.team.findByPk(team1Id);
+  const team2 = await db.team.findByPk(team2Id);
+
+  if (!team1 || !team2)
+    return next(new ApiError(404, "One or both teams not found"));
+
+  const match = await db.match.create({
+    tournament_id: tournamentId,
+    team1_id: team1Id,
+    team2_id: team2Id,
+    match_time,
+  });
+
+  return res.status(200).json({
+    success: true,
+    message: `Match Scheduled between ${team1.name} Vs ${team2.name}`,
+    match,
+  });
+});
+
+const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
+  const { tournamentId } = req.query;
+
+  const tournament = await db.tournament.findByPk(tournamentId);
+  if (!tournament) return next(new ApiError(404, "Tournament Not Exist"));
+
+  const matches = await db.match.findAll({
+    where: { tournament_id: tournamentId },
+    include: [
+      { model: db.team, as: "Team1", attributes: ["team_id", "name"] },
+      { model: db.team, as: "Team2", attributes: ["team_id", "name"] },
+      { model: db.team, as: "Winner", attributes: ["team_id", "name"] },
+    ],
+    order: [["match_time", "ASC"]],
+  });
+
+  return res.status(200).json({
+    success: true,
+    tournament_name: tournament.name,
+    total_matches: matches.length,
+    matches,
+  });
+});
+
+const getMatch = TryCatch(async (req, res, next) => {
+  const { matchId } = req.params;
+
+  const match = await db.match.findByPk(matchId);
+
+  if (!match) return next(new ApiError(404, "Match Data not found"));
+
+  return res.status(200).json({ success: true, match });
+});
+
+const getMatchesFilterByStatus = TryCatch(async (req, res, next) => {
+  const { status } = req.query;
+
+  if (!status) return next(new ApiError(404, "Please Provide Match Status"));
+
+  const matches = await db.match.findAll({
+    where: { status },
+  });
+
+  return res.status(200).json({ success: true, matches });
+});
+
+const updateMatchInfo = TryCatch(async (req, res, next) => {
+  const { matchId } = req.params;
+  const { match_time, location, status } = req.body;
+
+  const [totalRows, updatedMatch] = await db.match.update(
+    {
+      match_time,
+      location,
+      status,
+    },
+    { where: { match_id: matchId } }
+  );
+
+  if (totalRows <= 0)
+    return next(new ApiError(500, "match Update Unsuccessful"));
+
+  const name = updatedMatch[0].name;
+
+  return res
+    .status(200)
+    .json({ success: true, message: `${name} is Updated Successfully!` });
+});
+
+const deleteMatch = TryCatch(async (req, res, next) => {
+  const { matchId } = req.params;
+
+  await db.match.destroy({
+    where: { match_id: matchId },
+  });
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Match Deleted Successfully" });
+});
+
 module.exports = {
   adminRegister,
   logout,
@@ -418,7 +589,7 @@ module.exports = {
   assignPlayerToTeam,
   fetchAllPlayers,
   deletePlayer,
-  getAllNonAssignedPlayers,
+  getAllAvailablePlayers,
 
   // Tournament
   getTeamInfoOfTournament,
@@ -427,4 +598,13 @@ module.exports = {
   addTeamInTournament,
   tournamentInfo,
   getAllTournament,
+
+  // Matches
+  assignMatchesToTournament,
+  createMatch,
+  getAllMatchesOfTournament,
+  getMatch,
+  updateMatchInfo,
+  deleteMatch,
+  getMatchesFilterByStatus,
 };

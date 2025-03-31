@@ -48,6 +48,43 @@ module.exports = {
         onDelete: "SET NULL",
         onUpdate: "CASCADE"
       },
+      man_of_the_match: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references: {
+          model: "players",
+          key: "player_id",
+        },
+      },
+      format: {
+        type: Sequelize.ENUM("T20", "ODI", "TEST"),
+        allowNull: true,
+        defaultValue: "T20",
+      },
+      match_time: {
+        type: Sequelize.DATE,
+        allowNull: false,
+      },
+      location: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      score_team1: {
+        type: Sequelize.STRING,
+        allowNull: true, // "180/5"
+      },
+      score_team2: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      overs_team1: {
+        type: Sequelize.FLOAT,
+        allowNull: true, // "15.5"
+      },
+      overs_team2: {
+        type: Sequelize.FLOAT,
+        allowNull: true,
+      },
       status: {
         type: Sequelize.ENUM('Upcoming', 'Completed', 'Live'),
         allowNull: false,

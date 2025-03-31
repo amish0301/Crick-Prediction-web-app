@@ -15,12 +15,11 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       this.belongsToMany(models.Team, {
-        through: models.TournamentTeams, 
+        through: models.TournamentTeams,
         foreignKey: "tournament_id",
         otherKey: "team_id",
         as: "teams",
       });
-    
     }
   }
   Tournament.init(
@@ -28,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       tournament_id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+        primaryKey: true,
       },
       name: {
         type: DataTypes.STRING,
@@ -62,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
       pointsTable: {
         type: DataTypes.ARRAY(DataTypes.JSONB),
         defaultValue: [],
-        allowNull: true
+        allowNull: true,
       },
     },
     {

@@ -38,14 +38,13 @@ const registerValidation = () =>
     const validationResult = userSchema.safeParse(req.body);
 
     if (!validationResult.success) {
-
-      const validationErrors = validationResult.error.errors.map(err => ({
-        field: err.path.join("."), 
-        message: err.message, 
+      const validationErrors = validationResult.error.errors.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
       }));
 
       console.log("validation error", validationErrors);
-      
+
       return next(new ApiError(400, "Validation Error", validationErrors));
     }
 
@@ -76,14 +75,23 @@ const adminLoginValidation = () =>
 
 const createTeamValidation = () =>
   TryCatch(async (req, res, next) => {
+
     const teamSchema = z.object({
       name: z.string().min(1, "Team name is required"),
-      logo: z.string().url("Invalid logo URL"),
       mainPlayers: z.array(z.number().int().positive()).optional().default([]),
       matchesInfo: z.array(z.record(z.unknown())).optional(), // Array of JSON objects (match stats)
     });
 
-    const validationResult = teamSchema.safeParse(req.body);
+    const requestData = {
+      name: req.body.name,
+      mainPlayers: req.body.mainPlayers ? JSON.parse(req.body.mainPlayers) : [],
+      matchesInfo: req.body.matchesInfo ? JSON.parse(req.body.matchesInfo) : [],
+    };
+
+    const validationResult = teamSchema.safeParse(requestData);
+
+    if(!req.file) return next(new ApiError(400, "Team Logo is Required"));
+    
     if (!validationResult.success)
       return res.status(400).json({
         errors:
@@ -131,7 +139,9 @@ const createTournamentValidation = () =>
       tournamentType: z.enum(["T20", "ODI", "TEST"], "Invalid tournament type"),
       totalTeams: z.number().int().positive("Invalid number of teams"),
       logo: z.string().url("Invalid logo URL").optional(),
-      status: z.enum(["scheduled", "completed", "upcoming"], "Invalid status").optional(),
+      status: z
+        .enum(["scheduled", "completed", "upcoming"], "Invalid status")
+        .optional(),
     });
 
     const validationResult = tournamentSchema.safeParse(req.body);
@@ -143,11 +153,17 @@ const createTournamentValidation = () =>
       });
 
     req.tournamentData = validationResult.data;
-    req.tournamentData = {...req.tournamentData, schedule: [new Date(req.tournamentData.startDate), new Date(req.tournamentData.endDate)]};
+    req.tournamentData = {
+      ...req.tournamentData,
+      schedule: [
+        new Date(req.tournamentData.startDate),
+        new Date(req.tournamentData.endDate),
+      ],
+    };
 
     next();
   });
-
+  
 module.exports = {
   registerValidation,
   adminLoginValidation,

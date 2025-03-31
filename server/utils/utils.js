@@ -8,6 +8,7 @@ const { OAuth2Client } = require("google-auth-library");
 const nodemailer = require("nodemailer");
 const path = require("path");
 const fs = require("fs");
+const cloudinary = require("../config/cloudinary.js");
 
 const sendVerificationLink = async (email, verificationToken) => {
   try {
@@ -66,10 +67,24 @@ const getEmailTemplate = (verificationLink) => {
 //   return { accessToken, refreshToken };
 // };
 
+const uploadToCloudinary = async (fileBuffer, folder = "teams") => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "auto" }, // Auto-detect file type
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url); // Return uploaded image URL
+      }
+    );
+    uploadStream.end(fileBuffer); // Send the buffer data to Cloudinary
+  });
+};
+
 module.exports = {
   sendVerificationLink,
   generateTokens,
   googleClient,
   // generateDummyTokens,
+  uploadToCloudinary,
   getEmailTemplate,
 };

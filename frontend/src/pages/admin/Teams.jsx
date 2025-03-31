@@ -1,4 +1,4 @@
-import { Container, Paper, Stack, Typography, TextField, Button, Accordion, AccordionSummary, Box,AccordionDetails, IconButton } from '@mui/material';
+import { Container, Paper, Stack, Typography, TextField, Button, Accordion, AccordionSummary, Box, AccordionDetails, IconButton } from '@mui/material';
 import React, { useState } from 'react';
 import { styled } from '@mui/material';
 import {
@@ -9,6 +9,7 @@ import {
 import { Link as LinkComponent, useLocation } from 'react-router-dom';
 import csk from '../../assets/csk.png';
 import mi from '../../assets/mi.png';
+import axiosInstance from '../../hooks/useAxios';
 
 
 // Styled Link Component
@@ -39,10 +40,10 @@ const TeamManagement = () => {
 
   // Dummy team data with nested players
   const dummyTeams = [
-    { 
-      id: 1, 
-      name: "Mumbai Indians", 
-      logo: mi, 
+    {
+      id: 1,
+      name: "Mumbai Indians",
+      logo: mi,
       mainPlayer: "Rohit Sharma",
       totalPlayers: 18,
       players: [
@@ -51,9 +52,9 @@ const TeamManagement = () => {
         { id: 3, name: "Hardik Pandya", age: 30, position: "All-rounder" },
       ]
     },
-    { 
-      id: 2, 
-      name: "Chennai Super Kings", 
+    {
+      id: 2,
+      name: "Chennai Super Kings",
       logo: csk,
       mainPlayer: "MS Dhoni",
       totalPlayers: 20,
@@ -65,8 +66,31 @@ const TeamManagement = () => {
     },
   ];
 
-  const handleAddTeam = () => {
-    console.log("Adding Team:", { teamName, teamLogo, mainPlayer });
+  const handleAddTeam = async () => {
+
+    try {
+      const formData = new FormData();
+
+      formData.append("name", teamName);
+      formData.append("logo", teamLogo);
+
+      const res = await axiosInstance.post(`/admin/team`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if(res.data.success) {
+        console.log(res.data.message, res.data.team);
+      }
+
+      setTeamName("");
+      setTeamLogo(null);
+
+    } catch (error) {
+      console.log('error in creating team', error);
+    }
+
     setTeamName('');
     setTeamLogo(null); // Reset to null after submission
     setMainPlayer('');
@@ -84,10 +108,10 @@ const TeamManagement = () => {
       <Typography
         variant='h5'
         component={'h1'}
-        sx={{ 
-          fontWeight: '700', 
-          color: 'text.primary', 
-          margin: '0 0 2rem 0', 
+        sx={{
+          fontWeight: '700',
+          color: 'text.primary',
+          margin: '0 0 2rem 0',
           textAlign: 'center',
           letterSpacing: '0.5px',
         }}
@@ -108,9 +132,9 @@ const TeamManagement = () => {
         <Accordion defaultExpanded sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden' }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ 
-              bgcolor: '#286675', 
-              color: 'white', 
+            sx={{
+              bgcolor: '#286675',
+              color: 'white',
               borderRadius: '12px 12px 0 0',
               '&:hover': { bgcolor: '#1e4d5a' },
             }}
@@ -123,18 +147,18 @@ const TeamManagement = () => {
                 <Accordion key={team.id} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
-                    sx={{ 
-                      bgcolor: '#f5f5f5', 
+                    sx={{
+                      bgcolor: '#f5f5f5',
                       '&:hover': { bgcolor: '#ececec' },
                     }}
                   >
                     <Stack direction="row" alignItems="center" spacing={2}>
-                      <Box 
-                        component="img" 
-                        src={team.logo} 
-                        alt={team.name} 
-                        sx={{ width: 40, height: 40, borderRadius: '50%' }} 
-                     
+                      <Box
+                        component="img"
+                        src={team.logo}
+                        alt={team.name}
+                        sx={{ width: 40, height: 40, borderRadius: '50%' }}
+
                       />
                       <Typography sx={{ fontWeight: '500', fontSize: '1rem' }}>
                         {team.name}
@@ -153,13 +177,13 @@ const TeamManagement = () => {
                         Team Players:
                       </Typography>
                       {team.players.map((player) => (
-                        <Paper 
-                          key={player.id} 
-                          elevation={1} 
-                          sx={{ 
-                            p: 1, 
-                            borderRadius: '6px', 
-                            bgcolor: '#f9f9f9' 
+                        <Paper
+                          key={player.id}
+                          elevation={1}
+                          sx={{
+                            p: 1,
+                            borderRadius: '6px',
+                            bgcolor: '#f9f9f9'
                           }}
                         >
                           <Typography variant="body2">
@@ -179,9 +203,9 @@ const TeamManagement = () => {
         <Accordion sx={{ borderRadius: '12px', overflow: 'hidden' }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{ 
-              bgcolor: '#286675', 
-              color: 'white', 
+            sx={{
+              bgcolor: '#286675',
+              color: 'white',
               borderRadius: '12px 12px 0 0',
               '&:hover': { bgcolor: '#1e4d5a' },
             }}
@@ -217,7 +241,7 @@ const TeamManagement = () => {
                       borderRadius: '8px',
                       borderColor: '#286675',
                       color: '#286675',
-                      '&:hover': { 
+                      '&:hover': {
                         borderColor: '#1e4d5a',
                         bgcolor: '#f0f7f9',
                       },
@@ -250,7 +274,7 @@ const TeamManagement = () => {
                 onClick={handleAddTeam}
                 sx={{
                   bgcolor: '#286675',
-                  '&:hover': { 
+                  '&:hover': {
                     bgcolor: '#1e4d5a',
                     boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
                   },
