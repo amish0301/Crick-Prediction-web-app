@@ -108,7 +108,7 @@ const PlayersTable = ({ availablePlayers, loading, handleAddPlayer }) => {
 const AddPlayerPage = () => {
     const { teamId } = useParams();
     const [searchParams] = useSearchParams();
-    const name = searchParams.get("name");
+    const teamName = searchParams.get("name");
     const [loading, setLoading] = useState(true);
     const [teamPlayers, setTeamPlayers] = useState([]);
     const [availablePlayers, setAvailablePlayers] = useState([]);
@@ -136,8 +136,8 @@ const AddPlayerPage = () => {
     // Fetch available players
     const fetchAvailablePlayers = async () => {
         try {
-            const response = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/admin/players/available`);
-            console.log(response.data)
+            const response = await axiosInstance.get('/admin/players/available');
+            console.log("avil pl ",response.data)
             if (response.data.success && response.data.players) {
                 const players = Array.isArray(response.data.players) 
                     ? response.data.players 
@@ -172,6 +172,7 @@ const AddPlayerPage = () => {
             toast.error('Failed to remove player');
         }
     };
+    console.log('teamName:', teamName);
 
     // Add player to team
     const handleAddPlayer = async (playerId) => {
@@ -211,7 +212,7 @@ const AddPlayerPage = () => {
     useEffect(() => {
         fetchTeamPlayers();
         fetchAvailablePlayers();
-    }, [teamId]);
+    }, [teamId,teamName]);
 
     return (
         <Container component="main" sx={{ py: 4 }}>
@@ -226,7 +227,7 @@ const AddPlayerPage = () => {
                     letterSpacing: '0.5px',
                 }}
             >
-                Team {name || 'N/A'} Players
+                Team {teamName || 'Players'} Players
             </Typography>
 
             {/* Current Team Players */}

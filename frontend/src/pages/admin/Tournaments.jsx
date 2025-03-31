@@ -7,7 +7,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import axiosInstance from '../../hooks/useAxios'; // Assuming this is your custom Axios instance
+import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 
 const Link = styled('div')({
@@ -42,74 +42,86 @@ const TournamentManagement = () => {
   const [tournamentType, setTournamentType] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [totalTeams, setTotalTeams] = useState('');
+  const [location, setLocation] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Tournament types
-  const tournamentTypes = ['T20', 'ODI', 'Test'];
+  const tournamentTypes = ['T20', 'ODI', 'TEST']; // Updated to match API expectations
 
-  // Dummy tournament data
-  const dummyTournaments = [
-    { 
-      id: 1, 
-      name: "IPL 2024", 
-      type: "T20",
-      startDate: "2024-03-15", 
-      endDate: "2024-05-30", 
-      status: "Upcoming",
-      matches: [
-        { id: 1, title: "MI vs CSK" },
-        { id: 2, title: "RCB vs KKR" },
-      ]
-    },
-    { 
-      id: 2, 
-      name: "T20 World Cup 2024", 
-      type: "T20",
-      startDate: "2024-06-01", 
-      endDate: "2024-06-29", 
-      status: "Upcoming",
-      matches: [
-        { id: 3, title: "IND vs PAK" },
-        { id: 4, title: "AUS vs ENG" },
-      ]
-    },
-    { 
-      id: 3, 
-      name: "BBL 2023", 
-      type: "T20",
-      startDate: "2023-12-07", 
-      endDate: "2024-01-24", 
-      status: "Completed",
-      matches: [
-        { id: 5, title: "Sydney Sixers vs Melbourne Stars" },
-      ]
-    },
-    { 
-      id: 4, 
-      name: "Ashes 2023", 
-      type: "Test",
-      startDate: "2023-06-16", 
-      endDate: "2023-07-31", 
-      status: "Completed",
-      matches: [
-        { id: 6, title: "ENG vs AUS 1st Test" },
-      ]
-    },
-  ];
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/admin/tournaments`);
+        console.log(response.data);
+        const tournamentData = Array.isArray(response.data.tournaments) ? response.data.tournaments : [];
+        setTournaments(tournamentData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tournaments:', error);
+        toast.error('Failed to load tournaments');
+        setTournaments([]);
+        setLoading(false);
+      }
+    };
 
-  const handleAddTournament = () => {
-    console.log("Adding Tournament:", { tournamentName, tournamentType, startDate, endDate });
-    setTournamentName('');
-    setTournamentType('');
-    setStartDate('');
-    setEndDate('');
+    fetchTournaments();
+  }, []);
+
+  const handleAddTournament = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!tournamentName || !tournamentType || !startDate || !endDate || !totalTeams) {
+      toast.error('Please fill all required fields');
+      return;
+    }
+
+    try {
+      // Format dates to ISO 8601
+      const formattedStartDate = new Date(startDate).toISOString();
+      const formattedEndDate = new Date(endDate).toISOString();
+
+      const newTournament = {
+        name: tournamentName,
+        startDate,
+        endDate,
+        tournamentType,
+        totalTeams: parseInt(totalTeams), // Ensure it's a number
+        location: location || null // Send null if empty
+      };
+
+      const response = await axiosInstance.post('/admin/tournament', newTournament);
+      console.log(response.data);
+      setTournaments(prevTournaments => [...prevTournaments, response.data.tournament]);
+      toast.success('Tournament created successfully');
+      
+      // Reset form
+      setTournamentName('');
+      setTournamentType('');
+      setStartDate('');
+      setEndDate('');
+      setTotalTeams('');
+      setLocation('');
+    } catch (error) {
+      console.error('Error creating tournament:', error);
+      toast.error(error.response?.data?.errors?.map(err => err.message).join(', ') || 'Failed to create tournament');
+    }
   };
 
-  const handleEditTournament = (tournament) => {
-    console.log("Editing Tournament:", tournament);
+  const handleDeleteTournament = async (tournamentId) => {
+    try {
+      await axiosInstance.delete('/admin/tournament/');
+      setTournaments(prevTournaments => prevTournaments.filter(tournament => tournament.tournament_id !== tournamentId));
+      toast.success('Tournament deleted successfully');
+    } catch (error) {
+      console.error('Error deleting tournament:', error);
+      toast.error('Failed to delete tournament');
+    }
   };
 
-  const handleDeleteTournament = (tournamentId) => {
-    console.log("Deleting Tournament ID:", tournamentId);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
   };
 
   return (
@@ -137,7 +149,6 @@ const TournamentManagement = () => {
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
         }}
       >
-        {/* Tournament List Accordion */}
         <Accordion defaultExpanded sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden' }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -153,12 +164,12 @@ const TournamentManagement = () => {
           <AccordionDetails sx={{ bgcolor: '#fafafa', p: 2 }}>
             {loading ? (
               <Typography>Loading tournaments...</Typography>
-            ) : tournaments.length === 0 ? (
+            ) : !Array.isArray(tournaments) || tournaments.length === 0 ? (
               <Typography>No tournaments found</Typography>
             ) : (
               <Stack spacing={2}>
                 {tournaments.map((tournament) => (
-                  <Accordion key={tournament.id} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
+                  <Accordion key={tournament.tournament_id} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
                     <AccordionSummary
                       expandIcon={<ExpandMoreIcon />}
                       sx={{
@@ -174,7 +185,7 @@ const TournamentManagement = () => {
                           <ActionIcon sx={{ color: '#286675' }}>
                             <EditIcon fontSize="small" />
                           </ActionIcon>
-                          <ActionIcon onClick={() => handleDeleteTournament(tournament.id)} sx={{ color: '#d32f2f' }}>
+                          <ActionIcon onClick={() => handleDeleteTournament(tournament.tournament_id)} sx={{ color: '#d32f2f' }}>
                             <DeleteIcon fontSize="small" />
                           </ActionIcon>
                         </Stack>
@@ -186,7 +197,7 @@ const TournamentManagement = () => {
                           Type: {tournament.tournament_type}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Schedule: {tournament.schedule}
+                          Schedule: {formatDate(tournament?.schedule[0]?.value)} to {formatDate(tournament?.schedule[1]?.value)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Status: {tournament.status}
@@ -197,28 +208,6 @@ const TournamentManagement = () => {
                         <Typography variant="body2" color="text.secondary">
                           Location: {tournament.location || 'Not specified'}
                         </Typography>
-                        {tournament.matches?.length > 0 && (
-                          <>
-                            <Typography variant="body2" fontWeight="600" sx={{ mt: 1 }}>
-                              Linked Matches:
-                            </Typography>
-                            {tournament.matches.map((match) => (
-                              <Paper
-                                key={match.match_id}
-                                elevation={1}
-                                sx={{
-                                  p: 1,
-                                  borderRadius: '6px',
-                                  bgcolor: '#f9f9f9',
-                                }}
-                              >
-                                <Typography variant="body2">
-                                  {match.title}
-                                </Typography>
-                              </Paper>
-                            ))}
-                          </>
-                        )}
                       </Stack>
                     </AccordionDetails>
                   </Accordion>
@@ -228,7 +217,6 @@ const TournamentManagement = () => {
           </AccordionDetails>
         </Accordion>
 
-        {/* Create Tournament Accordion */}
         <Accordion sx={{ borderRadius: '12px', overflow: 'hidden' }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -242,7 +230,7 @@ const TournamentManagement = () => {
             <Typography sx={{ fontWeight: '600', fontSize: '1.1rem' }}>Create New Tournament</Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ bgcolor: '#fafafa', p: 2 }}>
-            <Stack spacing={2.5} component="form" onSubmit={handleValidation}>
+            <Stack spacing={2.5} component="form" onSubmit={handleAddTournament}>
               <TextField
                 label="Tournament Name"
                 value={tournamentName}

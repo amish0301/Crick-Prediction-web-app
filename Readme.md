@@ -107,6 +107,7 @@
 - `POST /team` → Create a new team. *(Validates input before creation.)*
 - `GET /team` → Get teams belonging to a tournament.
 - `GET /teams` → Fetch all teams.
+- `GET /team/:teamId?isPopulate=true` → Get Info of Team Players.
 - `GET /team/:teamId` → Fetch details of a specific team.
 - `PUT /team` → Update team information.
 - `DELETE /team` → Delete a team.
@@ -121,6 +122,7 @@
 - `GET /players` → Fetch all players.
 - `GET /player/:playerId` → Fetch details of a specific player.
 - `POST /assign-player` → Assign a player to a team.
+- `POST /assign-player/:playerId&:teamId&isRemove=true` → Remove player from the team.
 
 ---
 

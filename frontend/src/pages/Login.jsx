@@ -36,7 +36,7 @@ const Login = () => {
         dispatch(setLoading(true));
 
         try {
-            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login`, formData);
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/login`, formData,{withCredentials:true});
 
             if (response.data.success) {
                 toast.success('Login Successfully!');

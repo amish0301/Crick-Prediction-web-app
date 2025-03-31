@@ -60,7 +60,7 @@ axiosInstance.interceptors.response.use(
         const response = await axios.post(
           `${SERVER_URI}/auth/refresh-token`,
           {
-            refreshToken: store.getState().user?.refreshToken,
+            refreshToken: store.getState().user.refreshToken,
           },
           { withCredentials: true }
         );
