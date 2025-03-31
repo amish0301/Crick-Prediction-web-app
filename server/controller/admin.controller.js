@@ -397,13 +397,14 @@ const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
   // extract id from players
   const assignedPlayersIds = assignedPlayers.map((player) => player.player_id);
 
-  const players = await db.player.findOne({
+  let players = await db.player.findOne({
     where: {
       player_id: {
         [Op.notIn]: assignedPlayersIds.length > 0 ? assignedPlayersIds : [null],
       },
     },
   });
+if(players==null)players=await db.player.findAll()
 
   return res.status(200).json({ success: true, players });
 });

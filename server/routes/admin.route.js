@@ -20,6 +20,7 @@ const {
   tournamentInfo,
   getAllTournament,
   updatePlayerInfo,
+<<<<<<< Updated upstream
   getAllAvailablePlayers,
   assignMatchesToTournament,
   getAllMatchesOfTournament,
@@ -28,6 +29,9 @@ const {
   deleteMatch,
   getMatchesFilterByStatus,
   createMatch,
+=======
+  getAllAvailablePlayers
+>>>>>>> Stashed changes
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -59,7 +63,12 @@ router
 router
   .post("/player", createPlayerValidation(), createPlayer)
   .delete("/player", deletePlayer);
+<<<<<<< Updated upstream
 router.get("/players", fetchAllPlayers).get('/players/available', getAllAvailablePlayers);
+=======
+router.get("/players", fetchAllPlayers)
+router.get('/players/available', getAllAvailablePlayers);
+>>>>>>> Stashed changes
 router.post("/assign-player", assignPlayerToTeam);
 
 router.get("/player/:playerId", getPlayerInfo);

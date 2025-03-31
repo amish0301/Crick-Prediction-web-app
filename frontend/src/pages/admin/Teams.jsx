@@ -1,4 +1,4 @@
-import { Container, Paper, Stack, Typography, TextField, Button, Accordion, AccordionSummary, Box, AccordionDetails, IconButton } from '@mui/material';
+import { Container, Paper, Stack, Typography, TextField, Button, Accordion, AccordionSummary, Box,AccordionDetails, IconButton } from '@mui/material';
 import React, { useState } from 'react';
 import { styled } from '@mui/material';
 import {
@@ -9,41 +9,32 @@ import {
 import { Link as LinkComponent, useLocation } from 'react-router-dom';
 import csk from '../../assets/csk.png';
 import mi from '../../assets/mi.png';
-import axiosInstance from '../../hooks/useAxios';
 
-
-// Styled Link Component
-const Link = styled(LinkComponent)(`
-  text-decoration: none;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  color: #cecfce;
-  transition: all 0.3s ease;
-  &:hover {
-    background-color: #333333;
-    color: white;
-    transform: translateX(4px);
-  }
-`);
-
-// Styled File Input
-const FileInput = styled('input')({
-  display: 'none',
+const Link = styled(LinkComponent)({
+  textDecoration: 'none',
+  borderRadius: '8px',
+  padding: '0.5rem 1rem',
+  color: '#1976d2',
+  backgroundColor: '#e3f2fd',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+    backgroundColor: '#bbdefb',
+    color: '#1565c0',
+    transform: 'translateY(-2px)',
+  },
 });
 
-// TeamManagement Component
 const TeamManagement = () => {
-  // State for form inputs
   const [teamName, setTeamName] = useState('');
   const [teamLogo, setTeamLogo] = useState(null); // Changed to store file object
   const [mainPlayer, setMainPlayer] = useState('');
 
   // Dummy team data with nested players
   const dummyTeams = [
-    {
-      id: 1,
-      name: "Mumbai Indians",
-      logo: mi,
+    { 
+      id: 1, 
+      name: "Mumbai Indians", 
+      logo: mi, 
       mainPlayer: "Rohit Sharma",
       totalPlayers: 18,
       players: [
@@ -52,9 +43,9 @@ const TeamManagement = () => {
         { id: 3, name: "Hardik Pandya", age: 30, position: "All-rounder" },
       ]
     },
-    {
-      id: 2,
-      name: "Chennai Super Kings",
+    { 
+      id: 2, 
+      name: "Chennai Super Kings", 
       logo: csk,
       mainPlayer: "MS Dhoni",
       totalPlayers: 20,
@@ -66,31 +57,8 @@ const TeamManagement = () => {
     },
   ];
 
-  const handleAddTeam = async () => {
-
-    try {
-      const formData = new FormData();
-
-      formData.append("name", teamName);
-      formData.append("logo", teamLogo);
-
-      const res = await axiosInstance.post(`/admin/team`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      if(res.data.success) {
-        console.log(res.data.message, res.data.team);
-      }
-
-      setTeamName("");
-      setTeamLogo(null);
-
-    } catch (error) {
-      console.log('error in creating team', error);
-    }
-
+  const handleAddTeam = () => {
+    console.log("Adding Team:", { teamName, teamLogo, mainPlayer });
     setTeamName('');
     setTeamLogo(null); // Reset to null after submission
     setMainPlayer('');
@@ -99,10 +67,97 @@ const TeamManagement = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setTeamLogo(file); // Store the file object
+      setTeamLogo(file);
+    }
+  }
+
+  const fetchTeams = async () => {
+    try {
+      const response = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/admin/teams`);
+      if (response.data.success && Array.isArray(response.data.teams)) {
+        const fetchedTeams = response.data.teams.map(team => ({
+          id: team.team_id,
+          name: team.name,
+          logo: team.logo,
+          main_players: team.main_players || [],
+        }));
+        setTeams(fetchedTeams);
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error fetching teams:', error);
+      toast.error('Failed to fetch teams');
+      setTeams([]);
+    } finally {
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+  useEffect(() => {
+    console.log('Teams state updated:', teams);
+  }, [teams]);
+
+  const handleValidation = async (e) => {
+    e.preventDefault();
+    if (!teamName || !mainPlayerId) {
+      return toast.info('Team Name and Main Player ID are required');
+    }
+
+    const formData = new FormData();
+    formData.append("name",teamName);
+    formData.append("logo",teamLogo);
+
+
+    const toastId = toast.loading('Adding Team...');
+    try {
+      const res = await axiosInstance.post(`/admin/team`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data.success) {
+        setTeams((prev) => [
+          ...prev,
+          {
+            id: res.data.team.team_id,
+            name: res.data.team.name,
+            logo: res.data.team.logo,
+            main_players: res.data.team.main_players || [],
+            players: res.data.team.players || [],
+          },
+        ]);
+        setTeamName('');
+        setMainPlayerId('');
+        toast.update(toastId, {
+          render: 'Team added successfully!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000,
+        });
+        await fetchTeams();
+      }
+    } catch (error) {
+      console.log('Full error response:', error.response?.data);
+      const errorMessage = error.response?.data?.message ||
+        (error.response?.data?.errors
+          ? error.response.data.errors.map(err => err.message).join(', ')
+          : 'Failed to add team');
+      toast.update(toastId, {
+        render: errorMessage,
+        type: 'error',
+        isLoading: false,
+        autoClose: 3000,
+      });
+      console.error('Error adding team:', error);
+    }
+  };
+
+  const FileInput = styled('input')({
+    display: 'none',
+  })
   return (
     <Container component={'main'} sx={{ py: 4 }}>
       <Typography
@@ -132,9 +187,9 @@ const TeamManagement = () => {
         <Accordion defaultExpanded sx={{ mb: 2, borderRadius: '12px', overflow: 'hidden' }}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
-            sx={{
-              bgcolor: '#286675',
-              color: 'white',
+            sx={{ 
+              bgcolor: '#286675', 
+              color: 'white', 
               borderRadius: '12px 12px 0 0',
               '&:hover': { bgcolor: '#1e4d5a' },
             }}
@@ -147,18 +202,18 @@ const TeamManagement = () => {
                 <Accordion key={team.id} sx={{ borderRadius: '8px', overflow: 'hidden' }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
-                    sx={{
-                      bgcolor: '#f5f5f5',
+                    sx={{ 
+                      bgcolor: '#f5f5f5', 
                       '&:hover': { bgcolor: '#ececec' },
                     }}
                   >
                     <Stack direction="row" alignItems="center" spacing={2}>
-                      <Box
-                        component="img"
-                        src={team.logo}
-                        alt={team.name}
-                        sx={{ width: 40, height: 40, borderRadius: '50%' }}
-
+                      <Box 
+                        component="img" 
+                        src={team.logo} 
+                        alt={team.name} 
+                        sx={{ width: 40, height: 40, borderRadius: '50%' }} 
+                     
                       />
                       <Typography sx={{ fontWeight: '500', fontSize: '1rem' }}>
                         {team.name}
@@ -177,13 +232,13 @@ const TeamManagement = () => {
                         Team Players:
                       </Typography>
                       {team.players.map((player) => (
-                        <Paper
-                          key={player.id}
-                          elevation={1}
-                          sx={{
-                            p: 1,
-                            borderRadius: '6px',
-                            bgcolor: '#f9f9f9'
+                        <Paper 
+                          key={player.id} 
+                          elevation={1} 
+                          sx={{ 
+                            p: 1, 
+                            borderRadius: '6px', 
+                            bgcolor: '#f9f9f9' 
                           }}
                         >
                           <Typography variant="body2">
@@ -213,7 +268,7 @@ const TeamManagement = () => {
             <Typography sx={{ fontWeight: '600', fontSize: '1.1rem' }}>Create New Team</Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ bgcolor: '#fafafa', p: 2 }}>
-            <Stack spacing={2.5}>
+            <Stack spacing={2.5} component="form" onSubmit={handleValidation}>
               <TextField
                 label="Team Name"
                 value={teamName}
@@ -223,7 +278,6 @@ const TeamManagement = () => {
                 variant="outlined"
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
               />
-
               <Stack direction="row" spacing={2} alignItems="center">
                 <FileInput
                   type="file"
@@ -257,7 +311,7 @@ const TeamManagement = () => {
                 )}
               </Stack>
 
-              <TextField
+              {/* <TextField
                 label="Main Player"
                 value={mainPlayer}
                 onChange={(e) => setMainPlayer(e.target.value)}
@@ -265,13 +319,15 @@ const TeamManagement = () => {
                 variant="outlined"
                 required
                 sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
-              />
-
-
+              /> */}
+              
+              {/* <Typography variant="body2" color="text.secondary">
+                Note: Logo will be set to a placeholder URL. Upload functionality requires backend support.
+              </Typography> */}
               <Button
+                type="submit"
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={handleAddTeam}
                 sx={{
                   bgcolor: '#286675',
                   '&:hover': {
