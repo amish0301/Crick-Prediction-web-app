@@ -5,10 +5,11 @@ module.exports = (sequelize, DataTypes) => {
   class Player extends Model {
     static associate(models) {
       // Many-to-Many relationship with Teams via TeamPlayers junction table
-      Player.belongsToMany(models.Team, {
+      this.belongsToMany(models.Team, {
         through: models.TeamPlayers,
         foreignKey: "player_id",
         otherKey: "team_id",
+        as: "teams"
       });
     }
   }

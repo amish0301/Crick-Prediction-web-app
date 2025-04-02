@@ -13,7 +13,7 @@ const adminRegister = TryCatch(async (req, res, next) => {
     return next(new ApiError(400, "Invalid Admin Key"));
 
   // returns number of updated rows
-  const updatedUser = await db.user.update(
+  const updatedUser = await db.User.update(
     { role: "admin" },
     { where: { email } }
   );
@@ -27,8 +27,8 @@ const adminRegister = TryCatch(async (req, res, next) => {
 
 const logout = TryCatch(async (req, res, next) => {
   // remove admin
-  const updatedUser = await db.user.update(
-    { role: "user" },
+  const updatedUser = await db.User.update(
+    { role: "User" },
     { where: { id: req.uId } }
   );
 
@@ -44,9 +44,9 @@ const createTeam = TryCatch(async (req, res, next) => {
   // upload logo to cloudinary
   const logoUrl = await uploadToCloudinary(req.file.buffer, "teams");
 
-  console.log('preview logo', logoUrl);
+  console.log("preview logo", logoUrl);
 
-  const team = await db.team.create({
+  const team = await db.Team.create({
     name,
     logo: logoUrl,
     main_players: mainPlayers,
@@ -62,7 +62,7 @@ const createTeam = TryCatch(async (req, res, next) => {
 });
 
 const getAllTeamsInfo = TryCatch(async (req, res, next) => {
-  const teams = await db.team.findAll();
+  const teams = await db.Team.findAll();
 
   if (!teams) return next(new ApiError(404, "No Teams Found"));
 
@@ -75,16 +75,20 @@ const getTeamInfo = TryCatch(async (req, res, next) => {
 
   if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
-  const team = await db.team.findByPk(teamId);
+  const team = await db.Team.findByPk(teamId);
   if (!team) return next(new ApiError(404, "Team Doesn't Exist"));
 
   if (isPopulate) {
-    const players = await db.player.findAll({
-      where: {
-        player_id: {
-          [Op.in]: team.main_players,
+    const players = await db.Team.findByPk(teamId, {
+      include: [
+        {
+          model: db.Player,
+          as: "players",
+          through: {
+            attributes: ["role"],
+          },
         },
-      },
+      ],
     });
 
     return res.status(200).json({ success: true, players });
@@ -101,7 +105,7 @@ const updateTeamInfo = TryCatch(async (req, res, next) => {
   // get data which wanted to be updated
   const { name, logo, addedPlayers = [], removedPlayers = [] } = req.body;
 
-  const team = await db.team.findOne({
+  const team = await db.Team.findOne({
     where: { team_id: teamId },
     attributes: ["team_id", "name", "logo", "main_players"],
   });
@@ -127,7 +131,7 @@ const deleteTeam = TryCatch(async (req, res, next) => {
 
   if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
-  const team = await db.team.destroy({ where: { team_id: teamId } });
+  const team = await db.Team.destroy({ where: { team_id: teamId } });
 
   if (!team) return next(new ApiError(404, "Team Not Found"));
 
@@ -141,7 +145,7 @@ const teamBelongsToTournament = TryCatch(async (req, res, next) => {
 
   if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
-  const tournaments = await db.tournaments_teams.findAll({
+  const tournaments = await db.TournamentTeams.findAll({
     where: { team_id: teamId },
     attributes: ["tournament_id"],
   });
@@ -152,11 +156,64 @@ const teamBelongsToTournament = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, tournaments });
 });
 
+const assignMainPlayerRole = TryCatch(async (req, res, next) => {
+  const { teamId } = req.query;
+
+  const { players, captainId } = req.body;
+  // map for role to id
+  const idToRole = new Map();
+
+  if (players) {
+    players.forEach((player) => (idToRole[player.id] = player.role));
+  }
+
+  if (!players || players.length === 0) {
+    return next(new ApiError(400, "Please provide Main Players"));
+  }
+
+  // assign as Main to playerIDS
+  const currentPlayers = await db.TeamPlayers.findAll({
+    where: {
+      team_id: teamId,
+      player_id: { [Op.in]: players.map(player => player.id) },
+    },
+    attributes: ["player_id", "role"],
+  });
+
+  if (!currentPlayers || currentPlayers.length == 0)
+    return next(new ApiError(404, "No Players found for provided players"));
+
+  const updatedPlayers = currentPlayers.map((player) => ({
+    player_id: player.player_id,
+    team_id: teamId,
+    role: idToRole[player.player_id],
+  }));
+
+  await db.TeamPlayers.bulkCreate(updatedPlayers, {
+    updateOnDuplicate: ["role"],
+  });
+
+  if (captainId) {
+    await db.TeamPlayers.update(
+      { role: "CAPTAIN" },
+      { where: { team_id: teamId, player_id: captainId } }
+    )
+  }
+
+  idToRole.clear();
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Players Role Updated" });
+});
+
+const togglePlayerRoleInTeam = TryCatch(async (req, res, next) => {});
+
 // ******* Players ********
 const createPlayer = TryCatch(async (req, res, next) => {
   const { name, age, role } = req.playerData;
 
-  const player = await db.player.create({
+  const player = await db.Player.create({
     name,
     age,
     position: role,
@@ -175,15 +232,15 @@ const getPlayerInfo = TryCatch(async (req, res, next) => {
 
   if (!playerId) return next(new ApiError(400, "Please Provide PlayerId"));
 
-  const player = await db.player.findByPk(playerId);
+  const player = await db.Player.findByPk(playerId);
   if (!player) return next(new ApiError(404, "Player Not Found"));
 
   // players belongs to which team
-  const playerTeam = await db.player.findOne({
+  const playerTeam = await db.Player.findOne({
     where: { player_id: playerId },
     include: [
       {
-        model: db.team,
+        model: db.Team,
         as: "teams",
         attributes: ["team_id", "name"],
       },
@@ -200,18 +257,18 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
   if (!teamId || !playerId)
     return next(new ApiError(400, "Please Provide TeamId and PlayerId"));
 
-  const player = await db.player.findByPk(playerId);
+  const player = await db.Player.findByPk(playerId);
   if (!player) return next(new ApiError(404, "Player Not Exist"));
 
-  const team = await db.team.findByPk(teamId);
+  const team = await db.Team.findByPk(teamId);
   if (!team) return next(new ApiError(404, "Team Not Exist"));
 
   // If isRemove is true then remove player from team
   if (isRemove === "true") {
-    await db.teamplayers.destroy({
+    await db.TeamPlayers.destroy({
       where: { player_id: playerId, team_id: teamId },
     });
-    await db.team.update(
+    await db.Team.update(
       {
         main_players: db.sequelize.fn(
           "array_remove",
@@ -228,17 +285,17 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
     });
   }
 
-  const existPlayerInTeamAlready = await db.teamplayers.findOne({
+  const existPlayerInTeamAlready = await db.TeamPlayers.findOne({
     where: { player_id: playerId, team_id: teamId },
   });
 
   if (existPlayerInTeamAlready)
     return next(new ApiError(400, "Player Already Exist in Team"));
 
-  await db.teamplayers.create({ team_id: teamId, player_id: playerId });
+  await db.TeamPlayers.create({ team_id: teamId, player_id: playerId });
 
   // assign player info to team- [main_playes]
-  await db.team.update(
+  await db.Team.update(
     {
       main_players: db.sequelize.fn(
         "array_append",
@@ -257,7 +314,7 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
 
 // GET - ALL PLAYERS
 const fetchAllPlayers = TryCatch(async (req, res, next) => {
-  const players = await db.player.findAll();
+  const players = await db.Player.findAll();
   if (!players) return next(new ApiError(404, "No Players Found"));
 
   return res.status(200).json({ success: true, players });
@@ -267,7 +324,7 @@ const deletePlayer = TryCatch(async (req, res, next) => {
   const { playerId } = req.query;
   if (!playerId) return next(new ApiError(400, "Please Provide PlayerId"));
 
-  const player = await db.player.destroy({ where: { player_id: playerId } });
+  const player = await db.Player.destroy({ where: { player_id: playerId } });
   if (!player) return next(new ApiError(404, "Player Not Found"));
 
   return res
@@ -281,7 +338,7 @@ const createTournament = TryCatch(async (req, res, next) => {
   const { name, schedule, totalTeams, location, tournamentType } =
     req.tournamentData; // coming from validation middleware
 
-  const tournament = await db.tournament.create({
+  const tournament = await db.Tournament.create({
     name,
     schedule,
     location,
@@ -306,7 +363,7 @@ const deleteTournament = TryCatch(async (req, res, next) => {
   if (!tournamentId)
     return next(new ApiError(400, "Please Provide TournamentId"));
 
-  const tournament = await db.tournament.destroy({
+  const tournament = await db.Tournament.destroy({
     where: { tournament_id: tournamentId },
   });
 
@@ -318,21 +375,39 @@ const deleteTournament = TryCatch(async (req, res, next) => {
 });
 
 const getTeamInfoOfTournament = TryCatch(async (req, res, next) => {
-  const { tournamentId } = req.query;
+  const { isPopulateTeamPlayers } = req.query;
+  const { tournamentId } = req.params;
 
   if (!tournamentId)
     return next(new ApiError(400, "Please Provide TournamentId"));
 
-  const teams = await db.tournament.findOne({
+  const teams = await db.Tournament.findOne({
     where: { tournament_id: tournamentId },
     include: [
       {
-        model: db.team,
+        model: db.Team,
         as: "teams",
-        attributes: [],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        through: { attributes: [] },
       },
     ],
   });
+
+  if (!teams) return next(new ApiError(404, "No Teams Found in Tournament"));
+
+  if (isPopulateTeamPlayers === "true") {
+    for (const team of teams.teams) {
+      if (Array.isArray(team.main_players) && team.main_players.length > 0) {
+        const players = await db.Player.findAll({
+          where: { player_id: { [Op.in]: team.main_players } },
+          attributes: ["player_id", "name", "position"],
+        });
+        team.setDataValue("players", players);
+      } else {
+        team.setDataValue("players", []);
+      }
+    }
+  }
 
   if (!teams) return next(new ApiError(404, "No Teams Found in Tournament"));
 
@@ -345,7 +420,7 @@ const addTeamInTournament = TryCatch(async (req, res, next) => {
   if (!teamId || !tournamentId)
     return next(new ApiError(400, "Please Provide TeamId and TournamentId"));
 
-  const tournament = await db.tournament.findOne({
+  const tournament = await db.Tournament.findOne({
     where: { tournament_id: tournamentId, status: "upcoming" },
   });
 
@@ -354,7 +429,7 @@ const addTeamInTournament = TryCatch(async (req, res, next) => {
       new ApiError(400, "You can only add team in Upcoming tournaments only")
     );
 
-  await db.tournaments_teams.create({
+  await db.TournamentTeams.create({
     team_id: teamId,
     tournament_id: tournamentId,
   });
@@ -367,29 +442,53 @@ const addTeamInTournament = TryCatch(async (req, res, next) => {
 const tournamentInfo = TryCatch(async (req, res, next) => {
   const { tournamentId } = req.params;
 
-  let tournament;
+  const tournament = await db.Tournament.findByPk(tournamentId);
 
-  if (!tournamentId) {
-    tournament = await db.tournament.findByPk(tournamentId);
-    if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
-    return res.status(200).json({ success: true, tournament });
-  }
-
-  tournament = await db.tournament.findAll();
   if (!tournament) return next(new ApiError(404, "No Tournament Found"));
   return res.status(200).json({ success: true, tournaments: tournament });
 });
 
 const getAllTournament = TryCatch(async (req, res, next) => {
-  const tournaments = await db.tournament.findAll();
-  if (!tournaments) return next(new ApiError(404, "No Tournament Found"));
+  const { isPopulateTeams, isPopulatePlayersInfo } = req.query;
+
+  const tournaments = await db.Tournament.findAll({
+    attributes: { exclude: ["createdAt", "updatedAt"] },
+    include: [
+      isPopulateTeams === "true" && {
+        model: db.Team,
+        as: "teams",
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+        through: { attributes: [] },
+      },
+    ].filter(Boolean),
+  });
+
+  if (!tournaments || tournaments.length === 0) {
+    return next(new ApiError(404, "No Tournament Found"));
+  }
+
+  if (isPopulatePlayersInfo === "true") {
+    for (const tournament of tournaments) {
+      for (const team of tournament.teams) {
+        if (Array.isArray(team.main_players) && team.main_players.length > 0) {
+          const players = await db.Player.findAll({
+            where: { player_id: { [Op.in]: team.main_players } },
+            attributes: ["player_id", "name", "position"],
+          });
+          team.setDataValue("players", players);
+        } else {
+          team.setDataValue("players", []);
+        }
+      }
+    }
+  }
 
   return res.status(200).json({ success: true, tournaments });
 });
 
 const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
   // find all assigned Players
-  const assignedPlayers = await db.teamplayers.findAll({
+  const assignedPlayers = await db.TeamPlayers.findAll({
     attributes: ["player_id"],
     raw: true,
   });
@@ -397,7 +496,7 @@ const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
   // extract id from players
   const assignedPlayersIds = assignedPlayers.map((player) => player.player_id);
 
-  const players = await db.player.findOne({
+  let players = await db.player.findOne({
     where: {
       player_id: {
         [Op.notIn]: assignedPlayersIds.length > 0 ? assignedPlayersIds : [null],
@@ -414,7 +513,7 @@ const assignMatchesToTournament = TryCatch(async (req, res, next) => {
 
   const { matchSchedule, customMatches } = req.body;
 
-  const tournament = await db.tournament.findByPk(tournamentId);
+  const tournament = await db.Tournament.findByPk(tournamentId);
   if (!tournament) return next(new ApiError(404, "Tournament not Found"));
 
   const teams = await db.tournaments_teams.findAll({
@@ -470,11 +569,11 @@ const createMatch = TryCatch(async (req, res, next) => {
     );
   }
 
-  const tournament = await db.tournament.findByPk(tournamentId);
+  const tournament = await db.Tournament.findByPk(tournamentId);
   if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
 
-  const team1 = await db.team.findByPk(team1Id);
-  const team2 = await db.team.findByPk(team2Id);
+  const team1 = await db.Team.findByPk(team1Id);
+  const team2 = await db.Team.findByPk(team2Id);
 
   if (!team1 || !team2)
     return next(new ApiError(404, "One or both teams not found"));
@@ -496,15 +595,15 @@ const createMatch = TryCatch(async (req, res, next) => {
 const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
   const { tournamentId } = req.query;
 
-  const tournament = await db.tournament.findByPk(tournamentId);
+  const tournament = await db.Tournament.findByPk(tournamentId);
   if (!tournament) return next(new ApiError(404, "Tournament Not Exist"));
 
   const matches = await db.match.findAll({
     where: { tournament_id: tournamentId },
     include: [
-      { model: db.team, as: "Team1", attributes: ["team_id", "name"] },
-      { model: db.team, as: "Team2", attributes: ["team_id", "name"] },
-      { model: db.team, as: "Winner", attributes: ["team_id", "name"] },
+      { model: db.Team, as: "Team1", attributes: ["team_id", "name"] },
+      { model: db.Team, as: "Team2", attributes: ["team_id", "name"] },
+      { model: db.Team, as: "Winner", attributes: ["team_id", "name"] },
     ],
     order: [["match_time", "ASC"]],
   });
@@ -583,6 +682,7 @@ module.exports = {
   updateTeamInfo,
   deleteTeam,
   teamBelongsToTournament,
+  assignMainPlayerRole,
 
   createPlayer,
   getPlayerInfo,
@@ -590,6 +690,7 @@ module.exports = {
   fetchAllPlayers,
   deletePlayer,
   getAllAvailablePlayers,
+  togglePlayerRoleInTeam,
 
   // Tournament
   getTeamInfoOfTournament,

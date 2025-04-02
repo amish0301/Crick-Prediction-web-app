@@ -28,6 +28,8 @@ const {
   deleteMatch,
   getMatchesFilterByStatus,
   createMatch,
+  togglePlayerRoleInTeam,
+  assignMainPlayerRole,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -54,12 +56,18 @@ router
   .get("/team/:teamId", getTeamInfo)
   .put("/team/:teamId", updateTeamInfo)
   .delete("/team", deleteTeam);
+router.put('/team/assign/main-players', assignMainPlayerRole)
+router.put('/team/player/role', togglePlayerRoleInTeam)
 
 // Players routes
 router
   .post("/player", createPlayerValidation(), createPlayer)
   .delete("/player", deletePlayer);
 router.get("/players", fetchAllPlayers).get('/players/available', getAllAvailablePlayers);
+
+router.get("/players", fetchAllPlayers)
+router.get('/players/available', getAllAvailablePlayers);
+
 router.post("/assign-player", assignPlayerToTeam);
 
 router.get("/player/:playerId", getPlayerInfo);
@@ -71,9 +79,7 @@ router
 router.get("/tournament/:tournamentId", tournamentInfo); // fetch only 1
 router.get('/tournament/matches', getAllMatchesOfTournament);
 router.get("/tournaments", getAllTournament); // fetch all
-router
-  .get("/tournament/team", getTeamInfoOfTournament)
-  .post("/tournament/team", addTeamInTournament); // expect `tournamentId` as query param
+router.get("/tournament/team/:tournamentId", getTeamInfoOfTournament).post("/tournament/team", addTeamInTournament); // expect `tournamentId` as query param
 
 // Matches
 router.post('/match/assign', assignMatchesToTournament);  // for random
@@ -81,7 +87,6 @@ router.post('/match/create', createMatch);
 router.get('/match/:matchId', getMatch);
 router.put('/match/:matchId', updateMatchInfo);
 router.delete('/match/:matchId', deleteMatch);
-
 router.get('/match', getMatchesFilterByStatus)
 
 module.exports = router;

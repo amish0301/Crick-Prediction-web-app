@@ -68,18 +68,27 @@ const Navbar = () => {
     // dispatch(setLoading(true));
 
     try {
-      const res = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, { withCredentials: true });
+      const res = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/auth/logout`, {
+        withCredentials: true,
+      });
       if (res.data.success) {
-        toast.success("Logout Successfully", toastId);
-        // remove from storage
+        toast.update(toastId, {
+          render: "Logout Successful",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
         dispatch(userNotExists());
+        navigate("/auth/login");
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message || "Logout Failed", toastId);
-    } finally {
-      toast.dismiss(toastId);
-      // dispatch(setLoading(false));
+      console.error("Logout error:", error);
+      toast.update(toastId, {
+        render: error?.response?.data?.message || "Logout Failed",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
   };
 
@@ -413,91 +422,69 @@ const Navbar = () => {
               />
             </Box>
 
-            {selectedTab === 'info' ? (
-              <Grid container spacing={1}>
-                <Grid item xs={6}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 1,
-                      textAlign: 'center',
-                      bgcolor: 'action.hover',
-                      borderRadius: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: '80px'
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      sx={{ mb: 0.5 }}
-                    >
-                      {userStats.points}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      Points
-                    </Typography>
-                  </Paper>
-                </Grid>
-                <Grid item xs={6}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 1,
-                      textAlign: 'center',
-                      bgcolor: 'action.hover',
-                      borderRadius: 2,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      minHeight: '80px'
-                    }}
-                  >
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      sx={{ mb: 0.5 }}
-                    >
-                      {userStats.accuracy}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                    >
-                      Accuracy
-                    </Typography>
-                  </Paper>
-                </Grid>
+          {selectedTab === "info" ? (
+            <Grid container spacing={1}>
+              <Grid size={{ xs: 6 }}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    p: 1,
+                    textAlign: "center",
+                    bgcolor: "action.hover",
+                    borderRadius: 2,
+                    height:"auto"
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5, fontSize: { xs: "1rem", sm: "1.1rem" } }}>
+                    {userStats.points}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
+                    Points
+                  </Typography>
+                </Paper>
               </Grid>
-            ) : (
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-                  Total Winnings: {userStats.winnings}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  <Chip
-                    size="small"
-                    icon={<TrendingUp />}
-                    label="Last Week: ₹300"
-                    sx={{ fontSize: '0.75rem' }}
-                  />
-                  <Chip
-                    size="small"
-                    icon={<TrendingUp />}
-                    label="This Month: ₹800"
-                    sx={{ fontSize: '0.75rem' }}
-                  />
-                </Box>
+              <Grid size={{ xs: 6 }}>
+                <Paper
+                  elevation={1}
+                  sx={{
+                    p: 1,
+                    textAlign: "center",
+                    bgcolor: "action.hover",
+                    borderRadius: 2,
+                    height:"auto"
+                  }}
+                >
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5, fontSize: { xs: "1rem", sm: "1.1rem" } }}>
+                    {userStats.accuracy}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}>
+                    Accuracy
+                  </Typography>
+                </Paper>
+              </Grid>
+            </Grid>
+          ) : (
+            <Box sx={{ textAlign: "center" }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontSize: { xs: "0.85rem", sm: "0.9rem" } }}>
+                Total Winnings: {userStats.winnings}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
+                <Chip
+                  size="small"
+                  icon={<TrendingUp />}
+                  label="Last Week: ₹300"
+                  sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}
+                />
+                <Chip
+                  size="small"
+                  icon={<TrendingUp />}
+                  label="This Month: ₹800"
+                  sx={{ fontSize: { xs: "0.65rem", sm: "0.75rem" } }}
+                />
               </Box>
-            )}
-          </Box>
+            </Box>
+          )}
+        </Box>
 
           <Divider />
 

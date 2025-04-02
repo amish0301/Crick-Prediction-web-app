@@ -10,6 +10,11 @@ Things That needs to be fixed
 POSTGRES String : postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@YOUR_IP_ADDRESS:5431/${POSTGRES_DB}
 
 
+// API Needed:
+1. All tournaments -> populate teams, players
+2. main players also includes captain, but in enum we've main,captain,extra different
+3. toggle Role for main_players in a team
+
 
 
 *** API Responses *** 

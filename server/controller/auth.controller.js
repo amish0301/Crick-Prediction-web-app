@@ -19,7 +19,7 @@ const register = TryCatch(async (req, res, next) => {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // create user instance in db
-  const user = await db.user.create({
+  const user = await db.User.create({
     name,
     email,
     age,
@@ -62,7 +62,7 @@ const login = TryCatch(async (req, res, next) => {
   const { email, password } = req.body;
 
   // find user in db
-  const user = await db.user.findOne({ where: { email } });
+  const user = await db.User.findOne({ where: { email } });
   if (!user)
     return next(new ApiError(404, "User Doesn't Exist with this Email!"));
 
@@ -103,13 +103,13 @@ const verifyEmail = TryCatch(async (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET);
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      await db.user.destroy({ where: { id: decoded.id } });
+      await db.User.destroy({ where: { id: decoded.id } });
       return next(new ApiError(404, "Token Expired! User entry removed."));
     }
     return next(new ApiError(400, "Invalid Token!"));
   }
 
-  const user = await db.user.findByPk(decoded.id);
+  const user = await db.User.findByPk(decoded.id);
 
   // mark user as verified
   user.isVerified = true;
@@ -138,7 +138,7 @@ const resendEmail = TryCatch(async (req, res, next) => {
   const { email } = req.body;
   if (!email) return next(new ApiError(404, "Please Provide Email"));
 
-  const user = await db.user.findOne({ where: { email } });
+  const user = await db.User.findOne({ where: { email } });
   if (!user) return next(new ApiError(404, "User not found"));
 
   // Generate a new verification token
@@ -160,7 +160,7 @@ const resendEmail = TryCatch(async (req, res, next) => {
 
 const isVerified = TryCatch(async (req, res, next) => {
   const { email } = req.query;
-  const user = await db.user.findOne({ where: { email } });
+  const user = await db.User.findOne({ where: { email } });
 
   if (!user) return next(new ApiError(404, "User Not Found"));
 
@@ -192,7 +192,7 @@ const googleOAuthHandler = TryCatch(async (req, res, next) => {
   }
 
   // Migrate USER DB
-  const [user, createdUser] = await db.user.findOrCreate({
+  const [user, createdUser] = await db.User.findOrCreate({
     where: { email },
     defaults: {
       name,
@@ -238,7 +238,7 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
 
   const decoded = jwt.verify(incomingRefreshToken, process.env.JWT_SECRET);
 
-  const user = await db.user.findByPk(decoded.id);
+  const user = await db.User.findByPk(decoded.id);
   if (!user) {
     return next(
       new ApiError(401, "Invalid refresh token or Expired refresh token")
@@ -266,13 +266,11 @@ const refreshAccessToken = TryCatch(async (req, res, next) => {
 
 // LOGOUT
 const logout = TryCatch(async (req, res, next) => {
-  const id = req.uId;
-
   if (req.cookies?.accessToken) res.clearCookie("accessToken");
   if (req.cookies?.refreshToken) res.clearCookie("refreshToken");
   if (req.cookies["connect.sid"]) res.clearCookie("connect.sid");
 
-  // await db.user.update({ isVerified: false }, { where: { id: id } });
+  // await db.User.update({ isVerified: false }, { where: { id: id } });
 
   return res.json({
     success: true,

@@ -39,7 +39,7 @@ router.post("/login", login);
 router.get('/dummy', dummyTokens);
 
 // logout
-router.get("/logout", isAuthenticated, logout);
+router.get("/logout", logout);
 
 // Verification
 router.post("/refresh-token", refreshAccessToken);

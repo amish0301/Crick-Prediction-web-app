@@ -3,12 +3,13 @@ const accessTokenExpiry = "30m";
 const refreshTokenExpiry = "7d";
 
 const verificationURL = `${process.env.FRONTEND_URL}/verify-email`;
+const isProduction = process.env.NODE_ENV === "production"
 
 const cookieOption = {
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  httpOnly: true,
-  maxAge: 15 * 60 * 1000,
+  secure: isProduction, // Must be false for local development (localhost HTTP)
+  sameSite: isProduction ? "none" : "lax", // Use "none" if frontend and backend have different origins
+  httpOnly: true, // Prevents access from JavaScript (good for security)
+  maxAge: 15 * 60 * 1000, // 15 minutes expiration
 };
 
 const sessionOption = {
@@ -22,10 +23,10 @@ const sessionOption = {
 };
 
 const refreshTokenCookieOption = {
-  httpOnly: process.env.NODE_ENV === "production" ? true : false,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  secure: isProduction,
+  sameSite: isProduction ? "none" : "lax",
+  httpOnly: true,
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days for refresh token
 };
 
 module.exports = {

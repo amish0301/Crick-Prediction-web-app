@@ -27,6 +27,17 @@ module.exports = {
         },
         onDelete: "CASCADE",
       },
+      role: {
+        type: Sequelize.ENUM("MAIN", "EXTRA", "CAPTAIN"),
+        allowNull: false,
+        defaultValue: "EXTRA",
+      },
+    });
+
+    await queryInterface.addConstraint("team_players", {
+      fields: ["team_id", "player_id"],
+      type: "unique",
+      name: "unique_team_player", // Name of the constraint
     });
   },
 

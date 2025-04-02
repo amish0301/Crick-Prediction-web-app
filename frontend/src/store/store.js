@@ -20,8 +20,8 @@ const rootReducer = combineReducers({
 
 const persistConfig = {
   key: "CrickPrediction",
-  storage, // Can be changed to sessionStorage if needed
-  whitelist: [userSlice.name], // add so on
+  storage, 
+  whitelist: [userSlice.name], 
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

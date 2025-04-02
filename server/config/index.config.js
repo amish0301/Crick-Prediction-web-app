@@ -1,9 +1,8 @@
 const corsOption = {
-  origin: 'http://localhost:5173', // Replace with your frontend URL
-  credentials: true,
+  origin: process.env.FRONTEND_URL, // Ensure this is set in your .env file
+  credentials: true, // Allow sending cookies and authorization headers
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Specify allowed methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allow specific headers
 };
 
-
-
-
-module.exports = { corsOption };
+module.exports = corsOption;
