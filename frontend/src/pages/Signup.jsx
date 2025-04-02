@@ -11,13 +11,11 @@ import {
   Typography
 } from '@mui/material';
 import axios from 'axios';
-import React, { useEffect, useRef, useState, version } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import logging from '../assets/Signup.jpg';
 import Timeout from "../components/Timeout";
-import { useDispatch, useSelector } from 'react-redux';
-import { resetVerifyingMailWindowTime, setVerifyingMailWindowTime } from "../store/slices/user";
 
 
 const Signup = () => {
@@ -34,10 +32,7 @@ const Signup = () => {
   const [emailSent, setEmailSent] = useState(
     localStorage.getItem("emailSent") === "true"
   );
-  const intervalRef = useRef(null);
-
-  const { verifyingMailWindowTime } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
+  const [timeLeft, setTimeLeft] = useState(300);
   const verificationChecked = useRef(false);
   const navigate = useNavigate();
 
@@ -60,7 +55,6 @@ const Signup = () => {
 
     if (formData.password !== formData.confirmPassword)
       return toast.error("Passwords do not match");
-
     const toastId = toast.loading("Creating an Account...");
 
     try {
@@ -72,15 +66,7 @@ const Signup = () => {
         setEmailSent(true);
       }
     } catch (error) {
-      const errorResponse = error.response?.data;
-      if (errorResponse?.error?.errors && Array.isArray(errorResponse.error.errors)) {
-        errorResponse.error.errors.forEach(err => {
-          toast.error(err.message, {toastId: toastId});
-        });
-      } else {
-        toast.error(errorResponse?.message || "Signup failed", {toastId: toastId});
-      }
-
+      toast.error('Signup failed', toastId);
       localStorage.removeItem("email");
       localStorage.removeItem("emailSent");
     } finally { toast.dismiss(toastId) }
@@ -90,62 +76,52 @@ const Signup = () => {
   useEffect(() => {
     if (!emailSent || !email) return;
 
-    let currentTime = verifyingMailWindowTime; // Use local variable to prevent stale state
-
-    intervalRef.current = setInterval(async () => {
+    const interval = setInterval(async () => {
       try {
-        if (currentTime < 1) {
-          if (!verificationChecked.current) {
-            verificationChecked.current = true;
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            if (!verificationChecked.current) {
+              verificationChecked.current = true;
+              toast.error("Verification time expired. Redirecting...");
+            }
+            setEmail("");
+            setEmailSent(false);
+            localStorage.removeItem("email");
+            localStorage.removeItem("emailSent");
+            clearInterval(interval);
+            return 0;
           }
-          setEmailSent(false);
-          // localStorage.removeItem("email");
-          // localStorage.removeItem("emailSent");
-          // dispatch(resetVerifyingMailWindowTime());
-          clearInterval(intervalRef.current);
-          return;
-        }
+          return prev - 1;
+        });
 
-        // Decrement local variable
-        currentTime -= 1;
-        dispatch(setVerifyingMailWindowTime(currentTime)); // Update Redux state
-
-        // Check verification status
-        const response = await axios.get(
-          `${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`,
-          { withCredentials: true }
-        );
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/auth/check-verification?email=${email}`, { withCredentials: true });
 
         if (response.data.isVerified) {
           if (!verificationChecked.current) toast.success("Account Verified! Redirecting...");
           verificationChecked.current = true;
           setEmail("");
           setEmailSent(false);
-          dispatch(resetVerifyingMailWindowTime());
-          clearInterval(intervalRef.current);
-          navigate("/", { replace: true });
+          clearInterval(interval);
+          navigate('/', { replace: true });
         }
       } catch (error) {
-        dispatch(resetVerifyingMailWindowTime());
         console.error("Verification Check Error:", error);
       }
     }, 1000);
 
-    return () => clearInterval(intervalRef.current);
+    return () => clearInterval(interval);
   }, [emailSent, email, verificationChecked]);
 
 
   // Handle Resent Email
   const emailResentHandler = async () => {
     const toastId = toast.loading('Please wait for a while...');
-
     try {
       const res = await axios.post(`${import.meta.env.VITE_SERVER_URL}/auth/resend-email`, { email }, { withCredentials: true });
       if (res.data.success) {
         localStorage.setItem("email", formData.email);
         localStorage.setItem("emailSent", "true");
-
-        dispatch(resetVerifyingMailWindowTime());
+        setEmail(formData.email)
         setEmailSent(true);
       }
     } catch (error) {
@@ -187,8 +163,8 @@ const Signup = () => {
             p: { xs: 4, md: 6, lg: 8 },
           }}
         >
-          {email && verifyingMailWindowTime >= 0 ? (
-            <Timeout timeLeft={verifyingMailWindowTime} emailResentHandler={emailResentHandler} />
+          {email ? (
+            <Timeout timeLeft={timeLeft} emailResentHandler={emailResentHandler} />
           ) : (
             <Box
               component="form"

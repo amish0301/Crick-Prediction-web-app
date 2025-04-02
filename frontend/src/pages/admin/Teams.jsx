@@ -37,7 +37,7 @@ const TeamManagement = () => {
   const fetchTeams = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get('/admin/teams');
+      const response = await axiosInstance.get(`/admin/teams`);
       if (response.data.success && Array.isArray(response.data.teams)) {
         const fetchedTeams = response.data.teams.map(team => ({
           id: team.team_id,
@@ -81,7 +81,7 @@ const TeamManagement = () => {
       const res = await axiosInstance.post('admin/team', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-
+      
       if (res.data.success) {
         const newTeam = {
           id: res.data.team.team_id,
@@ -134,7 +134,7 @@ const TeamManagement = () => {
         sx={{
           p: 3,
           borderRadius: '16px',
-        bgcolor: 'background.paper',
+          bgcolor: 'background.paper',
           boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
         }}
       >
@@ -170,11 +170,11 @@ const TeamManagement = () => {
                   <TableRow key={team.id}>
                     <TableCell>
                       <Stack direction="row" alignItems="center" spacing={2}>
-                        <Box
-                          component="img"
-                          src={team.logo}
-                          alt={team.name}
-                          sx={{ width: 40, height: 40, borderRadius: '50%' }}
+                        <Box 
+                          component="img" 
+                          src={team.logo} 
+                          alt={team.name} 
+                          sx={{ width: 40, height: 40, borderRadius: '50%' }} 
                         />
                         <Typography>{team.name}</Typography>
                       </Stack>

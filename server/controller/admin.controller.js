@@ -503,6 +503,7 @@ const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
       },
     },
   });
+if(players==null)players=await db.player.findAll()
 
   return res.status(200).json({ success: true, players });
 });
