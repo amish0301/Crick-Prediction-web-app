@@ -30,6 +30,7 @@ const {
   createMatch,
   togglePlayerRoleInTeam,
   assignMainPlayerRole,
+  deleteTeamInTournament,
 } = require("../controller/admin.controller");
 const {
   adminLoginValidation,
@@ -55,7 +56,7 @@ router.get("/teams", getAllTeamsInfo);
 router
   .get("/team/:teamId", getTeamInfo)
   .put("/team/:teamId", updateTeamInfo)
-  .delete("/team", deleteTeam);
+  .delete("/team",  );
 router.put('/team/assign/main-players', assignMainPlayerRole)
 router.put('/team/player/role', togglePlayerRoleInTeam)
 
@@ -77,9 +78,9 @@ router
   .post("/tournament", createTournamentValidation(), createTournament)
   .delete("/tournament", deleteTournament);
 router.get("/tournament/:tournamentId", tournamentInfo); // fetch only 1
-router.get('/tournament/matches', getAllMatchesOfTournament);
+router.get('/tournament/matches/:tournamentId', getAllMatchesOfTournament);
 router.get("/tournaments", getAllTournament); // fetch all
-router.get("/tournament/team/:tournamentId", getTeamInfoOfTournament).post("/tournament/team", addTeamInTournament); // expect `tournamentId` as query param
+router.get("/tournament/team/:tournamentId", getTeamInfoOfTournament).post("/tournament/team", addTeamInTournament).put('/tournament/team/:tournamentId', deleteTeamInTournament); // expect `tournamentId` as query param
 
 // Matches
 router.post('/match/assign', assignMatchesToTournament);  // for random

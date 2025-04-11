@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const db = require("../models");
 const ApiError = require("../utils/ApiError");
 const TryCatch = require("../utils/TryCatch");
@@ -159,12 +159,12 @@ const teamBelongsToTournament = TryCatch(async (req, res, next) => {
 const assignMainPlayerRole = TryCatch(async (req, res, next) => {
   const { teamId } = req.query;
 
-  const { players, captainId } = req.body;
+  const { players } = req.body; // ALL Players of Team
   // map for role to id
   const idToRole = new Map();
 
   if (players) {
-    players.forEach((player) => (idToRole[player.id] = player.role));
+    players.forEach((player) => idToRole.set(player.id, player.role));
   }
 
   if (!players || players.length === 0) {
@@ -175,7 +175,7 @@ const assignMainPlayerRole = TryCatch(async (req, res, next) => {
   const currentPlayers = await db.TeamPlayers.findAll({
     where: {
       team_id: teamId,
-      player_id: { [Op.in]: players.map(player => player.id) },
+      player_id: { [Op.in]: players.map((player) => player.id) },
     },
     attributes: ["player_id", "role"],
   });
@@ -186,28 +186,51 @@ const assignMainPlayerRole = TryCatch(async (req, res, next) => {
   const updatedPlayers = currentPlayers.map((player) => ({
     player_id: player.player_id,
     team_id: teamId,
-    role: idToRole[player.player_id],
+    role: idToRole.get(player.player_id),
   }));
 
   await db.TeamPlayers.bulkCreate(updatedPlayers, {
     updateOnDuplicate: ["role"],
   });
 
-  if (captainId) {
-    await db.TeamPlayers.update(
-      { role: "CAPTAIN" },
-      { where: { team_id: teamId, player_id: captainId } }
-    )
-  }
+  const mainPlayerIds = updatedPlayers
+    .filter((player) => player.role === "MAIN" || player.role === "CAPTAIN")
+    .map((player) => player.player_id);
+  await db.Team.update(
+    { main_players: mainPlayerIds.length > 0 ? mainPlayerIds : [] },
+    { where: { team_id: teamId } }
+  );
 
   idToRole.clear();
-
   return res
     .status(200)
     .json({ success: true, message: "Players Role Updated" });
 });
 
-const togglePlayerRoleInTeam = TryCatch(async (req, res, next) => {});
+const togglePlayerRoleInTeam = TryCatch(async (req, res, next) => {
+  const { teamId, playerId } = req.query;
+  const { role } = req.body;
+
+  if (!teamId || !playerId)
+    return next(new ApiError(400, "Please Provide TeamId and PlayerId"));
+
+  const player = await db.TeamPlayers.findOne({
+    where: { team_id: teamId, player_id: playerId },
+    attributes: ["player_id", "role"],
+  });
+
+  if (!player) return next(new ApiError(404, "Player Not Found"));
+
+  await db.TeamPlayers.update(
+    { role },
+    { where: { team_id: teamId, player_id: playerId } }
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: `${player.name} Role Updated to ${role}`,
+  });
+});
 
 // ******* Players ********
 const createPlayer = TryCatch(async (req, res, next) => {
@@ -250,7 +273,6 @@ const getPlayerInfo = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, player, playerTeam });
 });
 
-// WORKS BELOW
 const assignPlayerToTeam = TryCatch(async (req, res, next) => {
   const { teamId, playerId, isRemove } = req.query;
 
@@ -265,19 +287,16 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
 
   // If isRemove is true then remove player from team
   if (isRemove === "true") {
+    const isPlayerExist = await db.TeamPlayers.findOne({
+      where: { team_id: teamId, player_id: playerId },
+    });
+
+    if (!isPlayerExist)
+      return next(new ApiError(404, "Player Doesn't Exist in Team"));
+
     await db.TeamPlayers.destroy({
       where: { player_id: playerId, team_id: teamId },
     });
-    await db.Team.update(
-      {
-        main_players: db.sequelize.fn(
-          "array_remove",
-          db.sequelize.col("main_players"),
-          playerId
-        ),
-      },
-      { where: { team_id: teamId } }
-    );
 
     return res.status(200).json({
       success: true,
@@ -293,18 +312,6 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
     return next(new ApiError(400, "Player Already Exist in Team"));
 
   await db.TeamPlayers.create({ team_id: teamId, player_id: playerId });
-
-  // assign player info to team- [main_playes]
-  await db.Team.update(
-    {
-      main_players: db.sequelize.fn(
-        "array_append",
-        db.sequelize.col("main_players"),
-        playerId
-      ),
-    },
-    { where: { team_id: teamId } }
-  );
 
   return res.status(200).json({
     success: true,
@@ -414,6 +421,34 @@ const getTeamInfoOfTournament = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, teams });
 });
 
+const deleteTeamInTournament = TryCatch(async (req, res, next) => {
+  const { tournamentId } = req.params;
+  const { teamId } = req.query;
+
+  if (!tournamentId || !teamId)
+    return next(new ApiError(400, "Please Provide TournamentId and TeamId"));
+
+  const tournament = await db.Tournament.findByPk(tournamentId);
+  if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
+  const team = await db.Team.findByPk(teamId);
+  if (!team) return next(new ApiError(404, "Team Not Found"));
+
+  const deletedTournament = await db.TournamentTeams.destroy({
+    where: {
+      tournament_id: tournamentId,
+      team_id: teamId,
+    },
+  });
+
+  if (!deletedTournament)
+    return next(new ApiError(404, "Team Not Found in Tournament"));
+
+  return res.status(200).json({
+    success: true,
+    message: "Team Deleted from Tournament Successfully",
+  });
+});
+
 const addTeamInTournament = TryCatch(async (req, res, next) => {
   const { teamId, tournamentId } = req.query;
 
@@ -496,14 +531,14 @@ const getAllAvailablePlayers = TryCatch(async (req, res, next) => {
   // extract id from players
   const assignedPlayersIds = assignedPlayers.map((player) => player.player_id);
 
-  let players = await db.player.findOne({
-    where: {
-      player_id: {
-        [Op.notIn]: assignedPlayersIds.length > 0 ? assignedPlayersIds : [null],
-      },
-    },
-  });
-if(players==null)players=await db.player.findAll()
+  let players;
+  if (assignedPlayersIds.length > 0) {
+    players = await db.Player.findAll({
+      where: { player_id: { [Op.notIn]: assignedPlayersIds } },
+    });
+  } else {
+    players = await db.Player.findAll();
+  }
 
   return res.status(200).json({ success: true, players });
 });
@@ -547,7 +582,7 @@ const assignMatchesToTournament = TryCatch(async (req, res, next) => {
     }
   }
 
-  await db.match.bulkCreate(matches);
+  await db.Match.bulkCreate(matches);
 
   return res.status(200).json({
     success: true,
@@ -579,7 +614,7 @@ const createMatch = TryCatch(async (req, res, next) => {
   if (!team1 || !team2)
     return next(new ApiError(404, "One or both teams not found"));
 
-  const match = await db.match.create({
+  const match = await db.Match.create({
     tournament_id: tournamentId,
     team1_id: team1Id,
     team2_id: team2Id,
@@ -594,12 +629,12 @@ const createMatch = TryCatch(async (req, res, next) => {
 });
 
 const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
-  const { tournamentId } = req.query;
+  const { tournamentId } = req.params;
 
   const tournament = await db.Tournament.findByPk(tournamentId);
   if (!tournament) return next(new ApiError(404, "Tournament Not Exist"));
 
-  const matches = await db.match.findAll({
+  const matches = await db.Match.findAll({
     where: { tournament_id: tournamentId },
     include: [
       { model: db.Team, as: "Team1", attributes: ["team_id", "name"] },
@@ -620,7 +655,7 @@ const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
 const getMatch = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
 
-  const match = await db.match.findByPk(matchId);
+  const match = await db.Match.findByPk(matchId);
 
   if (!match) return next(new ApiError(404, "Match Data not found"));
 
@@ -632,7 +667,7 @@ const getMatchesFilterByStatus = TryCatch(async (req, res, next) => {
 
   if (!status) return next(new ApiError(404, "Please Provide Match Status"));
 
-  const matches = await db.match.findAll({
+  const matches = await db.Match.findAll({
     where: { status },
   });
 
@@ -643,7 +678,7 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
   const { match_time, location, status } = req.body;
 
-  const [totalRows, updatedMatch] = await db.match.update(
+  const [totalRows, updatedMatch] = await db.Match.update(
     {
       match_time,
       location,
@@ -665,7 +700,7 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
 const deleteMatch = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
 
-  await db.match.destroy({
+  await db.Match.destroy({
     where: { match_id: matchId },
   });
 
@@ -695,6 +730,7 @@ module.exports = {
 
   // Tournament
   getTeamInfoOfTournament,
+  deleteTeamInTournament,
   createTournament,
   deleteTournament,
   addTeamInTournament,

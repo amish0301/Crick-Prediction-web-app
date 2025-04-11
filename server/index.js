@@ -17,9 +17,7 @@ const cookieParser = require("cookie-parser");
 // express app init
 const app = express();
 app.use(cors(corsOption));
-
 app.use(express.json()); // parse incoming json data
-
 app.use(cookieParser());
 
 // session init
