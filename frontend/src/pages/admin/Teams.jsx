@@ -1,7 +1,7 @@
-import { Container, Paper, Stack, Typography, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, IconButton } from '@mui/material';
+import { Container, Paper, Stack, Typography, TextField, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material/styles';
-import { Add as AddIcon, Image as ImageIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Add as AddIcon, Image as ImageIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link as LinkComponent } from 'react-router-dom';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
@@ -29,6 +29,8 @@ const TeamManagement = () => {
   const [teamLogo, setTeamLogo] = useState(null);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [teamIdToDelete, setTeamIdToDelete] = useState(null);
 
   useEffect(() => {
     fetchTeams();
@@ -44,9 +46,10 @@ const TeamManagement = () => {
           name: team.name,
           logo: team.logo,
           main_players: team.main_players || [],
-          playerCount: team.playerCount || 0 // Assuming this comes from API, adjust as needed
+          playerCount: team.total_players || 0 
         }));
         setTeams(fetchedTeams);
+        console.log(response.data);
       } else {
         throw new Error('Invalid response format');
       }
@@ -56,6 +59,35 @@ const TeamManagement = () => {
       setTeams([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenDeleteDialog = (teamId) => {
+    setTeamIdToDelete(teamId);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
+    setTeamIdToDelete(null);
+  };
+
+  const handleDeleteTeam = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.delete(`/admin/team?teamId=${teamIdToDelete}`);
+      if (response.data.success) {
+        setTeams(prev => prev.filter(team => team.id !== teamIdToDelete));
+        toast.success('Team deleted successfully');
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (error) {
+      console.error('Error deleting team:', error);
+      toast.error('Failed to delete team');
+    } finally {
+      setLoading(false);
+      handleCloseDeleteDialog();
     }
   };
 
@@ -110,6 +142,8 @@ const TeamManagement = () => {
         isLoading: false,
         autoClose: 3000,
       });
+    } finally {
+      toast.dismiss(toastId);
     }
   };
 
@@ -179,13 +213,19 @@ const TeamManagement = () => {
                         <Typography>{team.name}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>{team.playerCount}</TableCell>
+                    <TableCell>{team.main_players.length > 0 ? team.main_players.length : 0}</TableCell>
                     <TableCell>
                       <Link to={`/admin/teams/assign/${team.id}?name=${team.name}`}>
                         <IconButton color="primary">
                           <EditIcon />
                         </IconButton>
                       </Link>
+                      <IconButton
+                        onClick={() => handleOpenDeleteDialog(team.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -273,6 +313,29 @@ const TeamManagement = () => {
           </Box>
         </Box>
       </Paper>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="delete-team-dialog-title"
+        aria-describedby="delete-team-dialog-description"
+      >
+        <DialogTitle id="delete-team-dialog-title">Confirm Team Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-team-dialog-description">
+            Are you sure you want to delete this team?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteTeam} color="error" autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

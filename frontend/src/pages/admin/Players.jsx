@@ -170,6 +170,7 @@ const PlayerManagement = () => {
                 fullWidth
                 variant='outlined'
                 inputProps={{ min: 15, max: 50 }}
+                onWheel={(e) => e.target.blur()}
               />
               <FormControl fullWidth>
                 <InputLabel>Position</InputLabel>

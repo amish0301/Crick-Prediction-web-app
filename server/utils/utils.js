@@ -69,14 +69,16 @@ const getEmailTemplate = (verificationLink) => {
 
 const uploadToCloudinary = async (fileBuffer, folder = "teams") => {
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error("Upload timed out")), 15000); // 15 sec timeout
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "auto" }, // Auto-detect file type
+      { folder, resource_type: "auto" },
       (error, result) => {
+        clearTimeout(timeout);
         if (error) return reject(error);
-        resolve(result.secure_url); // Return uploaded image URL
+        resolve(result.secure_url);
       }
     );
-    uploadStream.end(fileBuffer); // Send the buffer data to Cloudinary
+    uploadStream.end(fileBuffer);
   });
 };
 

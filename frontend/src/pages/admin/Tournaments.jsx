@@ -9,6 +9,7 @@ import {
 } from '@mui/icons-material';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 const Link = styled('div')({
   textDecoration: 'none',
@@ -46,13 +47,14 @@ const TournamentManagement = () => {
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const tournamentTypes = ['T20', 'ODI', 'TEST']; // Updated to match API expectations
+  const navigate = useNavigate(); // Hook for navigation
+  const tournamentTypes = ['T20', 'ODI', 'TEST'];
 
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get('/admin/tournaments');
+        const response = await axiosInstance.get('/admin/tournaments?isPopulateTeams=true');
         // console.log(response.data);
         const tournamentData = Array.isArray(response.data.tournaments) ? response.data.tournaments : [];
         setTournaments(tournamentData);
@@ -71,14 +73,12 @@ const TournamentManagement = () => {
   const handleAddTournament = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!tournamentName || !tournamentType || !startDate || !endDate || !totalTeams) {
       toast.error('Please fill all required fields');
       return;
     }
 
     try {
-      // Format dates to ISO 8601
       const formattedStartDate = new Date(startDate).toISOString();
       const formattedEndDate = new Date(endDate).toISOString();
 
@@ -87,16 +87,15 @@ const TournamentManagement = () => {
         startDate,
         endDate,
         tournamentType,
-        totalTeams: parseInt(totalTeams), // Ensure it's a number
-        location: location || null // Send null if empty
+        totalTeams: parseInt(totalTeams),
+        location: location || null,
       };
 
       const response = await axiosInstance.post('/admin/tournament', newTournament);
       console.log(response.data);
       setTournaments(prevTournaments => [...prevTournaments, response.data.tournament]);
       toast.success('Tournament created successfully');
-      
-      // Reset form
+
       setTournamentName('');
       setTournamentType('');
       setStartDate('');
@@ -118,6 +117,13 @@ const TournamentManagement = () => {
       console.error('Error deleting tournament:', error);
       toast.error('Failed to delete tournament');
     }
+  };
+
+  // New function to handle edit button click
+  const handleEditTournament = (tournamentId) => {
+    // Assuming teamId is not directly available here, you might need to fetch it or adjust logic
+    // For now, redirecting with just tournamentId; adjust as per your API requirements
+    navigate(`/admin/tournament/team?tournamentId=${tournamentId}`);
   };
 
   const formatDate = (dateString) => {
@@ -155,7 +161,7 @@ const TournamentManagement = () => {
             sx={{
               bgcolor: '#286675',
               color: 'white',
-              borderRadius: '12px 12px 0 0',
+              borderRadius: '12px a12px 0 0',
               '&:hover': { bgcolor: '#1e4d5a' },
             }}
           >
@@ -182,10 +188,16 @@ const TournamentManagement = () => {
                           {tournament.name} ({tournament.tournament_type})
                         </Typography>
                         <Stack direction="row" spacing={1} onClick={(e) => e.stopPropagation()}>
-                          <ActionIcon sx={{ color: '#286675' }}>
+                          <ActionIcon
+                            sx={{ color: '#286675' }}
+                            onClick={() => handleEditTournament(tournament.tournament_id)}
+                          >
                             <EditIcon fontSize="small" />
                           </ActionIcon>
-                          <ActionIcon onClick={() => handleDeleteTournament(tournament.tournament_id)} sx={{ color: '#d32f2f' }}>
+                          <ActionIcon
+                            onClick={() => handleDeleteTournament(tournament.tournament_id)}
+                            sx={{ color: '#d32f2f' }}
+                          >
                             <DeleteIcon fontSize="small" />
                           </ActionIcon>
                         </Stack>

@@ -181,7 +181,7 @@ const Signup = () => {
 
               <TextField required size="small" fullWidth label="Your Name" name="name" onChange={handleStateUpdate} />
               <TextField required size="small" fullWidth label="Email" name="email" type="email" onChange={handleStateUpdate} />
-              <TextField required size="small" fullWidth label="Age" name="age" type="number" onChange={handleStateUpdate} />
+              <TextField required size="small" fullWidth label="Age" name="age" type="number" onChange={handleStateUpdate} onWheel={(e) => e.target.blur()}/>
               <TextField
                 label="Password"
                 type={showPassword ? "text" : "password"}

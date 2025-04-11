@@ -31,9 +31,9 @@ const Link = styled(LinkComponent)(`
 const adminTabs = [
   { name: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { name: "Players", icon:<People/>, path: "/admin/players" },
-  { name: "Team Management", icon: <ManageAccountsIcon />, path: "/admin/teams" },
+  { name: "Team Management", icon: < MatchIcon/>, path: "/admin/teams" },
+  { name: "User Management", icon: <ManageAccountsIcon />, path: "/admin/users" },
   { name: "Tournament Management", icon: <TournamentIcon />, path: "/admin/tournaments" },
-  { name: "Match Management", icon: <MatchIcon />, path: "/admin/matches" },
   { name: "Reward Management", icon: <RewardIcon />, path: "/admin/rewards" },
 ];
 

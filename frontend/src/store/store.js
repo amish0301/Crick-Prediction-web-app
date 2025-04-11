@@ -11,17 +11,19 @@ import {
 } from "redux-persist";
 import userSlice from "./slices/user";
 import storage from "redux-persist/lib/storage";
+import adminSlice from "./slices/admin";
 
 // ROOT reducer
 const rootReducer = combineReducers({
-  [userSlice.name]: userSlice.reducer,
-  // so on
+  user: userSlice.reducer,
+  admin: adminSlice.reducer,
 });
+
 
 const persistConfig = {
   key: "CrickPrediction",
   storage, 
-  whitelist: [userSlice.name], 
+  whitelist: [userSlice.name,adminSlice.name], 
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
