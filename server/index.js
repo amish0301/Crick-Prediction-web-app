@@ -5,7 +5,7 @@ const cors = require("cors");
 const corsOption = require("./config/index.config");
 const { PORT } = require("./constant/variables.js");
 const { ErrorHandler } = require("./middleware/ErrorHandler");
-const redisInit = require("./config/redis.js");
+const { redisInit, redisClient } = require("./config/redis.js");
 
 const authRoutes = require("./routes/auth.route");
 const userRoutes = require("./routes/user.route");
@@ -29,14 +29,20 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 
-app.get("/", (req, res) => {
-  req.session.visits = (req.session.visits || 0) + 1;
-  res.send(`Number of visits: ${req.session.visits}`);
-});
+// app.get("/", (req, res) => {
+//   req.session.visits = (req.session.visits || 0) + 1;
+//   res.send(`Number of visits: ${req.session.visits}`);
+// });
 
 app.use(ErrorHandler);
-app.get("/", (req, res) => {
-  res.send("Hello from Server");
-});
+// app.get("/", async (req, res) => {
+//   const value = await redisClient.get("vis");
+//   if (!value) {
+//     await redisClient.set("vis", 1);
+//   } else {
+//     await redisClient.set("vis", Number(value) + 1);
+//   }
+//   res.send(`Number of visits: ${value}`);
+// });
 
 app.listen(PORT, () => console.log(`Server Running on ${PORT}`));

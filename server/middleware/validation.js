@@ -78,14 +78,10 @@ const createTeamValidation = () =>
 
     const teamSchema = z.object({
       name: z.string().min(1, "Team name is required"),
-      mainPlayers: z.array(z.number().int().positive()).optional().default([]),
-      matchesInfo: z.array(z.record(z.unknown())).optional(), // Array of JSON objects (match stats)
     });
 
     const requestData = {
       name: req.body.name,
-      mainPlayers: req.body.mainPlayers ? JSON.parse(req.body.mainPlayers) : [],
-      matchesInfo: req.body.matchesInfo ? JSON.parse(req.body.matchesInfo) : [],
     };
 
     const validationResult = teamSchema.safeParse(requestData);

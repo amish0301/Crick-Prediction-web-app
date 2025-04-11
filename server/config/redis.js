@@ -1,8 +1,8 @@
 const { RedisStore } = require("connect-redis");
 const session = require("express-session");
-const { createClient } = require("ioredis");
+const Redis = require("ioredis");
 
-const redisClient = createClient({
+const redisClient = new Redis({
   host: "localhost",
   port: 6379,
 });
@@ -32,4 +32,4 @@ const redisInit = () => {
   return session(sessionOption);
 };
 
-module.exports = redisInit;
+module.exports = { redisInit, redisClient };

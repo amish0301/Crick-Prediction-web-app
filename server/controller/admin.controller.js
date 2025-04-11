@@ -3,6 +3,10 @@ const db = require("../models");
 const ApiError = require("../utils/ApiError");
 const TryCatch = require("../utils/TryCatch");
 const { uploadToCloudinary } = require("../utils/utils");
+const {
+  getDataFromCache,
+  setDataFromCache,
+} = require("../utils/redis-getter-setter");
 
 const adminRegister = TryCatch(async (req, res, next) => {
   const { email, adminKey } = req.body;
@@ -37,20 +41,41 @@ const logout = TryCatch(async (req, res, next) => {
   return res.status(200).json({ success: true, message: "Logged Out" });
 });
 
+const getAllUsers = TryCatch(async (req, res, next) => {
+  const cachedUsers = await getDataFromCache("All_Users");
+  if (cachedUsers) {
+    return res.status(200).json({
+      success: true,
+      users: JSON.parse(cachedUsers),
+      message: "Received from Cache",
+    });
+  }
+
+  const users = await db.User.findAll({
+    where: {
+      role: {
+        [Op.or]: ["admin", "user"],
+      },
+    },
+    attributes: { exclude: ["password"] },
+  });
+
+  if (!users) return next(new ApiError(404, "No Users Found"));
+
+  setDataFromCache("All_Users", JSON.stringify(users), 60 * 30);
+  return res.status(200).json({ success: true, users });
+});
+
 // ******** Team *********
 const createTeam = TryCatch(async (req, res, next) => {
-  const { name, mainPlayers, matchesInfo } = req.teamData;
+  const { name } = req.teamData;
 
   // upload logo to cloudinary
   const logoUrl = await uploadToCloudinary(req.file.buffer, "teams");
 
-  console.log("preview logo", logoUrl);
-
   const team = await db.Team.create({
     name,
     logo: logoUrl,
-    main_players: mainPlayers,
-    matches_info: matchesInfo,
   });
 
   if (!team)
@@ -62,10 +87,21 @@ const createTeam = TryCatch(async (req, res, next) => {
 });
 
 const getAllTeamsInfo = TryCatch(async (req, res, next) => {
-  const teams = await db.Team.findAll();
+  // check if data exist
+  const cachedTeams = await getDataFromCache("All_Teams");
+  if (cachedTeams) {
+    return res.status(200).json({
+      success: true,
+      teams: JSON.parse(cachedTeams),
+      message: "Received from Cached",
+    });
+  }
 
+  const teams = await db.Team.findAll();
   if (!teams) return next(new ApiError(404, "No Teams Found"));
 
+  // set before returning
+  setDataFromCache("All_Teams", JSON.stringify(teams), 60 * 30);
   return res.status(200).json({ success: true, teams });
 });
 
@@ -486,6 +522,16 @@ const tournamentInfo = TryCatch(async (req, res, next) => {
 const getAllTournament = TryCatch(async (req, res, next) => {
   const { isPopulateTeams, isPopulatePlayersInfo } = req.query;
 
+  // check if cached data
+  const cachedTournaments = await getDataFromCache("All_Tournaments");
+  if (cachedTournaments) {
+    return res.status(200).json({
+      success: true,
+      tournaments: JSON.parse(cachedTournaments),
+      message: "Received from Cached",
+    });
+  }
+
   const tournaments = await db.Tournament.findAll({
     attributes: { exclude: ["createdAt", "updatedAt"] },
     include: [
@@ -517,6 +563,9 @@ const getAllTournament = TryCatch(async (req, res, next) => {
       }
     }
   }
+
+  // set before returning
+  setDataFromCache("All_Tournaments", JSON.stringify(tournaments), 60 * 15);
 
   return res.status(200).json({ success: true, tournaments });
 });
@@ -594,7 +643,7 @@ const assignMatchesToTournament = TryCatch(async (req, res, next) => {
 const createMatch = TryCatch(async (req, res, next) => {
   const { tournamentId } = req.query;
 
-  const { team1Id, team2Id, match_time } = req.body;
+  const { team1Id, team2Id, match_time, location } = req.body;
 
   if (!team1Id || !team2Id || !match_time) {
     return next(
@@ -619,6 +668,7 @@ const createMatch = TryCatch(async (req, res, next) => {
     team1_id: team1Id,
     team2_id: team2Id,
     match_time,
+    location,
   });
 
   return res.status(200).json({
@@ -634,6 +684,18 @@ const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
   const tournament = await db.Tournament.findByPk(tournamentId);
   if (!tournament) return next(new ApiError(404, "Tournament Not Exist"));
 
+  // get from cache if available
+  const cachedMatches = await getDataFromCache(
+    `Matches_Tournament_${tournamentId}`
+  );
+  if (cachedMatches) {
+    return res.status(200).json({
+      success: true,
+      matches: JSON.parse(cachedMatches),
+      message: "Received from Cache",
+    });
+  }
+
   const matches = await db.Match.findAll({
     where: { tournament_id: tournamentId },
     include: [
@@ -643,6 +705,13 @@ const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
     ],
     order: [["match_time", "ASC"]],
   });
+
+  // set cache
+  setDataFromCache(
+    `Matches_Tournament_${tournamentId}`,
+    JSON.stringify(matches),
+    60 * 30
+  );
 
   return res.status(200).json({
     success: true,
@@ -712,6 +781,7 @@ const deleteMatch = TryCatch(async (req, res, next) => {
 module.exports = {
   adminRegister,
   logout,
+  getAllUsers,
   createTeam,
   getAllTeamsInfo,
   getTeamInfo,
