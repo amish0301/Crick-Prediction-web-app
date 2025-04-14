@@ -168,6 +168,10 @@ const deleteTeam = TryCatch(async (req, res, next) => {
 
   if (!teamId) return next(new ApiError(400, "Please Provide TeamId"));
 
+  // invalidate cache
+  const cachedTeams = await getDataFromCache("All_Teams");
+  if (cachedTeams) removeDataFromCache("All_Teams");
+
   const team = await db.Team.destroy({ where: { team_id: teamId } });
 
   if (!team) return next(new ApiError(404, "Team Not Found"));
@@ -342,6 +346,21 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
     await db.TeamPlayers.destroy({
       where: { player_id: playerId, team_id: teamId },
     });
+
+    // remove from main_players
+    const [updated, updatedTeams] = await db.Team.update(
+      {
+        main_players: db.Sequelize.fn(
+          "array_remove",
+          team.main_players,
+          playerId
+        ),
+      },
+      { where: { team_id: teamId } }
+    );
+
+    // update cache
+    await setDataFromCache("All_Teams", JSON.stringify(updatedTeams), 60 * 30);
 
     return res.status(200).json({
       success: true,
@@ -770,8 +789,11 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
   if (totalRows <= 0)
     return next(new ApiError(500, "match Update Unsuccessful"));
 
-  const cachedMatches = await getDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
-  if (cachedMatches) removeDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
+  const cachedMatches = await getDataFromCache(
+    `Matches_Tournament_${updatedMatch[0].tournament_id}`
+  );
+  if (cachedMatches)
+    removeDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
 
   const name = updatedMatch[0].name;
 
@@ -784,7 +806,7 @@ const deleteMatch = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
 
   const match = await db.Match.findByPk(matchId);
-  if (!match) return next(new ApiError(404, "Match Not Found"));  
+  if (!match) return next(new ApiError(404, "Match Not Found"));
 
   await db.Match.destroy({
     where: { match_id: matchId },
@@ -795,7 +817,8 @@ const deleteMatch = TryCatch(async (req, res, next) => {
     `Matches_Tournament_${match.tournament_id}`
   );
 
-  if(cachedMatches) removeDataFromCache(`Matches_Tournament_${match.tournament_id}`);
+  if (cachedMatches)
+    removeDataFromCache(`Matches_Tournament_${match.tournament_id}`);
 
   return res
     .status(200)
