@@ -82,6 +82,9 @@ const createTeam = TryCatch(async (req, res, next) => {
   if (!team)
     return next(new ApiError(500, "Team Creation Failed from Server Side"));
 
+  const cachedTeams = await getDataFromCache("All_Teams");
+  if (cachedTeams) removeDataFromCache("All_Teams");
+
   return res
     .status(200)
     .json({ success: true, message: `Team ${name} Created!`, team });

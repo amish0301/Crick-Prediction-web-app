@@ -32,7 +32,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux'
-import { setTeamPlayers,setMainPlayers } from '../../store/slices/admin';
+import { setTeamPlayers, setMainPlayers } from '../../store/slices/admin';
 
 // Separate PlayersTable component with pagination
 const PlayersTable = ({ availablePlayers, loading, handleAddPlayer }) => {
@@ -130,7 +130,7 @@ const AddPlayerPage = () => {
     const [availablePlayers, setAvailablePlayers] = useState([]);
     const [removedPlayerId, setRemovedPlayerId] = useState(null);
     const dispatch = useDispatch();
-    const { teamPlayers,mainPlayers } = useSelector(state => state?.admin);
+    const { teamPlayers, mainPlayers } = useSelector(state => state?.admin);
     // console.log(store.getState().);
 
 
@@ -140,7 +140,7 @@ const AddPlayerPage = () => {
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [playerRole, setPlayerRole] = useState('extra');
 
-    // Fetch team players\
+    // Fetch team players
     const fetchTeamPlayers = async () => {
         try {
             const response = await axiosInstance.get(`/admin/team/${teamId}?isPopulate=true`);
@@ -161,14 +161,19 @@ const AddPlayerPage = () => {
                 // Ensure we have an array to work with
                 const players = Array.isArray(playersData) ? playersData : [];
 
-                const formattedPlayers = players.map(player => ({
-                    id: player.player_id,
-                    name: player.name || 'Unnamed',
-                    age: player.age || 'N/A',
-                    position: player.position || 'N/A',
-                    isMain: mainPlayersIds.includes(player.player_id) || false,
-                    role: player.TeamPlayers?.role?.toLowerCase() || 'player'
-                }));
+                const formattedPlayers = players.map(player => {
+                    const role = player.TeamPlayers?.role?.toUpperCase() || 'PLAYER';
+
+                    return {
+                        id: player.player_id,
+                        name: player.name || 'Unnamed',
+                        age: player.age || 'N/A',
+                        position: player.position || 'N/A',
+                        role,
+                        isCaptain: role === 'CAPTAIN',
+                        isMain: role === 'MAIN' || role === 'CAPTAIN'  // ✅ Treat CAPTAIN as MAIN also
+                    };
+                });
 
                 // Dispatch the array as a single argument, not spread
                 dispatch(setTeamPlayers(formattedPlayers));
@@ -228,7 +233,7 @@ const AddPlayerPage = () => {
 
             if (response.data.success) {
                 dispatch(setTeamPlayers(teamPlayers.filter(player => player.id !== playerId)))
-                setMainPlayers(mainPlayers.filter(player => player.id !== playerId));
+                dispatch(setMainPlayers(mainPlayers.filter(player => player.id !== playerId)));
                 setRemovedPlayerId(null);
                 toast.success('Player removed successfully');
             }
@@ -244,14 +249,14 @@ const AddPlayerPage = () => {
             toast.error('Team ID or Player ID is missing');
             return;
         }
-    
+
         const toastId = toast.loading(`Adding player ${playerId} to team ${teamId}...`);
-    
+
         try {
             const response = await axiosInstance.post(
                 `/admin/assign-player?playerId=${playerId}&teamId=${teamId}`
             );
-    
+
             if (response.data.success) {
                 toast.update(toastId, {
                     render: 'Player added successfully!',
@@ -259,10 +264,10 @@ const AddPlayerPage = () => {
                     isLoading: false,
                     autoClose: 3000
                 });
-    
+
                 // Refresh the team players list from backend
                 await fetchTeamPlayers();
-    
+
                 // Optional: Update available players only
                 setAvailablePlayers(prev => prev.filter(p => p.id !== playerId));
             }
@@ -275,7 +280,7 @@ const AddPlayerPage = () => {
             });
         }
     };
-    
+    console.log("players", teamPlayers);
 
     // Toggle main player status
     const toggleMainPlayer = async (playerId, isCurrentlyMain) => {
@@ -288,12 +293,18 @@ const AddPlayerPage = () => {
         const toastId = toast.loading(`Updating player status...`);
         try {
             // Use the structure provided by the user
+
+            // Filter out the captain from mainPlayers
+            const nonCaptainMainPlayers = mainPlayers.filter(p => p.role !== 'CAPTAIN');
+
+            // Now handle toggle logic without touching captain
             const payloadPlayers = isCurrentlyMain
-                ? mainPlayers
+                ? nonCaptainMainPlayers
                     .filter(player => player.id !== playerId)
-                    .map(player => ({ id: player.id, role: "MAIN" })) // Send uppercase role
-                : [...mainPlayers, teamPlayers.find(p => p.id === playerId)]
-                    .map(player => ({ id: player.id, role: "MAIN" })); // Send uppercase role
+                    .map(player => ({ id: player.id, role: "MAIN" }))
+                : [...nonCaptainMainPlayers, teamPlayers.find(p => p.id === playerId)]
+                    .map(player => ({ id: player.id, role: "MAIN" }));
+
 
             const response = await axiosInstance.put(`/admin/team/assign/main-players?teamId=${teamId}`, {
                 // teamId is in the query param
@@ -309,23 +320,26 @@ const AddPlayerPage = () => {
                 });
 
                 // Update local state
-                const updatedTeamPlayers = teamPlayers.map(player =>
-                    player.id === playerId
-                        ? { ...player, isMain: !isCurrentlyMain }
-                        : player
-                );
-                setTeamPlayers(updatedTeamPlayers);
-
-                // Update mainPlayers based on the change
-                if (isCurrentlyMain) {
-                    setMainPlayers(prev => prev.filter(p => p.id !== playerId));
-                } else {
-                    const playerToAdd = updatedTeamPlayers.find(p => p.id === playerId);
-                    // Ensure playerToAdd is not undefined before spreading
-                    if (playerToAdd) {
-                        setMainPlayers(prev => [...prev, playerToAdd]);
+                const updatedTeamPlayers = teamPlayers.map(player => {
+                    if (player.id === playerId) {
+                        const updatedIsMain = !isCurrentlyMain;
+                        return {
+                            ...player,
+                            isMain: updatedIsMain
+                        };
                     }
-                }
+                    return player;
+                });
+                
+                // Dispatch full team update
+                dispatch(setTeamPlayers(updatedTeamPlayers));
+                
+                // Recalculate main players including captain
+                const updatedMainPlayers = updatedTeamPlayers.filter(
+                    player => player.role === 'CAPTAIN' || player.isMain
+                );
+                dispatch(setMainPlayers(updatedMainPlayers));
+                
             } else {
                 toast.update(toastId, {
                     render: response.data.message || 'Failed to update player status',
@@ -372,16 +386,21 @@ const AddPlayerPage = () => {
 
             // Start by assigning all current main players as "MAIN"
             mainPlayers.forEach(player => {
-                updatedRolesMap.set(player.id, 'MAIN');
+                const playerRole = teamPlayers.find(p => p.id === player.id)?.role?.toUpperCase();
+
+                // Skip if player is already set in updatedRolesMap OR is captain
+                // Skip if player is already set in updatedRolesMap OR is captain
+                if (!updatedRolesMap.has(player.id) && playerRole !== 'CAPTAIN') {
+                    updatedRolesMap.set(player.id, 'MAIN');
+                }
+
             });
 
             if (isNewCaptain) {
-                // Demote existing captain to MAIN
                 if (currentCaptain && currentCaptain.id !== selectedPlayer.id) {
-                    updatedRolesMap.set(currentCaptain.id, 'MAIN');
+                    updatedRolesMap.set(currentCaptain.id, 'MAIN');  // 👈 Revert old captain to MAIN
                 }
-                // Assign selected player as CAPTAIN
-                updatedRolesMap.set(selectedPlayer.id, 'CAPTAIN');
+                updatedRolesMap.set(selectedPlayer.id, 'CAPTAIN'); // 👈 Assign new captain
             } else {
                 // Assign selected player to selected role
                 updatedRolesMap.set(selectedPlayer.id, playerRole.toUpperCase());
@@ -392,7 +411,7 @@ const AddPlayerPage = () => {
 
             const response = await axiosInstance.put(`/admin/team/assign/main-players?teamId=${teamId}`, {
                 players: playersPayload
-            
+
             });
 
             if (response.data.success) {
@@ -486,7 +505,7 @@ const AddPlayerPage = () => {
                     <strong>Main Players:</strong> {mainPlayers.length}/11
                 </Typography>
                 <Typography>
-                    <strong>Captain:</strong> {teamPlayers?.find(p => p.role === 'captain')?.name || 'Not assigned'}
+                    <strong>Captain:</strong> {mainPlayers?.find(p => p.role === 'CAPTAIN')?.name || 'Not assigned'}
                 </Typography>
 
             </Paper>
