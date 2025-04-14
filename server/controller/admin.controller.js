@@ -6,6 +6,7 @@ const { uploadToCloudinary } = require("../utils/utils");
 const {
   getDataFromCache,
   setDataFromCache,
+  removeDataFromCache,
 } = require("../utils/redis-getter-setter");
 
 const adminRegister = TryCatch(async (req, res, next) => {
@@ -237,6 +238,10 @@ const assignMainPlayerRole = TryCatch(async (req, res, next) => {
     { where: { team_id: teamId } }
   );
 
+  // invalidate all teams cached data
+  const cachedTeams = await getDataFromCache("All_Teams");
+  if (cachedTeams) removeDataFromCache("All_Teams");
+
   idToRole.clear();
   return res
     .status(200)
@@ -320,6 +325,10 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
 
   const team = await db.Team.findByPk(teamId);
   if (!team) return next(new ApiError(404, "Team Not Exist"));
+
+  // invalidate cache
+  const cachedTeams = await getDataFromCache("All_Teams");
+  if (cachedTeams) removeDataFromCache("All_Teams");
 
   // If isRemove is true then remove player from team
   if (isRemove === "true") {
@@ -688,11 +697,13 @@ const getAllMatchesOfTournament = TryCatch(async (req, res, next) => {
   const cachedMatches = await getDataFromCache(
     `Matches_Tournament_${tournamentId}`
   );
+
   if (cachedMatches) {
     return res.status(200).json({
       success: true,
       matches: JSON.parse(cachedMatches),
       message: "Received from Cache",
+      redisKey: `Matches_Tournament_${tournamentId}`,
     });
   }
 
@@ -759,6 +770,9 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
   if (totalRows <= 0)
     return next(new ApiError(500, "match Update Unsuccessful"));
 
+  const cachedMatches = await getDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
+  if (cachedMatches) removeDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
+
   const name = updatedMatch[0].name;
 
   return res
@@ -769,9 +783,19 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
 const deleteMatch = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
 
+  const match = await db.Match.findByPk(matchId);
+  if (!match) return next(new ApiError(404, "Match Not Found"));  
+
   await db.Match.destroy({
     where: { match_id: matchId },
   });
+
+  // check matches data cached then invalidate
+  const cachedMatches = await getDataFromCache(
+    `Matches_Tournament_${match.tournament_id}`
+  );
+
+  if(cachedMatches) removeDataFromCache(`Matches_Tournament_${match.tournament_id}`);
 
   return res
     .status(200)

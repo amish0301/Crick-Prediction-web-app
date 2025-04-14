@@ -24,4 +24,12 @@ const setDataFromCache = async (key, value, expiry) => {
   }
 };
 
-module.exports = { getDataFromCache, setDataFromCache };
+const removeDataFromCache = async (key) => {
+  try {
+    await redisClient.del(key);
+  } catch (error) {
+    throw new Error(`Error removing data from Redis: ${error}`);
+  }
+}
+
+module.exports = { getDataFromCache, setDataFromCache, removeDataFromCache };

@@ -21,9 +21,3 @@ POSTGRES String : postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@YOUR_IP_ADD
 1. signup/login :
     user: {name, email, password, role, age, isGoogleUser, isVerified}
     accessToken    
-<<<<<<< Updated upstream
-=======
-
-
-main/bench players
->>>>>>> Stashed changes
