@@ -8,6 +8,7 @@ import {
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import Loader from '../../components/Loader';
 
 const ActionIcon = styled(Box)(({ theme }) => ({
   padding: '6px',
@@ -63,12 +64,13 @@ const TournamentTeams = () => {
 
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const fetchTournamentDetails = async () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(`/admin/tournament/${tournamentId}`);
-        console.log("Fetched Tournament:", res.data.tournaments); 
+        console.log("Fetched Tournament:", res.data.tournaments);
         setTournamentDetails(res.data.tournaments);
       } catch (err) {
         console.error('Error fetching tournament details:', err.response?.data || err.message);
@@ -83,8 +85,6 @@ const TournamentTeams = () => {
         const teamsResponse = await axiosInstance.get('/admin/teams');
         setAvailableTeams(teamsResponse.data.teams || []);
       } catch (error) {
-        console.error('Error fetching available teams:', error);
-        toast.error('Failed to load available teams');
       } finally {
         setLoading(false);
       }
@@ -103,8 +103,6 @@ const TournamentTeams = () => {
           setAssignedTeams([]);
         }
       } catch (error) {
-        console.error('Error fetching assigned teams:', error);
-        toast.error('Failed to load assigned teams');
       } finally {
         setLoading(false);
       }
@@ -154,6 +152,8 @@ const TournamentTeams = () => {
       assignedTeam => assignedTeam.team_id === availableTeam.team_id
     )
   );
+  if (loading) return <Loader />
+
 
   return (
     <Container component="main" sx={{ py: 4, maxWidth: 'xl' }}>

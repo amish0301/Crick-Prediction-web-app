@@ -1,10 +1,12 @@
-import { Container, Paper, Stack, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Container, Paper, Stack, Typography, TextField, Button, Select, MenuItem, FormControl, InputLabel, Accordion, AccordionSummary, AccordionDetails, Pagination } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material';
 import { Add as AddIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { Link as LinkComponent } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../hooks/useAxios';
+import Loader from '../../components/Loader';
+
 const Link = styled(LinkComponent)(`
   text-decoration: none;
   border-radius: 8px;
@@ -24,23 +26,21 @@ const PlayerManagement = () => {
   const [playerPosition, setPlayerPosition] = useState('');
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const playersPerPage = 5;
 
   const positions = ['Batter', 'Bowler', 'All-rounder'];
 
   const fetchPlayers = async () => {
     try {
-      // Fetch all players from the /admin/players endpoint
       const response = await axiosInstance.get(`${import.meta.env.VITE_SERVER_URL}/admin/players`);
-
       if (response.data.success && Array.isArray(response.data.players)) {
         const fetchedPlayers = response.data.players.map(player => ({
           id: player.id,
           name: player.name,
           age: player.age,
-          position: player.role || player.position // Handle both role/position field names
+          position: player.role || player.position
         }));
-
-        // console.log('Fetched Players:', fetchedPlayers);
         setPlayers(fetchedPlayers);
       } else {
         throw new Error('Invalid response format');
@@ -58,9 +58,7 @@ const PlayerManagement = () => {
     fetchPlayers();
   }, []);
 
-  useEffect(() => {
-    // console.log('Players state updated:', players);
-  }, [players]);
+  if (loading) return <Loader />;
 
   const handleValidation = async (e) => {
     e.preventDefault();
@@ -113,6 +111,16 @@ const PlayerManagement = () => {
     }
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(players.length / playersPerPage);
+  const startIndex = (page - 1) * playersPerPage;
+  const endIndex = startIndex + playersPerPage;
+  const currentPlayers = players.slice(startIndex, endIndex);
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
   return (
     <Container component={'main'}>
       <Typography variant='h5' component={'h1'} sx={{ fontWeight: '600', color: 'GrayText', margin: '2rem 0' }}>
@@ -120,36 +128,38 @@ const PlayerManagement = () => {
       </Typography>
 
       <Paper elevation={3} sx={{ p: 2, borderRadius: '12px', bgcolor: 'white' }}>
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: '#f5f5f5', borderRadius: '8px', mb: 1 }}>
-            <Typography sx={{ fontWeight: '600' }}>Player List</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {loading ? (
-              <Typography>Loading players...</Typography>
-            ) : players.length === 0 ? (
-              <Typography>No players found</Typography>
-            ) : (
-              <Stack spacing={1}>
-                {players.map((player, index) => (
-                  <Accordion key={player.id || `player-${index}`}>
-                    <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: '#fafafa', borderRadius: '8px' }}>
-                      <Typography sx={{ fontWeight: '500' }}>{player.name || 'Unnamed Player'}</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <Stack spacing={1}>
-                        <Typography>Age: {player.age || 'N/A'}</Typography>
-                        <Typography>Position: {player.position || 'N/A'}</Typography>
-                      </Stack>
-                    </AccordionDetails>
-                  </Accordion>
-                ))}
-              </Stack>
-            )}
-          </AccordionDetails>
-        </Accordion>
+        <Typography sx={{ fontWeight: '600', bgcolor: '#f5f5f5', borderRadius: '8px', p: 2, mb: 2 }}>
+          Player List
+        </Typography>
+        {loading ? (
+          <Typography>Loading players...</Typography>
+        ) : players.length === 0 ? (
+          <Typography>No players found</Typography>
+        ) : (
+          <>
+            <Stack spacing={2}>
+              {currentPlayers.map((player, index) => (
+                <Paper key={player.id || `player-${index}`} sx={{ p: 2, bgcolor: '#fafafa', borderRadius: '8px' }}>
+                  <Typography sx={{ fontWeight: '500' }}>{player.name || 'Unnamed Player'}</Typography>
+                  <Stack spacing={1} sx={{ mt: 1 }}>
+                    <Typography>Age: {player.age || 'N/A'}</Typography>
+                    <Typography>Position: {player.position || 'N/A'}</Typography>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+            <Stack direction="row" justifyContent="center" sx={{ mt: 3 }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Stack>
+          </>
+        )}
 
-        <Accordion>
+        <Accordion sx={{ mt: 3 }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ bgcolor: '#f5f5f5', borderRadius: '8px' }}>
             <Typography sx={{ fontWeight: '600' }}>Add New Player</Typography>
           </AccordionSummary>

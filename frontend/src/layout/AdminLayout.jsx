@@ -31,10 +31,10 @@ const Link = styled(LinkComponent)(`
 const adminTabs = [
   { name: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
   { name: "Players", icon:<People/>, path: "/admin/players" },
-  { name: "Team Management", icon: < MatchIcon/>, path: "/admin/teams" },
-  { name: "User Management", icon: <ManageAccountsIcon />, path: "/admin/users" },
-  { name: "Tournament Management", icon: <TournamentIcon />, path: "/admin/tournaments" },
-  { name: "Reward Management", icon: <RewardIcon />, path: "/admin/rewards" },
+  { name: "Team Manage", icon: < MatchIcon/>, path: "/admin/teams" },
+  { name: "User Manage", icon: <ManageAccountsIcon />, path: "/admin/users" },
+  { name: "Tournament Manage", icon: <TournamentIcon />, path: "/admin/tournaments" },
+  { name: "Reward Manage", icon: <RewardIcon />, path: "/admin/rewards" },
 ];
 
 const TabItem = ({ Icon, name }) => (
@@ -61,16 +61,14 @@ const SideBar = ({ w = '100%', onClose }) => {
     <Stack
       width={{ xs: '100%', sm: '80%', md: w }}
       sx={{
-        padding: { xs: '1rem', sm: '1.2rem', md: '0.3rem' },
+        padding: { xs: '1rem', sm: '1.2rem' },
         height: '100%',
         bgcolor: '#286675',
         position: { xs: 'relative', sm: 'sticky' },
         top: 0,
         overflow: 'auto',
         boxShadow: '0 0 15px rgba(0, 0, 0, 0.1)',
-      }}
-      spacing={{ xs: '1rem', sm: '1.5rem', md: '2rem' }}
-    >
+      }}    >
       {/* Platform Title */}
       <Box sx={{ 
         display: 'flex', 
@@ -120,7 +118,7 @@ const SideBar = ({ w = '100%', onClose }) => {
       </Box>
 
       {/* Admin Tabs */}
-      <Stack spacing={{ xs: '0.5rem', sm: '0.75rem', md: '1rem' }} sx={{ mt: { xs: '1rem', sm: '1.5rem' } }}>
+      <Stack spacing={{ xs: '0.5rem', sm: '0.75rem' }} sx={{ mt: { xs: '1rem', sm: '1.5rem' } }}>
         {adminTabs.map((tab) => (
           <Link
             key={tab.path}

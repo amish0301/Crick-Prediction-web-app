@@ -32,9 +32,10 @@ function App() {
           <Route path='dashboard' element={<Dashboard />} />
 
           {/* Tournament routes */}
-          <Route path="tournament/live" element={<Live />} />
-          <Route path="tournament/upcoming" element={<Upcoming />} />
-          <Route path="tournament/completed" element={<Completed />} />
+          <Route path='/tournament/team' element={<Upcoming />} />
+          <Route path="/tournament/live" element={<Live />} />
+          {/* <Route path="tournament/upcoming" element={<Upcoming />} /> */}
+          <Route path="/tournament/completed" element={<Completed />} />
         </Route>
 
         {/* Admin Routes - First declare the login route outside of AdminLayout */}

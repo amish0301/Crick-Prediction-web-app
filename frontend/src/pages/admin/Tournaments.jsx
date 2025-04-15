@@ -21,13 +21,14 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import Grid from '@mui/material/Grid2'; // Using Grid2
+import Grid from '@mui/material/Grid2';
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import Loader from '../../components/Loader';
 
 const ActionIcon = styled(IconButton)({
   padding: '4px',
@@ -56,7 +57,7 @@ const TournamentManagement = () => {
   const [totalTeams, setTotalTeams] = useState('');
   const [location, setLocation] = useState('');
   const [loading, setLoading] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('all'); // Filter state
+  const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
   const tournamentTypes = ['T20', 'ODI', 'TEST'];
 
@@ -69,8 +70,6 @@ const TournamentManagement = () => {
         setTournaments(tournamentData);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching tournaments:', error);
-        toast.error('Failed to load tournaments');
         setTournaments([]);
         setLoading(false);
       }
@@ -79,10 +78,12 @@ const TournamentManagement = () => {
     fetchTournaments();
   }, []);
 
+  if (loading) return <Loader />;
+
   const handleAddTournament = async (e) => {
     e.preventDefault();
 
-    if (!tournamentName || !tournamentType || !startDate || !endDate || !totalTeams) {
+    if (!tournamentName || !tournamentType || !startDate || !endDate || !totalTeams || !location) {
       toast.error('Please fill all required fields');
       return;
     }
@@ -94,7 +95,7 @@ const TournamentManagement = () => {
         endDate,
         tournamentType,
         totalTeams: parseInt(totalTeams),
-        location: location || null,
+        location,
       };
 
       const response = await axiosInstance.post('/admin/tournament', newTournament);
@@ -136,7 +137,6 @@ const TournamentManagement = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  // Filter tournaments based on status
   const filteredTournaments = tournaments.filter((tournament) => {
     if (statusFilter === 'all') return true;
     return tournament.status.toLowerCase() === statusFilter;
@@ -335,6 +335,7 @@ const TournamentManagement = () => {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               fullWidth
+              required // Made required to match backend
               variant="outlined"
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '8px' } }}
             />
@@ -350,7 +351,7 @@ const TournamentManagement = () => {
                 },
                 borderRadius: '8px',
                 fontWeight: 600,
-                maxWidth: '200px',
+                maxWidth: '230px',
                 boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
               }}
             >

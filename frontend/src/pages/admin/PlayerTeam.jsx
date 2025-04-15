@@ -33,6 +33,7 @@ import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux'
 import { setTeamPlayers, setMainPlayers } from '../../store/slices/admin';
+import Loader from '../../components/Loader';
 
 // Separate PlayersTable component with pagination
 const PlayersTable = ({ availablePlayers, loading, handleAddPlayer }) => {
@@ -330,16 +331,16 @@ const AddPlayerPage = () => {
                     }
                     return player;
                 });
-                
+
                 // Dispatch full team update
                 dispatch(setTeamPlayers(updatedTeamPlayers));
-                
+
                 // Recalculate main players including captain
                 const updatedMainPlayers = updatedTeamPlayers.filter(
                     player => player.role === 'CAPTAIN' || player.isMain
                 );
                 dispatch(setMainPlayers(updatedMainPlayers));
-                
+
             } else {
                 toast.update(toastId, {
                     render: response.data.message || 'Failed to update player status',
@@ -472,6 +473,8 @@ const AddPlayerPage = () => {
             fetchAvailablePlayers();
         }
     }, [teamId]);
+    if (loading) return <Loader />
+
 
     return (
         <Container component="main" sx={{ py: 4 }}>

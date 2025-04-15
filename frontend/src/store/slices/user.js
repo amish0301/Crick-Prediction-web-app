@@ -20,7 +20,7 @@ const userSlice = createSlice({
 
     setToken: (state, action) => {
       state.authToken = action.payload.accessToken || null;
-      state.refreshToken = action.payload?.refreshToken || null;
+      state.refreshToken = action.payload.refreshToken || null;
     },
 
     setAdmin: (state, action) => {

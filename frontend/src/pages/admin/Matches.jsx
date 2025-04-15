@@ -25,6 +25,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
+import Loader from '../../components/Loader';
 
 const MatchManagement = () => {
   const [searchParams] = useSearchParams();
@@ -32,6 +33,7 @@ const MatchManagement = () => {
   const [matches, setMatches] = useState([]);
   const [teams, setTeams] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     team1Id: '',
     team2Id: '',
@@ -65,6 +67,7 @@ const MatchManagement = () => {
       toast.error('Failed to fetch teams');
     }
   };
+
 
   const handleInputChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -101,6 +104,7 @@ const MatchManagement = () => {
       toast.error('Error creating match');
     }
   };
+  if (loading) return <Loader />
 
 
 

@@ -5,6 +5,7 @@ import { Add as AddIcon, Image as ImageIcon, Edit as EditIcon, Delete as DeleteI
 import { Link as LinkComponent } from 'react-router-dom';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
+import Loader from '../../components/Loader';
 
 const Link = styled(LinkComponent)({
   textDecoration: 'none',
@@ -28,13 +29,14 @@ const TeamManagement = () => {
   const [teamName, setTeamName] = useState('');
   const [teamLogo, setTeamLogo] = useState(null);
   const [teams, setTeams] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [teamIdToDelete, setTeamIdToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchTeams();
-  }, []);
+
+
+
+
 
   const fetchTeams = async () => {
     try {
@@ -46,7 +48,7 @@ const TeamManagement = () => {
           name: team.name,
           logo: team.logo,
           main_players: team.main_players || [],
-          playerCount: team.total_players || 0 
+          playerCount: team.total_players || 0
         }));
         setTeams(fetchedTeams);
         console.log(response.data);
@@ -98,6 +100,11 @@ const TeamManagement = () => {
     }
   };
 
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+
   const handleValidation = async (e) => {
     e.preventDefault();
     if (!teamName || !teamLogo) {
@@ -113,7 +120,7 @@ const TeamManagement = () => {
       const res = await axiosInstance.post('admin/team', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      
+
       if (res.data.success) {
         const newTeam = {
           id: res.data.team.team_id,
@@ -146,6 +153,7 @@ const TeamManagement = () => {
       toast.dismiss(toastId);
     }
   };
+  if (loading) return <Loader />
 
   return (
     <Container component="main" sx={{ py: 4 }}>
@@ -208,7 +216,7 @@ const TeamManagement = () => {
                           component="img" 
                           src={team.logo} 
                           alt={team.name} 
-                          sx={{ width: 40, height: 40, borderRadius: '50%' }} 
+                          sx={{ width: 40, height: 40, borderRadius: '50%' }}
                         />
                         <Typography>{team.name}</Typography>
                       </Stack>

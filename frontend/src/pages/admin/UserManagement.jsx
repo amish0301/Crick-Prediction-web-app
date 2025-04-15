@@ -25,15 +25,10 @@ import {
   Visibility as VisibilityIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
+import Loader from '../../components/Loader';
 
 // Mock data - replace with your API call
-const mockUsers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', phone: '(555) 123-4567', status: 'active', totalPredictions: 145 },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '(555) 987-6543', status: 'active', totalPredictions: 89 },
-  { id: 3, name: 'Robert Johnson', email: 'robert@example.com', phone: '(555) 456-7890', status: 'inactive', totalPredictions: 56 },
-  { id: 4, name: 'Sarah Williams', email: 'sarah@example.com', phone: '(555) 789-0123', status: 'active', totalPredictions: 212 },
-  { id: 5, name: 'Michael Brown', email: 'michael@example.com', phone: '(555) 234-5678', status: 'inactive', totalPredictions: 34 },
-];
+
 
 const UsersManagement = () => {
   const theme = useTheme();
@@ -45,6 +40,7 @@ const UsersManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [viewProfileOpen, setViewProfileOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -54,6 +50,9 @@ const UsersManagement = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  if (loading) return <Loader />
+
 
   const handleToggleStatus = (userId) => {
     setUsers(users.map(user =>

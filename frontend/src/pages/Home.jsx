@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Container,
@@ -12,52 +12,37 @@ import {
 } from '@mui/material';
 import { Schedule, LocationOn, Groups } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import Grid from '@mui/material/Grid2'; // Using the new Grid2 component
-
-// Import images
-import iplBanner from '../assets/ipl.jpg';
-import t20Banner from '../assets/t20_wc.jpg';
-import asiaCupBanner from '../assets/asiacup.jpg';
+import Grid from '@mui/material/Grid2';
+import axiosInstance from '../hooks/useAxios';// Adjust path as needed
+import Loader from '../components/Loader'; // Adjust path as needed
 
 const Home = () => {
   const navigate = useNavigate();
+  const [tournaments, setTournaments] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+  useEffect(() => {
+    const fetchTournaments = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get('/admin/tournaments?isPopulateTeams=true');
+        const tournamentData = Array.isArray(response.data.tournaments) ? response.data.tournaments : [];
+        setTournaments(tournamentData);
+        setLoading(false);
+      } catch (error) {
+        setTournaments([]);
+        setLoading(false);
+      }
+    };
 
-  // Memoize the tournaments data
-  const tournaments = useMemo(() => [
-    {
-      id: 1,
-      name: "IPL 2025",
-      image: iplBanner,
-      status: "Live",
-      startDate: "March 22, 2025",
-      endDate: "May 26, 2025",
-      teams: "10 Teams",
-      venue: "Multiple Venues, India",
-      description: "The biggest T20 cricket league returns with its 17th season!"
-    },
-    {
-      id: 2,
-      name: "T20 World Cup 2025", 
-      image: t20Banner,
-      status: "Upcoming",
-      startDate: "June 15, 2025",
-      endDate: "July 15, 2025",
-      teams: "16 Teams",
-      venue: "West Indies & USA",
-      description: "The ultimate T20 showdown between cricket nations."
-    },
-    {
-      id: 3,
-      name: "Asia Cup 2024",
-      image: asiaCupBanner,
-      status: "Completed",
-      startDate: "February 1, 2024",
-      endDate: "February 28, 2024",
-      teams: "6 Teams",
-      venue: "Dubai, UAE",
-      description: "Asian cricket giants battled for continental supremacy."
-    }
-  ], []);
+    
+    fetchTournaments();
+  }, []);
+  const handleEditTournament = (tournamentId) => {
+    navigate(`/tournament/team?tournamentId=${tournamentId}`);
+  };
 
   // Memoize the getStatusColor function
   const getStatusColor = useMemo(() => (status) => {
@@ -72,6 +57,8 @@ const Home = () => {
         return 'default';
     }
   }, []);
+
+  if (loading) return <Loader />;
 
   return (
     <Box 
@@ -105,7 +92,6 @@ const Home = () => {
           </Typography>
         </Box>
 
-        {/* Modified Grid Container */}
         <Grid 
           container 
           spacing={{ xs: 2, sm: 2, md: 3 }}
@@ -113,7 +99,7 @@ const Home = () => {
           alignItems="stretch"
           sx={{ 
             px: { xs: 1, sm: 1, md: 0 }, 
-            flexWrap: { md: 'nowrap' },  // Ensure no wrapping on medium+ screens
+            flexWrap: { md: 'nowrap' },
           }}
         >
           {tournaments.map((tournament) => (
@@ -121,11 +107,11 @@ const Home = () => {
               xs={12} 
               sm={6} 
               md={4} 
-              key={tournament.id}
+              key={tournament._id || tournament.id}
               sx={{ 
                 display: 'flex',
-                flex: { md: '1 1 0px' }, // Equal width on medium+ screens
-                minWidth: 0, // Allow boxes to shrink below content width if needed
+                flex: { md: '1 1 0px' },
+                minWidth: 0,
                 width: '100%'
               }}
             >
@@ -147,11 +133,11 @@ const Home = () => {
                 <Box sx={{ position: 'relative' }}>
                   <CardMedia
                     component="img"
-                    image={tournament.image}
+                    image={tournament.image || 'https://via.placeholder.com/300x200'} // Fallback image
                     alt={tournament.name}
                     sx={{ 
                       width: '100%',
-                      height: { xs: 180, sm: 220, md: 240 }, // Reduced height slightly
+                      height: { xs: 180, sm: 220, md: 240 },
                       objectFit: 'cover',
                     }}
                   />
@@ -203,7 +189,7 @@ const Home = () => {
                       textOverflow: 'ellipsis'
                     }}
                   >
-                    {tournament.description}
+                    {tournament.description || 'No description available.'}
                   </Typography>
                   
                   <Divider sx={{ width: '100%', my: 1.5 }} />
@@ -211,20 +197,21 @@ const Home = () => {
                   <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
                       <Schedule sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
-                      <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
-                        {tournament.startDate} - {tournament.endDate}
+                      <Typography variant="body2" color="text.secondary">
+                        Schedule: {formatDate(tournament?.schedule[0]?.value)} to{' '}
+                        {formatDate(tournament?.schedule[1]?.value)}
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
                       <Groups sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
-                        {tournament.teams}
+                        {tournament.teams?.length || 'N/A'} Teams
                       </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <LocationOn sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
                       <Typography variant="body2" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.875rem' } }}>
-                        {tournament.venue}
+                        {tournament.location || 'TBD'}
                       </Typography>
                     </Box>
                   </Box>
@@ -235,7 +222,7 @@ const Home = () => {
                     <Button 
                       variant="contained"
                       fullWidth
-                      onClick={() => navigate(`/tournament/${tournament.status.toLowerCase()}`)}
+                      onClick={() => handleEditTournament(tournament.tournament_id)}
                       sx={{ 
                         borderRadius: { xs: 1.5, md: 2 },
                         py: { xs: 0.75, md: 1 },
