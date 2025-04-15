@@ -237,9 +237,16 @@ const assignMainPlayerRole = TryCatch(async (req, res, next) => {
     updateOnDuplicate: ["role"],
   });
 
-  const mainPlayerIds = updatedPlayers
-    .filter((player) => player.role === "MAIN" || player.role === "CAPTAIN")
-    .map((player) => player.player_id);
+  const mainPlayers = await db.TeamPlayers.findAll({
+    where: {
+      team_id: teamId,
+      role: { [Op.or]: ["MAIN", "CAPTAIN"] },
+    },
+    attributes: ["player_id"],
+  });
+
+  const mainPlayerIds = mainPlayers.map((player) => player.player_id);
+
   await db.Team.update(
     { main_players: mainPlayerIds.length > 0 ? mainPlayerIds : [] },
     { where: { team_id: teamId } }
@@ -718,8 +725,10 @@ const createMatch = TryCatch(async (req, res, next) => {
     location,
   });
 
-  const cachedMatches = await getDataFromCache(`Matches_Tournament_${tournamentId}`);
-  if(cachedMatches) removeDataFromCache(`Matches_Tournament_${tournamentId}`);
+  const cachedMatches = await getDataFromCache(
+    `Matches_Tournament_${tournamentId}`
+  );
+  if (cachedMatches) removeDataFromCache(`Matches_Tournament_${tournamentId}`);
 
   return res.status(200).json({
     success: true,

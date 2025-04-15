@@ -75,7 +75,6 @@ const adminLoginValidation = () =>
 
 const createTeamValidation = () =>
   TryCatch(async (req, res, next) => {
-
     const teamSchema = z.object({
       name: z.string().min(1, "Team name is required"),
     });
@@ -86,8 +85,8 @@ const createTeamValidation = () =>
 
     const validationResult = teamSchema.safeParse(requestData);
 
-    if(!req.file) return next(new ApiError(400, "Team Logo is Required"));
-    
+    if (!req.file) return next(new ApiError(400, "Team Logo is Required"));
+
     if (!validationResult.success)
       return res.status(400).json({
         errors:
@@ -159,7 +158,7 @@ const createTournamentValidation = () =>
 
     next();
   });
-  
+
 module.exports = {
   registerValidation,
   adminLoginValidation,
