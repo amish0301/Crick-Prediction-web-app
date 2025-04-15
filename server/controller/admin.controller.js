@@ -420,6 +420,10 @@ const createTournament = TryCatch(async (req, res, next) => {
     tournament_type: tournamentType,
   });
 
+  // invalidate cache
+  const cachedTournaments = await getDataFromCache("All_Tournaments");
+  if (cachedTournaments) removeDataFromCache("All_Tournaments");
+
   if (!tournament)
     return next(
       new ApiError(500, "Tournament Creation Failed from Server Side")
@@ -440,6 +444,10 @@ const deleteTournament = TryCatch(async (req, res, next) => {
   const tournament = await db.Tournament.destroy({
     where: { tournament_id: tournamentId },
   });
+
+  // invalidate cache
+  const cachedTournaments = await getDataFromCache("All_Tournaments");
+  if (cachedTournaments) removeDataFromCache("All_Tournaments");
 
   if (!tournament) return next(new ApiError(404, "Tournament Not Found"));
 
@@ -510,6 +518,10 @@ const deleteTeamInTournament = TryCatch(async (req, res, next) => {
   if (!deletedTournament)
     return next(new ApiError(404, "Team Not Found in Tournament"));
 
+  // invalidate cache
+  const cachedTournaments = await getDataFromCache("All_Tournaments");
+  if (cachedTournaments) removeDataFromCache("All_Tournaments");
+
   return res.status(200).json({
     success: true,
     message: "Team Deleted from Tournament Successfully",
@@ -535,6 +547,10 @@ const addTeamInTournament = TryCatch(async (req, res, next) => {
     team_id: teamId,
     tournament_id: tournamentId,
   });
+
+  // invalidate cache
+  const cachedTournaments = await getDataFromCache("All_Tournaments");
+  if (cachedTournaments) removeDataFromCache("All_Tournaments");
 
   return res
     .status(200)
@@ -701,6 +717,9 @@ const createMatch = TryCatch(async (req, res, next) => {
     match_time,
     location,
   });
+
+  const cachedMatches = await getDataFromCache(`Matches_Tournament_${tournamentId}`);
+  if(cachedMatches) removeDataFromCache(`Matches_Tournament_${tournamentId}`);
 
   return res.status(200).json({
     success: true,
