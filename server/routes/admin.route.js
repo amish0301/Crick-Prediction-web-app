@@ -77,7 +77,7 @@ router.get("/player/:playerId", getPlayerInfo);
 
 // Tournament routes
 router
-  .post("/tournament", createTournamentValidation(), createTournament)
+  .post("/tournament", upload.single("logo"), createTournamentValidation(), createTournament)
   .delete("/tournament", deleteTournament);
 router.get("/tournament/:tournamentId", tournamentInfo); // fetch only 1
 router.get("/tournament/matches/:tournamentId", getAllMatchesOfTournament);

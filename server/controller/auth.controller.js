@@ -10,6 +10,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { sendVerificationLink, generateTokens } = require("../utils/utils");
 const { googleClient } = require("../utils/utils");
+const { getDataFromCache, removeDataFromCache } = require("../utils/redis-getter-setter");
 
 const register = TryCatch(async (req, res, next) => {
   // data from body
@@ -52,6 +53,11 @@ const register = TryCatch(async (req, res, next) => {
   // send verification link to user on given mail
   const emailRes = await sendVerificationLink(email, accessToken);
   if (!emailRes.success) return next(new ApiError(500, emailRes.message));
+
+
+  // invalidate Cache 
+  const cachedAllUsers = await getDataFromCache("All_Users");
+  if(cachedAllUsers) await removeDataFromCache("All_Users");
 
   return res
     .status(200)

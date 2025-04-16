@@ -9,15 +9,35 @@ Things That needs to be fixed
 
 POSTGRES String : postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@YOUR_IP_ADDRESS:5431/${POSTGRES_DB}
 
-
 // API Needed:
 1. All tournaments -> populate teams, players
 2. main players also includes captain, but in enum we've main,captain,extra different
 3. toggle Role for main_players in a team
 
 
+Thoughts:
+1. Add Image Fnc for tournament (BE)
+2. Change Tournament Status on the basis of timer, (We can use Socket to update status)
+3. Show Prediction Window in which user can predict particular bowl prediction and make sure time is sync
 
-*** API Responses *** 
-1. signup/login :
-    user: {name, email, password, role, age, isGoogleUser, isVerified}
-    accessToken    
+// Store Data:
+1. roomName -> {socketIds}
+2. socketId -> userId
+3. 
+
+SOCKET EVENTS
+1. Join User to room (match_${match_id})
+2. Show Prediction Window (BE -> FE)
+3. Submit User prediction (FE -> BE) (EVENT: submit_prediction)
+4. Update Match Stats (BE -> FE) (EVENT: update_match_stats, payload: {match_id, over, run, wicket, striker, non_striker} )
+
+Event | Description
+join-match | When user enters a live match, join the respective room
+submit-prediction | User predicts next ball's outcome
+update-stats | Admin/bot sends ball result and stats
+match-timer | Timer updates for current ball or over
+match-ended | Sends final scores and disables predictions
+roomInfo | Optional: emits number of users or prediction stats
+
+// REMOVE from ROOM:
+socket.leave(matchId);

@@ -419,12 +419,17 @@ const createTournament = TryCatch(async (req, res, next) => {
   const { name, schedule, totalTeams, location, tournamentType } =
     req.tournamentData; // coming from validation middleware
 
+  if (!req.file) return next(new ApiError(404, "Tournamnet Logo is Required"));
+
+  const logoUrl = await uploadToCloudinary(req.file.buffer, "tournaments");
+
   const tournament = await db.Tournament.create({
     name,
     schedule,
     location,
     total_teams: totalTeams,
     tournament_type: tournamentType,
+    logo: logoUrl,
   });
 
   // invalidate cache
@@ -814,7 +819,7 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
       location,
       status,
     },
-    { where: { match_id: matchId } }
+    { where: { match_id: matchId }, returning: true }
   );
 
   if (totalRows <= 0)
@@ -826,11 +831,9 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
   if (cachedMatches)
     removeDataFromCache(`Matches_Tournament_${updatedMatch[0].tournament_id}`);
 
-  const name = updatedMatch[0].name;
-
   return res
     .status(200)
-    .json({ success: true, message: `${name} is Updated Successfully!` });
+    .json({ success: true, message: `Match Updated Successfully!` });
 });
 
 const deleteMatch = TryCatch(async (req, res, next) => {

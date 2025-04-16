@@ -133,7 +133,6 @@ const createTournamentValidation = () =>
       location: z.string().min(1, "Tournament location is required"),
       tournamentType: z.enum(["T20", "ODI", "TEST"], "Invalid tournament type"),
       totalTeams: z.number().int().positive("Invalid number of teams"),
-      logo: z.string().url("Invalid logo URL").optional(),
       status: z
         .enum(["scheduled", "completed", "upcoming"], "Invalid status")
         .optional(),
