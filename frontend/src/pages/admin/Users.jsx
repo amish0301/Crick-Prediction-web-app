@@ -131,7 +131,6 @@ const UserManagement = () => {
             const res = await axiosInstance.get('/admin/users');
             if (res.data.success) {
                 setUsers(res.data.users);
-                console.log(res.data.users);
             }
         } catch (err) {
             console.error('Failed to fetch users:', err);

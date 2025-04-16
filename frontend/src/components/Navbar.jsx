@@ -131,10 +131,12 @@ const Navbar = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, md: 3 } }}>
             {/* Logo */}
             <Box
+            onClick={() => navigate("/")}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1,
+                cursor: 'pointer',
                 "&:hover .logo-icon": { transform: "rotate(20deg)" },
               }}
             >

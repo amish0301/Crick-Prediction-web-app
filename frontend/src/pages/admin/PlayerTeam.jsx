@@ -20,13 +20,16 @@ import {
     FormControl,
     InputLabel,
     Select,
-    MenuItem
+    MenuItem,
+    Tooltip,
+    IconButton,
 } from '@mui/material';
 import {
     Add as AddIcon,
     ExpandMore as ExpandMoreIcon,
     Star as StarIcon,
-    Sports as SportsIcon
+    Sports as SportsIcon,
+    Delete as DeleteIcon
 } from '@mui/icons-material';
 import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../hooks/useAxios';
@@ -34,6 +37,7 @@ import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux'
 import { setTeamPlayers, setMainPlayers } from '../../store/slices/admin';
 import Loader from '../../components/Loader';
+import { SwapHorizontalCircleRounded } from '@mui/icons-material';
 
 // Separate PlayersTable component with pagination
 const PlayersTable = ({ availablePlayers, loading, handleAddPlayer }) => {
@@ -127,16 +131,10 @@ const AddPlayerPage = () => {
     const [searchParams] = useSearchParams();
     const teamName = searchParams.get("name");
     const [loading, setLoading] = useState(true);
-    // const [teamPlayers, setTeamPlayers] = useState([]);
     const [availablePlayers, setAvailablePlayers] = useState([]);
     const [removedPlayerId, setRemovedPlayerId] = useState(null);
     const dispatch = useDispatch();
     const { teamPlayers, mainPlayers } = useSelector(state => state?.admin);
-    // console.log(store.getState().);
-
-
-    // New states for main players and captain functionality
-    // const [mainPlayers, setMainPlayers] = useState([]);
     const [openRoleDialog, setOpenRoleDialog] = useState(false);
     const [selectedPlayer, setSelectedPlayer] = useState(null);
     const [playerRole, setPlayerRole] = useState('extra');
@@ -147,19 +145,16 @@ const AddPlayerPage = () => {
             const response = await axiosInstance.get(`/admin/team/${teamId}?isPopulate=true`);
 
             if (response.data.success) {
-                // Check if players data exists in the response
                 if (!response.data.players) {
                     console.error('No players data in response');
-                    dispatch(setTeamPlayers([]));  // Use dispatch instead of setTeamPlayers
+                    dispatch(setTeamPlayers([]));
                     setMainPlayers([]);
                     return;
                 }
 
-                // Correctly handle the nested players array
                 const playersData = response.data.players.players || [];
                 const mainPlayersIds = response.data.players.main_players || [];
 
-                // Ensure we have an array to work with
                 const players = Array.isArray(playersData) ? playersData : [];
 
                 const formattedPlayers = players.map(player => {
@@ -192,9 +187,7 @@ const AddPlayerPage = () => {
         try {
             const response = await axiosInstance.get('/admin/players/available');
             if (response.data.success) {
-                // Check if players data exists in the response
                 if (!response.data.players) {
-                    // console.error('No available players data in response');
                     setAvailablePlayers([]);
                     return;
                 }
@@ -218,7 +211,6 @@ const AddPlayerPage = () => {
                 setAvailablePlayers([]);
             }
         } catch (error) {
-            // console.error('Fetch available players error:', error.response?.data || error.message || error);
             toast.error('Failed to fetch available players');
             setAvailablePlayers([]);
         } finally {
@@ -281,7 +273,6 @@ const AddPlayerPage = () => {
             });
         }
     };
-    console.log("players", teamPlayers);
 
     // Toggle main player status
     const toggleMainPlayer = async (playerId, isCurrentlyMain) => {
@@ -592,38 +583,47 @@ const AddPlayerPage = () => {
                                         </TableCell>
 
                                         <TableCell>
-                                            <Button
-                                                variant="contained"
-                                                color={player.isMain ? "warning" : "success"}
-                                                size="small"
-                                                onClick={() => toggleMainPlayer(player.id, player.isMain)}
-                                                sx={{ mr: 1, mb: { xs: 1, md: 0 } }}
-                                                style={{ display: `${player.isMain ? 'none' : ''}` }}
-                                            >
-                                                {"Add to Main"}
-                                            </Button>
+                                            {!player.isMain && (
+                                                <Tooltip title="Add to Main">
+                                                    <IconButton
+                                                        color="success"
+                                                        size="small"
+                                                        onClick={() => toggleMainPlayer(player.id, player.isMain)}
+                                                        sx={{ mr: 1, mb: { xs: 1, md: 0 } }}
+                                                    >
+                                                        <AddIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
 
-                                            <Button
-                                                variant="contained"
-                                                color="info"
-                                                size="small"
-                                                onClick={() => handleOpenRoleDialog(player)}
-                                                disabled={!player.isMain}
-                                                sx={{ mr: 1, mb: { xs: 1, md: 0 } }}
-                                            >
-                                                Change Role
-                                            </Button>
+                                            <Tooltip title="Change Role">
+                                                <IconButton
+                                                    color="info"
+                                                    size="small"
+                                                    onClick={() => handleOpenRoleDialog(player)}
+                                                    disabled={!player.isMain}
+                                                    sx={{ mr: 1, mb: { xs: 1, md: 0 } }}
+                                                >
+                                                    <SwapHorizontalCircleRounded />
+                                                </IconButton>
+                                            </Tooltip>
 
-                                            <Button
-                                                variant="outlined"
-                                                color="error"
-                                                size="small"
-                                                onClick={() => removePlayers(player.id)}
-                                                disabled={removedPlayerId === player.id}
-                                                sx={{ mt: '10px' }}
-                                            >
-                                                {removedPlayerId === player.id ? 'Removing...' : 'Remove From The Team'}
-                                            </Button>
+                                            <Tooltip title={removedPlayerId === player.id ? "Removing Player..." : "Remove Player"}>
+                                                <IconButton
+                                                    color="error"
+                                                    size="small"
+                                                    onClick={() => removePlayers(player.id)}
+                                                    disabled={removedPlayerId === player.id}
+                                                    sx={{ mt: '0px' }}
+                                                >
+                                                    {removedPlayerId === player.id ? (
+                                                        <span style={{ fontSize: '0.75rem' }}>⏳</span> // or a small loading icon
+                                                    ) : (
+                                                        <DeleteIcon />
+                                                    )}
+                                                </IconButton>
+                                            </Tooltip>
+
                                         </TableCell>
                                     </TableRow>
                                 ))

@@ -30,8 +30,11 @@ import Loader from '../../components/Loader';
 const MatchManagement = () => {
   const [searchParams] = useSearchParams();
   const tournamentId = searchParams.get('tournamentId');
+  const [tournaments] = useState([]);
   const [matches, setMatches] = useState([]);
+  const [tournamentDetails, setTournamentDetails] = useState({});
   const [teams, setTeams] = useState([]);
+  const [statusFilter] = useState('all');
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,6 +45,19 @@ const MatchManagement = () => {
   });
 
   useEffect(() => {
+    const fetchTournamentDetails = async () => {
+      try {
+        setLoading(true);
+        const res = await axiosInstance.get(`/admin/tournament/${tournamentId}`);
+        setTournamentDetails(res.data.tournaments);
+      } catch (err) {
+        console.error('Error fetching tournament details:', err.response?.data || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTournamentDetails();
     fetchMatches();
     fetchTeams();
   }, [tournamentId]);
@@ -50,7 +66,6 @@ const MatchManagement = () => {
     try {
       const res = await axiosInstance.get(`/admin/tournament/matches/${tournamentId}`)
       if (res.data.success)
-        console.log(res.data)
       setMatches(res.data?.matches);
     } catch (err) {
       toast.error('Failed to fetch matches');
@@ -79,12 +94,15 @@ const MatchManagement = () => {
       if (res.data.success) {
         await fetchMatches();
       }
-      // setMatches(prev => prev.filter(match => match._id !== matchId));
       toast.success('Match deleted');
     } catch (err) {
       toast.error('Failed to delete match');
     }
   }
+  const filteredTournaments = tournaments.filter((tournament) => {
+    if (statusFilter === 'all') return true;
+    return tournament.status.toLowerCase() === statusFilter;
+  });
 
   const handleCreateMatch = async () => {
     if (formData.team1Id === formData.team2Id) {
@@ -111,7 +129,7 @@ const MatchManagement = () => {
   return (
     <Container sx={{ py: 4 }}>
       <Typography variant="h5" sx={{ mb: 3, fontWeight: '600', textAlign: 'center' }}>
-        Match Management
+        {tournamentDetails?.name ? `${tournamentDetails.name} Match Management` : "Match Management"}
       </Typography>
 
       <Button variant="contained" sx={{ mb: 2 }} onClick={() => setOpenDialog(true)}>
@@ -126,6 +144,7 @@ const MatchManagement = () => {
               <TableCell>Team A</TableCell>
               <TableCell>Team B</TableCell>
               <TableCell>Date</TableCell>
+              <TableCell>Status</TableCell>
               <TableCell>Venue</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
@@ -137,6 +156,7 @@ const MatchManagement = () => {
                 <TableCell>{match.Team1.name}</TableCell>
                 <TableCell>{match.Team2.name}</TableCell>
                 <TableCell>{new Date(match.match_time).toLocaleString()}</TableCell>
+                <TableCell>{match.status}</TableCell>
                 <TableCell>{match.location}</TableCell>
                 <TableCell>
                   {/* Edit/Delete buttons (optional) */}

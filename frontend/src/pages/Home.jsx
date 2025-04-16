@@ -37,7 +37,7 @@ const Home = () => {
       }
     };
 
-    
+
     fetchTournaments();
   }, []);
   const handleEditTournament = (tournamentId) => {
@@ -61,17 +61,17 @@ const Home = () => {
   if (loading) return <Loader />;
 
   return (
-    <Box 
-      sx={{ 
-        bgcolor: 'background.default', 
+    <Box
+      sx={{
+        bgcolor: 'background.default',
         minHeight: '100vh',
         py: { xs: 2, sm: 3, md: 4 }
       }}
     >
       <Container maxWidth="xl">
         <Box sx={{ mb: { xs: 3, md: 5 }, textAlign: 'center' }}>
-          <Typography 
-            variant="h3" 
+          <Typography
+            variant="h3"
             fontWeight={800}
             sx={{
               background: 'linear-gradient(45deg, #1a237e 30%, #0288d1 90%)',
@@ -83,8 +83,8 @@ const Home = () => {
           >
             Cricket Tournaments
           </Typography>
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             color="text.secondary"
             sx={{ fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' } }}
           >
@@ -92,32 +92,32 @@ const Home = () => {
           </Typography>
         </Box>
 
-        <Grid 
-          container 
+        <Grid
+          container
           spacing={{ xs: 2, sm: 2, md: 3 }}
           justifyContent="center"
           alignItems="stretch"
-          sx={{ 
-            px: { xs: 1, sm: 1, md: 0 }, 
+          sx={{
+            px: { xs: 1, sm: 1, md: 0 },
             flexWrap: { md: 'nowrap' },
           }}
         >
           {tournaments.map((tournament) => (
-            <Grid 
-              xs={12} 
-              sm={6} 
-              md={4} 
+            <Grid
+              xs={12}
+              sm={6}
+              md={4}
               key={tournament._id || tournament.id}
-              sx={{ 
+              sx={{
                 display: 'flex',
                 flex: { md: '1 1 0px' },
                 minWidth: 0,
                 width: '100%'
               }}
             >
-              <Card 
+              <Card
                 elevation={4}
-                sx={{ 
+                sx={{
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
@@ -133,18 +133,18 @@ const Home = () => {
                 <Box sx={{ position: 'relative' }}>
                   <CardMedia
                     component="img"
-                    image={tournament.image || 'https://via.placeholder.com/300x200'} // Fallback image
+                    image={tournament.image || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwNP_FUVX1jK_8AGjmrDOFrkeGioIVPEH6-A&s'} // Fallback image
                     alt={tournament.name}
-                    sx={{ 
+                    sx={{
                       width: '100%',
                       height: { xs: 180, sm: 220, md: 240 },
                       objectFit: 'cover',
                     }}
                   />
-                  <Chip 
+                  <Chip
                     label={tournament.status}
                     color={getStatusColor(tournament.status)}
-                    sx={{ 
+                    sx={{
                       position: 'absolute',
                       top: 16,
                       right: 16,
@@ -152,33 +152,33 @@ const Home = () => {
                       px: 1
                     }}
                   />
-                  <Box 
-                    sx={{ 
+                  <Box
+                    sx={{
                       position: 'absolute',
                       bottom: 0,
                       left: 0,
                       right: 0,
                       height: 5,
                       backgroundImage: 'linear-gradient(to right, #1976d2, #64b5f6)',
-                    }} 
+                    }}
                   />
                 </Box>
 
                 <CardContent sx={{ p: { xs: 2, md: 3 }, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                  <Typography 
-                    variant="h5" 
-                    component="h2" 
-                    gutterBottom 
+                  <Typography
+                    variant="h5"
+                    component="h2"
+                    gutterBottom
                     fontWeight={700}
                     sx={{ fontSize: { xs: '1.2rem', sm: '1.3rem', md: '1.5rem' } }}
                   >
                     {tournament.name}
                   </Typography>
-                  <Typography 
-                    variant="body2" 
-                    color="text.secondary" 
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
                     paragraph
-                    sx={{ 
+                    sx={{
                       mb: 2,
                       fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                       minHeight: { xs: 'auto', sm: '40px', md: '50px' },
@@ -189,11 +189,11 @@ const Home = () => {
                       textOverflow: 'ellipsis'
                     }}
                   >
-                    {tournament.description || 'No description available.'}
+                    {tournament.description || 'Lets predict the matches and win prizes!'}
                   </Typography>
-                  
+
                   <Divider sx={{ width: '100%', my: 1.5 }} />
-                  
+
                   <Box sx={{ mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
                       <Schedule sx={{ fontSize: { xs: 18, md: 20 }, color: 'primary.main' }} />
@@ -219,11 +219,11 @@ const Home = () => {
                   <Divider sx={{ width: '100%', my: 1.5 }} />
 
                   <Box sx={{ mt: 'auto' }}>
-                    <Button 
+                    <Button
                       variant="contained"
                       fullWidth
                       onClick={() => handleEditTournament(tournament.tournament_id)}
-                      sx={{ 
+                      sx={{
                         borderRadius: { xs: 1.5, md: 2 },
                         py: { xs: 0.75, md: 1 },
                         textTransform: 'none',

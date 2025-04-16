@@ -187,6 +187,7 @@ const CoinManagementPage = () => {
                                 label="Coin Amount"
                                 type="number"
                                 variant="outlined"
+                                onWheel={(e) => e.target.blur()}
                             />
                         </Grid>
                         <Grid size={{ xs: 12, sm: 6 }}>

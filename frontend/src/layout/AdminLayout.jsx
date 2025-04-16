@@ -76,12 +76,13 @@ const SideBar = ({ w = '100%', onClose }) => {
         justifyContent: 'space-between',
         gap: { xs: 1, md: 2 } 
       }}>
-        <Box
+        <Box onClick={() => window.open('/admin/dashboard', '_self')}
           sx={{
             display: 'flex',
             alignItems: 'center',
             gap: { xs: 0.5, md: 1 },
             padding:{md: '0.7rem'},
+            cursor: 'pointer',
             '&:hover': { '& .logo-icon': { transform: 'rotate(20deg)' } },
           }}
         >

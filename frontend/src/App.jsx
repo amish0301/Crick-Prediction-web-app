@@ -5,15 +5,12 @@ import Profile from './components/Profile.jsx';
 import { CustomThemeProvider } from './context/ThemeContext';
 import AdminLayout from './layout/AdminLayout.jsx';
 import AppLayout from './layout/AppLayout.jsx';
-import { AdminLogin, AdminDashboard, PlayerManagement, TeamManagement, TournamentManagement, TournamentTeams, AddPlayerPage } from './pages/admin/index.admin.js';
+import { AdminLogin, AdminDashboard, PlayerManagement, TeamManagement, TournamentManagement, TournamentTeams, AddPlayerPage, MatchManagement, UserManagement, CoinManagementPage } from './pages/admin/index.admin.js';
 import EmailVerifyCallback from './pages/EmailVerifyCallback.jsx';
 import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
 import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
 import AuthWrapper from './utils/AuthWrapper.jsx';
 import AdminWrapper from './utils/AdminWrapper.jsx';
-import CoinManagementPage from './pages/admin/CoinManagement.jsx';
-import MatchManagement from './pages/admin/Matches.jsx';
-import UserManagement from './pages/admin/Users.jsx';
 
 
 

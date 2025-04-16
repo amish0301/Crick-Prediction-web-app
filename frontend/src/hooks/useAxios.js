@@ -66,7 +66,7 @@ axiosInstance.interceptors.response.use(
         );
         const newAccessToken = response.data.accessToken;
         if (newAccessToken) {
-          store.dispatch(setToken({ accessToken: newAccessToken }));  // Updated in redux store
+          store.dispatch(setToken({ accessToken: newAccessToken, refreshToken: store.getState().user.refreshToken  }));  // Updated in redux store
           originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
           tokenManager.onRefreshed(newAccessToken);
           return axiosInstance(originalRequest);

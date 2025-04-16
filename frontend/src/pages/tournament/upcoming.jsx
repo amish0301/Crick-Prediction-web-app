@@ -222,7 +222,7 @@ const Upcoming = () => {
 
   // Prepare teamSquads and teamFlags dynamically
   const teamSquads = assignedTeams.reduce((acc, team) => {
-    acc[team.name] = team.teamPlayers || [];
+    acc[team.name] = team.teamPlayers || ['Virat Kohli'];
     return acc;
   }, {});
 

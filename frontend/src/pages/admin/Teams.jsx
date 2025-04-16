@@ -51,7 +51,6 @@ const TeamManagement = () => {
           playerCount: team.total_players || 0
         }));
         setTeams(fetchedTeams);
-        console.log(response.data);
       } else {
         throw new Error('Invalid response format');
       }

@@ -70,7 +70,6 @@ const TournamentTeams = () => {
       try {
         setLoading(true);
         const res = await axiosInstance.get(`/admin/tournament/${tournamentId}`);
-        console.log("Fetched Tournament:", res.data.tournaments);
         setTournamentDetails(res.data.tournaments);
       } catch (err) {
         console.error('Error fetching tournament details:', err.response?.data || err.message);
