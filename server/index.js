@@ -29,7 +29,7 @@ connectDB();
 
 // WEB SOCKET - CONFIG
 const server = http.createServer(app);
-const io = new Server(server, corsOption);
+const io = new Server(server, { cors: corsOption });
 
 io.on("connection", (socket) => {
   console.log("New user connected", socket.id);
@@ -37,18 +37,25 @@ io.on("connection", (socket) => {
   socket.on(JOIN_ROOM, async (roomName, userId) => {
     // first join the room
     socket.join(roomName);
-
+    console.log("enteerd",userId);
+    
     // store in redis
-    await redisClient.sAdd(`room_${roomName}`, socket.id);
+    await redisClient.sadd(`room_${roomName}`, socket.id);
     await redisClient.set(`${socket.id}`, userId);
     console.log(`${socket.id} joined ${roomName}`);
+  });
+
+  socket.on("MAKE_PREDICTION",(data)=>{
+    console.log(data)
+    const {matchId,userId,prediction} = data
+    console.log(matchId,userId,prediction);
   });
 
   socket.on("disconnect", async () => {
     const roomName = await redisClient.get(`socket_${socket.id}`);
 
     if (roomName) {
-      await redisClient.sRem(`room_${roomName}`, socket.id); // remove from room
+      await redisClient.srem(`room_${roomName}`, socket.id); // remove from room
       await redisClient.del(`${socket.id}`); // remove user
       console.log("user", socket.id, " disconnected");
     }

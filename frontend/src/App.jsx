@@ -11,6 +11,7 @@ import GoogleOAuthCallback from './pages/GoogleOAuthCallback.jsx';
 import { About, Completed, Contact, Dashboard, Home, Live, Login, Signup, Upcoming } from './pages/index.js';
 import AuthWrapper from './utils/AuthWrapper.jsx';
 import AdminWrapper from './utils/AdminWrapper.jsx';
+import Prediction from './pages/Prediction.jsx';
 
 
 
@@ -30,9 +31,7 @@ function App() {
 
           {/* Tournament routes */}
           <Route path='/tournament/team' element={<Upcoming />} />
-          <Route path="/tournament/live" element={<Live />} />
-          {/* <Route path="tournament/upcoming" element={<Upcoming />} /> */}
-          <Route path="/tournament/completed" element={<Completed />} />
+          <Route path='/predict/' element={<Prediction />} />
         </Route>
 
         {/* Admin Routes - First declare the login route outside of AdminLayout */}

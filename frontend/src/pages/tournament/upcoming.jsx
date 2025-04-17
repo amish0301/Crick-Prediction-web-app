@@ -20,7 +20,6 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import axiosInstance from "../../hooks/useAxios";
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
-import { setTeamPlayers, setMainPlayers } from '../../store/slices/admin';
 import { useDispatch, useSelector } from 'react-redux'
 
 const getRoleIcon = (role) => {
@@ -40,12 +39,13 @@ const Upcoming = () => {
   const [matches, setMatches] = useState([]);
   const [tournamentDetails, setTournamentDetails] = useState({});
   const navigate = useNavigate();
-  const { teamPlayers, mainPlayers } = useSelector(state => state?.admin);
+  const { user } = useSelector((state) => state.user);
   const [tabValue, setTabValue] = useState("upcoming");
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
-  
+  const userId = user.id
+
   const [formData, setFormData] = useState({
     team1Id: '',
     team2Id: '',
@@ -110,52 +110,6 @@ const Upcoming = () => {
         toast.error('Failed to fetch assigned teams');
       }
     };
-
-
-    const fetchTeamPlayers = async () => {
-      try {
-          const response = await axiosInstance.get(`/admin/team/${teamId}?isPopulate=true`);
-
-          if (response.data.success) {
-              // Check if players data exists in the response
-              if (!response.data.players) {
-                  console.error('No players data in response');
-                  dispatch(setTeamPlayers([]));  // Use dispatch instead of setTeamPlayers
-                  setMainPlayers([]);
-                  return;
-              }
-
-              // Correctly handle the nested players array
-              const playersData = response.data.players.players || [];
-              const mainPlayersIds = response.data.players.main_players || [];
-
-              // Ensure we have an array to work with
-              const players = Array.isArray(playersData) ? playersData : [];
-
-              const formattedPlayers = players.map(player => {
-                  const role = player.TeamPlayers?.role?.toUpperCase() || 'PLAYER';
-
-                  return {
-                      id: player.player_id,
-                      name: player.name || 'Unnamed',
-                      age: player.age || 'N/A',
-                      position: player.position || 'N/A',
-                      role,
-                      isCaptain: role === 'CAPTAIN',
-                      isMain: role === 'MAIN' || role === 'CAPTAIN'  // ✅ Treat CAPTAIN as MAIN also
-                  };
-              });
-
-              // Dispatch the array as a single argument, not spread
-              dispatch(setTeamPlayers(formattedPlayers));
-              dispatch(setMainPlayers(formattedPlayers.filter(player => player.isMain)));
-          }
-      } catch (error) {
-          console.error('Fetch team players error:', error);
-          dispatch(setTeamPlayers([]));  // Use dispatch in error case too
-          setMainPlayers([]);
-      }
-  };
 
     const fetchMatches = async () => {
       try {
@@ -246,7 +200,7 @@ const Upcoming = () => {
     return team?.name || "Unknown Team";
   };
 
-  
+
   // Format date function
   const formatDate = (dateString) => {
     if (!dateString) return "Date not available";
@@ -286,9 +240,26 @@ const Upcoming = () => {
             </Typography>
 
             {isLive ? (
-              <Typography variant="body2" color="error" sx={{ mb: 2, fontWeight: "bold" }}>
-                Live Now 🔴
-              </Typography>
+              <>
+                <Typography variant="body2" color="error" sx={{ mb: 2, fontWeight: "bold" }}>
+                  Live Now 🔴
+                </Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  sx={{ mt: 1, mb: 2 }}
+                  onClick={() => {
+                    if (userId) {
+                      navigate(`/predict?matchId=${match.match_id}&userId=${userId}`)
+                    } else {
+                      toast.error("User ID not found. Please log in.");
+                    }
+                  }}
+                  fullWidth
+                >
+                  Let's Predict
+                </Button>
+              </>
             ) : (
               <>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -394,19 +365,19 @@ const Upcoming = () => {
       {/* Match Cards based on selected tab */}
       <Grid container spacing={2} justifyContent="center">
         {tabValue === "live" && (
-          liveMatches.length > 0 
+          liveMatches.length > 0
             ? liveMatches.map(match => renderMatchCard(match))
             : renderNoMatchesMessage("No live matches at the moment")
         )}
 
         {tabValue === "upcoming" && (
-          upcomingMatches.length > 0 
+          upcomingMatches.length > 0
             ? upcomingMatches.map(match => renderMatchCard(match))
             : renderNoMatchesMessage("No upcoming matches found for this tournament")
         )}
 
         {tabValue === "completed" && (
-          completedMatches.length > 0 
+          completedMatches.length > 0
             ? completedMatches.map(match => renderMatchCard(match))
             : renderNoMatchesMessage("No completed matches found for this tournament")
         )}
