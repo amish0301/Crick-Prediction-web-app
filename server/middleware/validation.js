@@ -132,7 +132,7 @@ const createTournamentValidation = () =>
       endDate: z.preprocess((arg) => new Date(arg), z.date()),
       location: z.string().min(1, "Tournament location is required"),
       tournamentType: z.enum(["T20", "ODI", "TEST"], "Invalid tournament type"),
-      totalTeams: z.number().int().positive("Invalid number of teams"),
+      totalTeams: z.coerce.number("Invalid number of teams"),
       status: z
         .enum(["scheduled", "completed", "upcoming"], "Invalid status")
         .optional(),

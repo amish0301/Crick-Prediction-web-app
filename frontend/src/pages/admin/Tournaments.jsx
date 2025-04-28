@@ -24,7 +24,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import React, { useState, useEffect } from 'react';
 import { styled } from '@mui/material';
-import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Image as ImageIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import axiosInstance from '../../hooks/useAxios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -59,6 +59,8 @@ const TournamentManagement = () => {
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all');
   const navigate = useNavigate();
+  const [tlogo, settlogo] = useState(null);
+
   const tournamentTypes = ['T20', 'ODI', 'TEST'];
 
   useEffect(() => {
@@ -78,6 +80,13 @@ const TournamentManagement = () => {
     fetchTournaments();
   }, []);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      settlogo(file);
+    }
+  };
+
   if (loading) return <Loader />;
 
   const handleAddTournament = async (e) => {
@@ -89,16 +98,17 @@ const TournamentManagement = () => {
     }
 
     try {
-      const newTournament = {
-        name: tournamentName,
-        startDate,
-        endDate,
-        tournamentType,
-        totalTeams: parseInt(totalTeams),
-        location,
-      };
+      const formData = new FormData();
+      formData.append("name", tournamentName);
+      formData.append("logo", tlogo);
+      formData.append("startDate", startDate);
+      formData.append("endDate", endDate);
+      formData.append("tournamentType", tournamentType);
+      formData.append("totalTeams", parseInt(totalTeams));
+      formData.append("location", location);
 
-      const response = await axiosInstance.post('/admin/tournament', newTournament);
+
+      const response = await axiosInstance.post('/admin/tournament', formData);
       setTournaments((prevTournaments) => [...prevTournaments, response.data.tournament]);
       toast.success('Tournament created successfully');
 
@@ -140,6 +150,10 @@ const TournamentManagement = () => {
   const filteredTournaments = tournaments.filter((tournament) => {
     if (statusFilter === 'all') return true;
     return tournament.status.toLowerCase() === statusFilter;
+  });
+
+  const FileInput = styled('input')({
+    display: 'none',
   });
 
   return (
@@ -298,6 +312,37 @@ const TournamentManagement = () => {
                 ))}
               </Select>
             </FormControl>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <FileInput
+                type="file"
+                accept="image/*"
+                id="team-logo-upload"
+                onChange={handleFileChange}
+              />
+              <label htmlFor="team-logo-upload">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  startIcon={<ImageIcon />}
+                  sx={{
+                    borderRadius: '8px',
+                    borderColor: '#286675',
+                    color: '#286675',
+                    '&:hover': {
+                      borderColor: '#1e4d5a',
+                      bgcolor: '#f0f7f9',
+                    },
+                  }}
+                >
+                  Upload Logo*
+                </Button>
+              </label>
+              {tlogo && (
+                <Typography variant="body2" color="text.secondary">
+                  {tlogo.name}
+                </Typography>
+              )}
+            </Stack>
             <TextField
               label="Start Date"
               type="date"

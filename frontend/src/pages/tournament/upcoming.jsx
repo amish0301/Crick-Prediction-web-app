@@ -171,6 +171,7 @@ const Upcoming = () => {
 
   // Filter matches based on their status
   const liveMatches = matches.filter(match => match.isLive);
+  // console.log("LiveMatches", liveMatches);
   const upcomingMatches = matches.filter(match => !match.isLive);
   const completedMatches = []; // For future implementation
 
@@ -179,6 +180,12 @@ const Upcoming = () => {
     acc[team.name] = team.teamPlayers || ['Virat Kohli'];
     return acc;
   }, {});
+
+  useEffect(() => {
+    if(!liveMatches.length) return;
+
+    // socket emit
+  }, [liveMatches])
 
   const teamFlags = assignedTeams.reduce((acc, team) => {
     acc[team.name] = team.logo || "https://flagcdn.com/w40/xx.png";

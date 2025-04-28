@@ -23,7 +23,6 @@ Thoughts:
 // Store Data:
 1. roomName -> {socketIds}
 2. socketId -> userId
-3. 
 
 SOCKET EVENTS
 1. Join User to room (match_${match_id})

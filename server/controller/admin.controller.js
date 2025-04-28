@@ -1,4 +1,4 @@
-const { Op, where } = require("sequelize");
+const { Op } = require("sequelize");
 const db = require("../models");
 const ApiError = require("../utils/ApiError");
 const TryCatch = require("../utils/TryCatch");
@@ -8,6 +8,7 @@ const {
   setDataFromCache,
   removeDataFromCache,
 } = require("../utils/redis-getter-setter");
+const { TOGGLE_MATCH_STATUS } = require("../constant/events");
 
 const adminRegister = TryCatch(async (req, res, next) => {
   const { email, adminKey } = req.body;
@@ -362,7 +363,7 @@ const assignPlayerToTeam = TryCatch(async (req, res, next) => {
       {
         main_players: db.Sequelize.fn(
           "array_remove",
-          team.main_players,
+          db.Sequelize.literal("COALESCE(main_players, ARRAY[]::INTEGER[])"),
           playerId
         ),
       },
@@ -836,6 +837,62 @@ const updateMatchInfo = TryCatch(async (req, res, next) => {
     .json({ success: true, message: `Match Updated Successfully!` });
 });
 
+const toggleMatchStatus = async (socket, payload) => {
+  try {
+    // extract matchId and newStatus to be toggle from payload
+    let matchesData = payload;
+
+    // testing purpose only
+    if (typeof matchesData === "string") {
+      matchesData = JSON.parse(matchesData);
+    }
+
+    if (!Array.isArray(matchesData)) {
+      return socket.emit(TOGGLE_MATCH_STATUS, {
+        success: false,
+        message: "Invalid Payload, it should be an array",
+      });
+    }
+
+    // for cache invalidation
+    const tournamentIdsSet = new Set();
+
+    // update the state in db corresponding to
+    for (const match of matchesData) {
+      const { matchId, newStatus } = match;
+      const matchEntry = await db.Match.findByPk(matchId);
+      if (!matchEntry) throw new Error("One of the Match Not Found");
+
+      const tournamentId = matchEntry.tournament_id;
+      tournamentIdsSet.add(tournamentId);
+
+      await db.Match.update(
+        {
+          status: newStatus,
+        },
+        { where: { match_id: matchId } }
+      );
+    }
+
+    // invalidate affected cache
+    for (const tournament_id of tournamentIdsSet) {
+      const cachedMatches = await getDataFromCache(
+        `Matches_Tournament_${tournament_id}`
+      );
+      if (cachedMatches)
+        removeDataFromCache(`Matches_Tournament_${tournament_id}`);
+    }
+
+    socket.emit(TOGGLE_MATCH_STATUS, {
+      success: true,
+      message: "Matches Status Upadted Successfully",
+      updatedMatchesCount: matchesData.length,
+    });
+  } catch (error) {
+    throw new Error("Error in toggling match status", error);
+  }
+};
+
 const deleteMatch = TryCatch(async (req, res, next) => {
   const { matchId } = req.params;
 
@@ -896,4 +953,5 @@ module.exports = {
   updateMatchInfo,
   deleteMatch,
   getMatchesFilterByStatus,
+  toggleMatchStatus,
 };

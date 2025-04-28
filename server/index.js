@@ -15,7 +15,8 @@ const adminRoutes = require("./routes/admin.route");
 const connectDB = require("./db/connection.js");
 const cookieParser = require("cookie-parser");
 const { Server } = require("socket.io");
-const { JOIN_ROOM } = require("./constant/events.js");
+const { JOIN_ROOM, TOGGLE_MATCH_STATUS } = require("./constant/events.js");
+const { toggleMatchStatus } = require("./controller/admin.controller.js");
 
 // express app init
 const app = express();
@@ -34,30 +35,35 @@ const io = new Server(server, { cors: corsOption });
 io.on("connection", (socket) => {
   console.log("New user connected", socket.id);
 
-  socket.on(JOIN_ROOM, async (roomName, userId) => {
-    // first join the room
+  socket.on(JOIN_ROOM, async (payload) => {
+    // below is for testing purpose only
+    if(typeof payload === "string") {
+      const parsedPayload = JSON.parse(payload);
+      payload = parsedPayload
+    }
+    
+    const { roomName, userId } = payload;
     socket.join(roomName);
     console.log("enteerd",userId);
     
     // store in redis
     await redisClient.sadd(`room_${roomName}`, socket.id);
+    await redisClient.set(`socket_${socket.id}` , `room_${roomName}`);
     await redisClient.set(`${socket.id}`, userId);
-    console.log(`${socket.id} joined ${roomName}`);
+    socket.emit(JOIN_ROOM, `You have joined ${roomName}`);
   });
 
-  socket.on("MAKE_PREDICTION",(data)=>{
-    console.log(data)
-    const {matchId,userId,prediction} = data
-    console.log(matchId,userId,prediction);
-  });
+  socket.on(TOGGLE_MATCH_STATUS, (payload) =>
+    toggleMatchStatus(socket, payload)
+  ); // func. accept: Array of objects with {matchId, newStatus}
 
   socket.on("disconnect", async () => {
-    const roomName = await redisClient.get(`socket_${socket.id}`);
+    const roomName = await redisClient.get(`socket_${socket.id}`);  // find room from socket id
 
     if (roomName) {
-      await redisClient.srem(`room_${roomName}`, socket.id); // remove from room
+      await redisClient.sRem(`room_${roomName}`, socket.id); // remove from room
       await redisClient.del(`${socket.id}`); // remove user
-      console.log("user", socket.id, " disconnected");
+      console.log("user", socket.id, "disconnected");
     }
   });
 });

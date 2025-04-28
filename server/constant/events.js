@@ -1,5 +1,7 @@
 const JOIN_ROOM = "JOIN_ROOM";
+const TOGGLE_MATCH_STATUS = "TOGGLE_MATCH_STATUS";
 
 module.exports = {
-    JOIN_ROOM
+    JOIN_ROOM,
+    TOGGLE_MATCH_STATUS,
 }
